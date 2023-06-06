@@ -6,14 +6,14 @@ import tkinter as tk
 xCoords = np.linspace(0, 10, 1000)
 
 dataSelection = {
-        "linear": False,
+        "totalMagenticField": False,
         "quadratic": False,
         "negative cubic": False
     }
 
 window = tk.Tk()
 
-cbA = tk.BooleanVar()
+checkboxVar_totalB = tk.BooleanVar()
 cbB = tk.BooleanVar()
 cbC = tk.BooleanVar()
 
@@ -24,23 +24,27 @@ def main():
     plotButton = tk.Button(window, text="PLOT", command=PlotData)
     plotButton.pack() 
 
-    checkBoxA = tk.Checkbutton(window, text="Linear", variable=cbA, onvalue=True, offvalue=False, command=ChangeSelection)
+    dataSelectionFrame = tk.LabelFrame(window, text="Data Selection")
+
+    checkBoxA = tk.Checkbutton(dataSelectionFrame, text="Total Magnetic Field Strength |B|", variable=checkboxVar_totalB, onvalue=True, offvalue=False, command=ChangeSelection)
     checkBoxA.pack()
 
-    checkBoxB = tk.Checkbutton(window, text="Quadratic", variable=cbB, onvalue=True, offvalue=False, command=ChangeSelection)
+    checkBoxB = tk.Checkbutton(dataSelectionFrame, text="Quadratic", variable=cbB, onvalue=True, offvalue=False, command=ChangeSelection)
     checkBoxB.pack()
 
-    checkBoxC = tk.Checkbutton(window, text="Negative Cubic", variable=cbC, onvalue=True, offvalue=False, command=ChangeSelection)
+    checkBoxC = tk.Checkbutton(dataSelectionFrame, text="Negative Cubic", variable=cbC, onvalue=True, offvalue=False, command=ChangeSelection)
     checkBoxC.pack()
+
+    dataSelectionFrame.pack()
 
     window.mainloop()
 
 def ChangeSelection():
 
-    if cbA.get() == True:
-        dataSelection["linear"] = True
+    if checkboxVar_totalB.get() == True:
+        dataSelection["totalMagenticField"] = True
     else:
-        dataSelection["linear"] = False
+        dataSelection["totalMagenticField"] = False
 
     if cbB.get() == True:
         dataSelection["quadratic"] = True
