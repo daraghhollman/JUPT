@@ -23,7 +23,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False):
     ax.plot(time, magTotal, color="black", label="$|B|$")
 
     ax.legend(loc="upper center", ncol=4, fancybox=True, shadow=True)
-    ax.grid()
+    # ax.grid()
 
     unit = junoFGM.unit
     
@@ -32,4 +32,6 @@ def PlotData(ax, timeFrame, plotEphemeris=False):
     if not plotEphemeris:
         ax.set_xlabel("Date and Time")
     else:
-        junoEphemeris.PlotEphemeris(ax)
+        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame)
+        ax.set_xlabel("Ephemeris")
+    # print(ax.xaxis.get_majorticklocs())

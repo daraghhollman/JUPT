@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import junoMAG
 import junoEphemeris
 
-timeFrame = ["2018-01-01T00:00:00", "2018-01-06T00:00:00"]
+timeFrame = ["2018-01-01T00:00:00", "2018-01-01T00:50:00"]
 
 plotMag = True
 
