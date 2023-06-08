@@ -10,8 +10,7 @@ def format_xlabel(time, x, y, z):
 
         if int_index >= len(time):
             return ""
-        t = time[int_index].strftime("%H:%M")
-        return f"{str(t)}"#\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}"
+        return f"{str(time)}"#\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}"
 
 def PlotEphemeris(ax, time, timeFrame):
     # Takes a subplot axis as input
@@ -35,10 +34,12 @@ def PlotEphemeris(ax, time, timeFrame):
     print("Calculated tick spread")
 
     print(type(time[0]))
-    timeTransformed = datetime64_to_datetime(time)
+    timeTransformed = [np.datetime_as_string(t, unit="D") for t in time]
+    # timeTransformed = datetime64_to_datetime(time)
     print(type(timeTransformed[0]))
+    print(timeTransformed[0])
 
-    print(timeTransformed[0].strftime("%H:%M"))
+    # print(timeTransformed[0].strftime("%H:%M"))
 
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, xCoords, zCoords)))
 
