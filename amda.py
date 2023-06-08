@@ -1,4 +1,4 @@
-import tkinter as tk
+# import tkinter as tk
 import matplotlib.pyplot as plt
 
 # Importing plotting modules
@@ -8,8 +8,8 @@ import junoWAVES
 
 timeFrame = ["2022-01-01T00:10:00", "2022-01-01T01:00:00"]
 
-plotMag = False
-plotWaves = True
+plotMag = True
+plotWaves = False
 
 numSubPlots = 2
 
@@ -19,7 +19,7 @@ positionIndex = 1
 
 if plotMag:
     ax = fig.add_subplot(numSubPlots, 1, positionIndex)
-    junoMAG.PlotData(ax, timeFrame, plotEphemeris=False)
+    junoMAG.PlotData(ax, timeFrame, plotEphemeris=True)
     positionIndex += 1
 
 if plotWaves:

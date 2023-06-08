@@ -16,6 +16,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False):
     magTotal = [np.sqrt(x**2 + y**2 + z**2) for x,y,z in zip(magX, magY, magZ)]
 
     time = junoFGM.time
+    print(type(time[0]))
     
     ax.plot(time, magX, color="red", label="$B_x$")
     ax.plot(time, magY, color="green", label="$B_y$")
@@ -27,7 +28,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False):
 
     unit = junoFGM.unit
     
-    ax.set_ylabel(f"Magnetic Field ({unit})")
+    ax.set_ylabel(f"Magnetic Field Strength ({unit})")
 
     if not plotEphemeris:
         ax.set_xlabel("Date and Time")

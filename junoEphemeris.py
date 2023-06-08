@@ -1,6 +1,7 @@
 import speasy as spz
 import numpy as np
 import matplotlib.ticker as ticker
+import datetime
 
 # Editted code from corentin
 def format_xlabel(time, x, y, z):
@@ -9,8 +10,9 @@ def format_xlabel(time, x, y, z):
 
         if int_index >= len(time):
             return ""
-        print(f"{time[int_index]}\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}")
-        return f"{time[int_index]}\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}"
+        t = time[int_index]
+        # print(t)
+        return f"{t}"#\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}"
 
 def PlotEphemeris(ax, time, timeFrame):
     # Takes a subplot axis as input
@@ -37,7 +39,10 @@ def PlotEphemeris(ax, time, timeFrame):
 
     print("Calculated tick spread")
 
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(time, xCoords, xCoords, zCoords)))
+    # timeTransformed = datetime.datetime.strptime(time, "%Y%m%D%H%M")
+    timeTransformed = datetime_to_ymd(time)
+
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, xCoords, zCoords)))
 
     print("Setting ticks")
     
@@ -79,6 +84,11 @@ def CalculateTickSpread(timeDelta):
     # major = [el / dayLength_sec for el in major]
 
     return (major, minor)
+
+@np.vectorize
+def datetime_to_ymd(time):
+    # return datetime.datetime.strptime(str(time), "%Y%m%d%H%M")
+    return np.datetime_as_string(time, unit='D')  #time.strftime("%Y%m%d%H%M")
 
 
 def CartesianPosToPolarPos(x, y, z):
