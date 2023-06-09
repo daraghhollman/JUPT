@@ -44,10 +44,15 @@ def PlotEphemeris(ax, time, timeFrame):
     print(timeTransformed[0])
 
     print(timeTransformed[0].strftime("%H:%M"))
-    print(len(timeTransformed), len(xCoords))
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, xCoords, zCoords)))
+
+    xCoordsTransformed, yCoordsTransformed, zCoordsTransformed = CoordLengthsToMatchTime(timeTransformed, [xCoords, yCoords, zCoords])
+
+    print(len(timeTransformed), len(xCoordsTransformed))
+
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoordsTransformed, yCoordsTransformed, zCoordsTransformed)))
 
     print("Setting ticks")
+
     
     # print(f"Ticks Before: {ax.xaxis.get_majorticklocs()}")
 
@@ -55,6 +60,17 @@ def PlotEphemeris(ax, time, timeFrame):
     #ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
     
     return ax
+
+def CoordLengthsToMatchTime(time, coords):
+    newCoordsList = []
+    for direction in coords:
+        newCoordinates = []
+
+        for i in range(1, len(time)+1):
+            newCoordinates.append(direction[int(len(direction)/len(time) * i)-1])
+
+        newCoordsList.append(newCoordinates)
+    return newCoordsList
 
 
 def CalculateTickSpread(timeDelta):
