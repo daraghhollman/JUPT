@@ -32,7 +32,6 @@ def PlotEphemeris(ax, dataTime, timeFrame):
 
     # Ephemerides must be interpolated on the data time table
     ephemerisTimeTransformed = datetime64_to_datetime(ephemerisTime)
-
     dataTimeTransformed = datetime64_to_datetime(dataTime)
 
     dataTime_seconds = [elt.timestamp() for elt in dataTimeTransformed]
@@ -49,22 +48,26 @@ def PlotEphemeris(ax, dataTime, timeFrame):
     # timeTransformed = datestring_to_datetime(time_str)
     timeTransformed = datetime64_to_datetime(dataTime)
    
-    #ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, xCoords, zCoords)))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, yCoords, zCoords)))
  
-    
+
+
     # Following section adapted from Corentin
     timedelta_hours = np.timedelta64(ephemerisTime[-1] - ephemerisTime[0]).astype("timedelta64[h]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
-    # major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
+    print(f"TIMEDELTA; Type: {type(timedelta_hours)}, Value: {timedelta_hours}")
 
-    # print(f"Ticks Before: {ax.xaxis.get_majorticklocs()}")
+    major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
+    # ax.set_xlim((0, major_locator[-1]))
 
-    # ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
-    # ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
+    ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
+    ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
 
     print("Calculated tick spread")
     
     return ax
+
+
+
 
 def datetime64_to_datetime(time):
     timeStr = [np.datetime_as_string(t, unit="s") for t in time]
@@ -84,55 +87,58 @@ def CoordLengthsToMatchTime(time, coords):
 
 def CalculateTickSpread(timeDelta):
     # Adjusted code taken from Corentin, function takes the timedelta plotted in hours.
-    dayLength_sec = 86400 # number of seconds in one day
-    dayLength_hrs = 24 # number of hours in one day
+    dayLength_mins = 1400 # number of minutes in one day
 
     timeDelta = timeDelta.astype("int")
 
     if (timeDelta < 0.5):
         #Plot every 5 mins
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/6./2.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.)
+        major = np.arange(0, dayLength_mins, 5)
+        minor = np.arange(0, dayLength_mins, 1)
     elif (timeDelta >= 0.5 and timeDelta < 1.):
         # Plot every 10 mins
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/6.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.)
+        major = np.arange(0, dayLength_mins, 10)
+        minor = np.arange(0, dayLength_mins, 2)
     elif (timeDelta >= 1. and timeDelta < 2.):
         # Plot every 15 mins
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/4.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.) 
+        major = np.arange(0, dayLength_mins, 15)
+        minor = np.arange(0, dayLength_mins, 5) 
     elif (timeDelta >= 2. and timeDelta < 3.):
         # Plot every 20 mins
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/3.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.) 
+        major = np.arange(0, dayLength_mins, 20)
+        minor = np.arange(0, dayLength_mins, 5) 
     elif (timeDelta >= 3. and timeDelta < 4.):
         # Plot every 30 mins
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/2.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.) 
+        major = np.arange(0, dayLength_mins, 30)
+        minor = np.arange(0, dayLength_mins, 10) 
     elif (timeDelta >= 4. and timeDelta < 8.):
         # Plot every hour
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/1.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/4.) 
+        major = np.arange(0, dayLength_mins, 60)
+        minor = np.arange(0, dayLength_mins, 20) 
     elif (timeDelta >= 8. and timeDelta < 16.):
         # Plot every 2 hours
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/2.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs) 
+        major = np.arange(0, dayLength_mins, 60*2)
+        minor = np.arange(0, dayLength_mins, 30) 
     elif (timeDelta >= 16. and timeDelta < 24.):
         # Plot every 3 hours
-        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/3.)
-        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs) 
+        major = np.arange(0, dayLength_mins, 60*3)
+        minor = np.arange(0, dayLength_mins, 60) 
     elif (timeDelta >= 24. and timeDelta < 48.):
         # Plot every 6 hours
-        major = np.arange(0, dayLength_sec*2, dayLength_sec/dayLength_hrs/6.)
-        minor = np.arange(0, dayLength_sec*2, dayLength_sec/dayLength_hrs) 
+        major = np.arange(0, dayLength_mins*2, 60*6)
+        minor = np.arange(0, dayLength_mins*2, 60*2) 
     elif (timeDelta >= 2*24. and timeDelta < 5*24.):
         # Plot every 12 hours
-        major = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec/2.)
-        minor = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec/8.) 
+        major = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*12)
+        minor = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*3) 
     elif (timeDelta >= 5*24.):
         # Plot every day
-        major = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec)
-        minor = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec/2.) 
+        major = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*24)
+        minor = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*8) 
+
+    print(f"Major ticks every: {(major[1] - major[0])/60} hours, Minor ticks every: {(minor[1] - minor[0])/60} hours")
+    # print(f"Major: {major}")
+    # print(f"Minor: {minor}")
   
     return (major, minor)
 
