@@ -1,63 +1,73 @@
+#−∗− coding : utf−8 −∗−
+
 import speasy as spz
 import numpy as np
 import matplotlib.ticker as ticker
 import datetime
+import pandas
 
 # Editted code from corentin
 def format_xlabel(time, x, y, z):
+    time_length = len(time)
+    str_time = pandas.to_datetime(time).strftime('%H:%M')
     def inner_function(index, pos=None):
-        int_index = int(index)
-        if int_index >= len(time):
-            return "try"
-        return f"{time[int_index].strftime('%H:%M')}\n{x[int_index]:5.2f}\n{y[int_index]:3.2f}\n{z[int_index]:3.2f}"
+        #  np.clip will avoid having to check the value (to see if it's outside the array) 
+        cliped_index = np.clip(int(index + 0.5), 0, time_length - 1)
+        return f"{str_time[cliped_index]}\n{x[cliped_index]:5.2f}\n{y[cliped_index]:3.2f}\n{z[cliped_index]:3.2f}"
     return inner_function
 
 def PlotEphemeris(ax, time, timeFrame):
     # Takes a subplot axis as input
-
     print("Retreiving ephemeris data...")
     # Pulls ephemeris data in x, y, z
     junoEphemeris = spz.amda.get_parameter("juno_eph_orb_jso", timeFrame[0], timeFrame[1])
 
+    time_ephem = junoEphemeris.time
     coords = junoEphemeris.values
     coords = np.transpose(coords)
-
+    
     xCoords = coords[0]
     yCoords = coords[1]
     zCoords = coords[2]
 
-    # Following section adapted from Corentin
-    timedelta_hours = np.timedelta64(time[-1] - time[0]).astype("timedelta64[h]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
+    # Ephemerides must be interpolated on the data time table
+    time_ephem_str = [np.datetime_as_string(t, unit="s") for t in time_ephem]
+    time_ephem_Transformed = datestring_to_datetime(time_ephem_str)
 
-    major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
+    time_data_str = [np.datetime_as_string(t, unit="s") for t in time]
+    time_data_Transformed = datestring_to_datetime(time_data_str)
 
-    print("Calculated tick spread")
+    time_data_sec = [elt.timestamp() for elt in time_data_Transformed]
+    time_ephem_sec = [elt.timestamp() for elt in time_ephem_Transformed]
+    xCoords=np.interp(time_data_sec,time_ephem_sec,xCoords)
+    yCoords=np.interp(time_data_sec,time_ephem_sec,yCoords) 
+    zCoords=np.interp(time_data_sec,time_ephem_sec,zCoords)
 
-    print(type(time[0]))
+    print("Setting ticks")
+
     # to be feed into the format_xlabel function, time array needs to be a datetime.datetime object
     # from numpy.datetime64 --> datetime.datetime, one first needs to transform numpy.datetime64 --> numpy.array(dtype='str'):
     time_str = [np.datetime_as_string(t, unit="s") for t in time]
     # then to datetime
     timeTransformed = datestring_to_datetime(time_str)
-
-    print(type(timeTransformed[0]))
-    print(timeTransformed[0])
-
-    print(timeTransformed[0].strftime("%H:%M"))
-
-    xCoordsTransformed, yCoordsTransformed, zCoordsTransformed = CoordLengthsToMatchTime(timeTransformed, [xCoords, yCoords, zCoords])
-
-    print(len(timeTransformed), len(xCoordsTransformed))
-
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoordsTransformed, yCoordsTransformed, zCoordsTransformed)))
-
-    print("Setting ticks")
-
+   
+    #ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, xCoords, zCoords)))
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, yCoords, zCoords)))
+ 
     
+    # Following section adapted from Corentin
+    timedelta_hours = np.timedelta64(time_ephem[-1] - time_ephem[0]).astype("timedelta64[h]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
+    #major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
+
     # print(f"Ticks Before: {ax.xaxis.get_majorticklocs()}")
 
     #ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
     #ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
+
+    print("Calculated tick spread")
+
+
+
     
     return ax
 
