@@ -10,7 +10,7 @@ def format_xlabel(time, x, y, z):
 
         if int_index >= len(time):
             return ""
-        return f"{str(time)}"#\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}"
+        return f"Hello"#\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}"
 
 def PlotEphemeris(ax, time, timeFrame):
     # Takes a subplot axis as input
@@ -34,8 +34,8 @@ def PlotEphemeris(ax, time, timeFrame):
     print("Calculated tick spread")
 
     print(type(time[0]))
-    timeTransformed = [np.datetime_as_string(t, unit="D") for t in time]
-    # timeTransformed = datetime64_to_datetime(time)
+    # timeTransformed = np.datetime_as_string(time, unit="D")
+    timeTransformed = datetime64_to_datetime(time)
     print(type(timeTransformed[0]))
     print(timeTransformed[0])
 
@@ -68,7 +68,43 @@ def CalculateTickSpread(timeDelta):
         # Plot every 10 mins
         major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/6.)
         minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.)
-        
+    elif (timeDelta >= 1. and timeDelta < 2.):
+        # Plot every 15 mins
+        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/4.)
+        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.) 
+    elif (timeDelta >= 2. and timeDelta < 3.):
+        # Plot every 20 mins
+        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/3.)
+        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.) 
+    elif (timeDelta >= 3. and timeDelta < 4.):
+        # Plot every 30 mins
+        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/2.)
+        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/60.) 
+    elif (timeDelta >= 4. and timeDelta < 8.):
+        # Plot every hour
+        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/1.)
+        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/4.) 
+    elif (timeDelta >= 8. and timeDelta < 16.):
+        # Plot every 2 hours
+        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/2.)
+        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs) 
+    elif (timeDelta >= 16. and timeDelta < 24.):
+        # Plot every 3 hours
+        major = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs/3.)
+        minor = np.arange(0, dayLength_sec, dayLength_sec/dayLength_hrs) 
+    elif (timeDelta >= 24. and timeDelta < 48.):
+        # Plot every 6 hours
+        major = np.arange(0, dayLength_sec*2, dayLength_sec/dayLength_hrs/6.)
+        minor = np.arange(0, dayLength_sec*2, dayLength_sec/dayLength_hrs) 
+    elif (timeDelta >= 2*24. and timeDelta < 5*24.):
+        # Plot every 12 hours
+        major = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec/2.)
+        minor = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec/8.) 
+    elif (timeDelta >= 5*24.):
+        # Plot every day
+        major = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec)
+        minor = np.arange(0, dayLength_sec*(timeDelta/24 + 1), dayLength_sec/2.) 
+  
     return (major, minor)
 
 @np.vectorize
