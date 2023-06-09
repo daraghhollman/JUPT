@@ -7,10 +7,10 @@ import datetime
 def format_xlabel(time, x, y, z):
     def inner_function(index, pos=None):
         int_index = int(index)
-
         if int_index >= len(time):
-            return ""
-        return f"{str(time)}"#\n{x[int_index]}\n{y[int_index]}\n{z[int_index]}"
+            return "try"
+        return f"{time[int_index].strftime('%H:%M')}\n{x[int_index]:5.2f}\n{y[int_index]:3.2f}\n{z[int_index]:3.2f}"
+    return inner_function
 
 def PlotEphemeris(ax, time, timeFrame):
     # Takes a subplot axis as input
@@ -34,21 +34,24 @@ def PlotEphemeris(ax, time, timeFrame):
     print("Calculated tick spread")
 
     print(type(time[0]))
-    timeTransformed = [np.datetime_as_string(t, unit="D") for t in time]
-    # timeTransformed = datetime64_to_datetime(time)
+    # to be feed into the format_xlabel function, time array needs to be a datetime.datetime object
+    # from numpy.datetime64 --> datetime.datetime, one first needs to transform numpy.datetime64 --> numpy.array(dtype='str'):
+    time_str = [np.datetime_as_string(t, unit="s") for t in time]
+    # then to datetime
+    timeTransformed = datestring_to_datetime(time_str)
     print(type(timeTransformed[0]))
     print(timeTransformed[0])
 
-    # print(timeTransformed[0].strftime("%H:%M"))
-
+    print(timeTransformed[0].strftime("%H:%M"))
+    print(len(timeTransformed), len(xCoords))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, xCoords, zCoords)))
 
     print("Setting ticks")
     
     # print(f"Ticks Before: {ax.xaxis.get_majorticklocs()}")
 
-    ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
-    ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
+    #ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
+    #ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
     
     return ax
 
@@ -72,8 +75,9 @@ def CalculateTickSpread(timeDelta):
     return (major, minor)
 
 @np.vectorize
-def datetime64_to_datetime(time):
-    return time.astype(datetime.datetime)
+def datestring_to_datetime(time):
+    #return datetime.datetime.strptime(np.datetime_as_string(time,unit="s"),"%Y-%m-%dT%H:%M:%S")
+    return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")
 
 
 def CartesianPosToPolarPos(x, y, z):
@@ -82,4 +86,5 @@ def CartesianPosToPolarPos(x, y, z):
     phi = np.arctan2(y, x)
 
     return [r, theta, phi]
+
 
