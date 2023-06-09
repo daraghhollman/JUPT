@@ -34,6 +34,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False):
     unit = junoFGM.unit
     
     ax.set_ylabel(f"Magnetic Field Strength ({unit})")
+    ax.margins(0)
 
     if not plotEphemeris:
         dateFormat = mdates.DateFormatter('%H:%M')
