@@ -5,7 +5,7 @@ import datetime
 import pandas
 
 # Editted code from corentin
-def format_xlabel(time, x, y, z):
+def format_xlabel(time, r, long, lat, mlat):
     timeLength = len(time)
     hoursAndMinutes = pandas.to_datetime(time).strftime('%H:%M')
     dayAndMonthAndYear = pandas.to_datetime(time).strftime('%Y-%m-%d')
@@ -13,9 +13,10 @@ def format_xlabel(time, x, y, z):
     def inner_function(index, pos=None):
         #  np.clip will avoid having to check the value (to see if it's outside the array) 
         clipedIndex = np.clip(int(index + 0.5), 0, timeLength - 1)
-        return f"{dayAndMonthAndYear[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}\n{x[clipedIndex]:5.2f}\n{y[clipedIndex]:3.2f}\n{z[clipedIndex]:3.2f}"
+        return f"{dayAndMonthAndYear[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}\n{r[clipedIndex]:5.2f}\n{long[clipedIndex]:5.2f}\n{lat[clipedIndex]:5.2f}\n{mlat[clipedIndex]:5.2f}"
     
     return inner_function
+
 
 def PlotEphemeris(ax, dataTime, timeFrame):
     # Takes a subplot axis as input
@@ -23,24 +24,12 @@ def PlotEphemeris(ax, dataTime, timeFrame):
     # Pulls ephemeris data in x, y, z
     junoEphemeris = spz.amda.get_parameter("juno_eph_orb_jso", timeFrame[0], timeFrame[1])
 
+    distanceValues = PullEphemerisData("juno_jup_r", dataTime, timeFrame)
+    longitudeValues = PullEphemerisData("juno_jup_lon", dataTime, timeFrame)
+    latitudeValues = PullEphemerisData("juno_jup_lat", dataTime, timeFrame)
+    mLatitudeValues = PullEphemerisData("juno_jup_mlat", dataTime, timeFrame)
+
     ephemerisTime = junoEphemeris.time
-    coords = np.transpose(junoEphemeris.values)
-    
-    xCoords = coords[0]
-    yCoords = coords[1]
-    zCoords = coords[2]
-
-    # Ephemerides must be interpolated on the data time table
-    ephemerisTimeTransformed = datetime64_to_datetime(ephemerisTime)
-    dataTimeTransformed = datetime64_to_datetime(dataTime)
-
-    dataTime_seconds = [elt.timestamp() for elt in dataTimeTransformed]
-    ephemerisTime_seconds = [elt.timestamp() for elt in ephemerisTimeTransformed]
-    xCoords=np.interp(dataTime_seconds,ephemerisTime_seconds,xCoords)
-    yCoords=np.interp(dataTime_seconds,ephemerisTime_seconds,yCoords) 
-    zCoords=np.interp(dataTime_seconds,ephemerisTime_seconds,zCoords)
-
-    print("Setting ticks")
 
     # to be feed into the format_xlabel function, time array needs to be a datetime.datetime object
     # from numpy.datetime64 --> datetime.datetime, one first needs to transform numpy.datetime64 --> numpy.array(dtype='str'):
@@ -48,10 +37,10 @@ def PlotEphemeris(ax, dataTime, timeFrame):
     # timeTransformed = datestring_to_datetime(time_str)
     timeTransformed = datetime64_to_datetime(dataTime)
    
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, xCoords, yCoords, zCoords)))
+    print("Setting ticks")
+
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, distanceValues, longitudeValues, latitudeValues, mLatitudeValues)))
  
-
-
     # Following section adapted from Corentin
     timedelta_hours = np.timedelta64(ephemerisTime[-1] - ephemerisTime[0]).astype("timedelta64[h]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
     print(f"TIMEDELTA; Type: {type(timedelta_hours)}, Value: {timedelta_hours}")
@@ -63,9 +52,36 @@ def PlotEphemeris(ax, dataTime, timeFrame):
     ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
 
     print("Calculated tick spread")
-    
+   
+    # Set ephemeris labels
+    labelFontsize = 10
+    labelsPos = [-40, -37]
+    posSpacer = 1
+
+    ax.annotate('R',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-0*labelFontsize), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+    ax.annotate('Lon',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-1*labelFontsize - posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+    ax.annotate('Lat',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-2*labelFontsize - 2*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+    ax.annotate('M Lat',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-3*labelFontsize - 3*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+
     return ax
 
+
+def PullEphemerisData(amdaId, inputTime, timeFrame):
+    spzData = spz.amda.get_parameter(amdaId, timeFrame[0], timeFrame[1])
+
+    data = np.transpose(spzData.values)[0]
+    time = spzData.time
+
+    # Interpolate to match data
+    inputTimeTransformed = datetime64_to_datetime(inputTime)
+    timeTransformed = datetime64_to_datetime(time)
+
+    inputTime_seconds = [el.timestamp() for el in inputTimeTransformed]
+    time_seconds = [el.timestamp() for el in timeTransformed]
+
+    interpolatedData = np.interp(inputTime_seconds, time_seconds, data)
+
+    return interpolatedData
 
 
 
