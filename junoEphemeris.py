@@ -8,12 +8,12 @@ import pandas
 def format_xlabel(time, x, y, z):
     timeLength = len(time)
     hoursAndMinutes = pandas.to_datetime(time).strftime('%H:%M')
-    dayAndMonth = pandas.to_datetime(time).strftime('%d/%m')
+    dayAndMonthAndYear = pandas.to_datetime(time).strftime('%Y-%m-%d')
     
     def inner_function(index, pos=None):
         #  np.clip will avoid having to check the value (to see if it's outside the array) 
         clipedIndex = np.clip(int(index + 0.5), 0, timeLength - 1)
-        return f"{dayAndMonth[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}\n{x[clipedIndex]:5.2f}\n{y[clipedIndex]:3.2f}\n{z[clipedIndex]:3.2f}"
+        return f"{dayAndMonthAndYear[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}\n{x[clipedIndex]:5.2f}\n{y[clipedIndex]:3.2f}\n{z[clipedIndex]:3.2f}"
     
     return inner_function
 
