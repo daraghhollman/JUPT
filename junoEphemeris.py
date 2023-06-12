@@ -5,7 +5,7 @@ import datetime
 import pandas
 
 # Editted code from corentin
-def format_xlabel(time, r, long, lat, mlat):
+def format_xlabel(time, r, lon, lat, mlat):
     timeLength = len(time)
     hoursAndMinutes = pandas.to_datetime(time).strftime('%H:%M')
     dayAndMonthAndYear = pandas.to_datetime(time).strftime('%Y-%m-%d')
@@ -13,7 +13,7 @@ def format_xlabel(time, r, long, lat, mlat):
     def inner_function(index, pos=None):
         #  np.clip will avoid having to check the value (to see if it's outside the array) 
         clipedIndex = np.clip(int(index + 0.5), 0, timeLength - 1)
-        return f"{dayAndMonthAndYear[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}\n{r[clipedIndex]:5.2f}\n{long[clipedIndex]:5.2f}\n{lat[clipedIndex]:5.2f}\n{mlat[clipedIndex]:5.2f}"
+        return f"{dayAndMonthAndYear[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}\n{r[clipedIndex]:5.2f}\n{lon[clipedIndex]:5.2f}\n{lat[clipedIndex]:5.2f}\n{mlat[clipedIndex]:5.2f}"
     
     return inner_function
 
@@ -67,6 +67,7 @@ def PlotEphemeris(ax, dataTime, timeFrame):
 
 
 def PullEphemerisData(amdaId, inputTime, timeFrame):
+    print(f"Retrieving {amdaId}")
     spzData = spz.amda.get_parameter(amdaId, timeFrame[0], timeFrame[1])
 
     data = np.transpose(spzData.values)[0]
@@ -164,11 +165,5 @@ def datestring_to_datetime(time):
     return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")
 
 
-def CartesianPosToPolarPos(x, y, z):
-    r = np.sqrt(x**2 + y**2 + z**2)
-    theta = np.arccos(z / r)
-    phi = np.arctan2(y, x)
-
-    return [r, theta, phi]
 
 

@@ -19,7 +19,7 @@ positionIndex = 1
 
 if plotMag:
     ax = fig.add_subplot(numSubPlots, 1, positionIndex)
-    junoMAG.PlotData(ax, timeFrame, plotEphemeris=True)
+    junoMAG.PlotData(ax, timeFrame, plotEphemeris=True, polarCoordinates=True)
     positionIndex += 1
 
 if plotWaves:
