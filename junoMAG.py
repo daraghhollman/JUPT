@@ -5,7 +5,7 @@ import datetime
 
 import junoEphemeris
 
-def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True):
+def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True, linewidth=1):
     # Takes one of the subplot axes as input
 
     print("Retrieving mag data...")
@@ -25,22 +25,26 @@ def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True):
         timePlotted = np.arange(len(junoFGM.time))
    
     if not polarCoordinates:
-        ax.plot(timePlotted, magX, color="red", label="$B_x$")
-        ax.plot(timePlotted, magY, color="green", label="$B_y$")
-        ax.plot(timePlotted, magZ, color="blue", label="$B_z$")
-        ax.plot(timePlotted, magTotal, color="black", label="$|B|$")
+        ax.plot(timePlotted, magX, color="red", label="$B_x$", linewidth=linewidth)
+        ax.plot(timePlotted, magY, color="green", label="$B_y$", linewidth=linewidth)
+        ax.plot(timePlotted, magZ, color="blue", label="$B_z$", linewidth=linewidth)
+        ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
     else:
         polarCoords = CartesianPosToPolarPos(magX, magY, magZ, time, timeFrame)
         magR = polarCoords[0]
         magTheta = polarCoords[1]
         magPhi = polarCoords[2]
 
-        ax.plot(timePlotted, magR, color="red", label="$B_R$")
-        ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$")
-        ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$")
-        ax.plot(timePlotted, magTotal, color="black", label="$|B|$")
+        ax.plot(timePlotted, magR, color="red", label="$B_R$", linewidth=linewidth)
+        ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$", linewidth=linewidth)
+        ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$", linewidth=linewidth)
+        ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
 
-    ax.legend(loc="upper center", ncol=4, fancybox=True, shadow=True)
+    # Shrink axis by 10% to make room for legend
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+
+    ax.legend(loc="center left", ncol=1, bbox_to_anchor=(1, 0.5), labelspacing=2)
     ax.grid()
 
     unit = junoFGM.unit
