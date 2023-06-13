@@ -1,7 +1,38 @@
 import cdflib
 from astropy.time import Time, TimeDelta
+import datetime
 import numpy as np
 import matplotlib.colors as colors
+from tqdm import tqdm
+import os
+
+def PathsFromTimeDifference(t1, t2):
+    # Inputs are time in format "2022-06-01T00:00:00"
+    # Outputs a list of paths to the data containing the time
+    date1, time1 = t1.split("T")
+    date2, time2 = t2.split("T")
+
+    year1, month1, day1 = date1.split("-")
+    year2, month2, day2 = date2.split("-")
+
+    startDate = datetime.date(int(year1), int(month1), int(day1))
+    endDate = datetime.date(int(year2), int(month2), int(day2))
+
+    pathExtensions = []
+    for date in DateRange(startDate, endDate):
+        pathExtension = date.strftime(f"%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
+        pathExtensions.append(pathExtension)
+
+    return pathExtensions
+
+def DownloadData(dataPath, downloadPath, timeFrame):
+
+    pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1])]
+    for path in tqdm(pathList):
+        print(f"Downloading from: {path}")
+        os.system(f"wget -r -nd -nv -np -nH -N -P {dataPath} {path}")
+
+
 
 def PlotData(fig, ax, timeFrame, vmin=False, vmax=False, plotEphemeris=False):
     # Takes one of the subplot axes as input
@@ -9,7 +40,9 @@ def PlotData(fig, ax, timeFrame, vmin=False, vmax=False, plotEphemeris=False):
     
     print("Retrieving waves data...")
 
-    wavesPath = "./data/waves/data/l3a_v02/data/cdf/2022/01/jno_wav_cdr_lesia_20220101_v02.cdf"
+    DownloadData(r"/home/daraghhollman/Main/data/", "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/", timeFrame) # Path should be in format .../data/
+
+    wavesPath = "/home/daraghhollman/Main/data/jno_wav_cdr_lesia_20220101_v02.cdf"
 
     wavesCDF = cdflib.CDF(wavesPath)
     
@@ -52,3 +85,8 @@ def PlotData(fig, ax, timeFrame, vmin=False, vmax=False, plotEphemeris=False):
     # cax = divider.append_axes("right", size=0.15, pad=0.2)
 
     fig.colorbar(image, extend='both', shrink=0.9,ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
+
+
+def DateRange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + datetime.timedelta(n)
