@@ -6,7 +6,7 @@ import matplotlib.colors as colors
 from tqdm import tqdm
 import os
 
-def PathsFromTimeDifference(t1, t2):
+def PathsFromTimeDifference(t1, t2, pathFormat):
     # Inputs are time in format "2022-06-01T00:00:00"
     # Outputs a list of paths to the data containing the time
     date1, time1 = t1.split("T")
@@ -15,19 +15,30 @@ def PathsFromTimeDifference(t1, t2):
     year1, month1, day1 = date1.split("-")
     year2, month2, day2 = date2.split("-")
 
-    startDate = datetime.date(int(year1), int(month1), int(day1))
+    hours1, minutes1, seconds1 = time1.split(":")
+
+    startDate = datetime.date(int(year1), int(month1), int(day1)) 
+    # NOTE: Waves files start from 00:01:09 on each day and end on 00:01:08 the next day meaning to plot from 00:00:00 we need the day before's data.
+    if hours1 == "00" and int(minutes1) <= 1 and int(seconds1) < 10:
+        startDate = startDate - datetime.timedelta(days=1)
+
     endDate = datetime.date(int(year2), int(month2), int(day2))
 
     pathExtensions = []
-    for date in DateRange(startDate, endDate):
-        pathExtension = date.strftime(f"%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
-        pathExtensions.append(pathExtension)
+
+    if startDate == endDate:
+        pathExtensions.append(startDate.strftime(pathFormat))
+    
+    else:
+        for date in DateRange(startDate, endDate):
+            pathExtension = date.strftime(pathFormat)
+            pathExtensions.append(pathExtension)
 
     return pathExtensions
 
-def DownloadData(dataPath, downloadPath, timeFrame):
+def DownloadWavesData(dataPath, downloadPath, timeFrame):
 
-    pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1])]
+    pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")]
     for path in tqdm(pathList):
         print(f"Downloading from: {path}")
         os.system(f"wget -r -nd -nv -np -nH -N -P {dataPath} {path}")
@@ -40,7 +51,7 @@ def PlotData(fig, ax, timeFrame, vmin=False, vmax=False, plotEphemeris=False):
     
     print("Retrieving waves data...")
 
-    DownloadData(r"/home/daraghhollman/Main/data/", "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/", timeFrame) # Path should be in format .../data/
+    DownloadWavesData(r"/home/daraghhollman/Main/data/", "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/", timeFrame) # Path should be in format .../data/
 
     wavesPath = "/home/daraghhollman/Main/data/jno_wav_cdr_lesia_20220101_v02.cdf"
 
