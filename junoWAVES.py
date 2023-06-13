@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.colors as colors
 from tqdm import tqdm
 import os
+from glob import glob
 
 def PathsFromTimeDifference(t1, t2, pathFormat):
     # Inputs are time in format "2022-06-01T00:00:00"
@@ -39,35 +40,105 @@ def PathsFromTimeDifference(t1, t2, pathFormat):
 def DownloadWavesData(dataPath, downloadPath, timeFrame):
 
     pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")]
+    print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
     for path in tqdm(pathList):
-        print(f"Downloading from: {path}")
-        os.system(f"wget -r -nd -nv -np -nH -N -P {dataPath} {path}")
+        os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataPath} {path}")
 
 
+def LoadCdfFiles(dataDirectory, measurements):
+    # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
-def PlotData(fig, ax, timeFrame, vmin=False, vmax=False, plotEphemeris=False):
+    print(f"Loading CDF files from {dataDirectory}")
+    
+    filePaths = glob(f"{dataDirectory}*.cdf") # returns a list of downloaded file paths (unsorted)
+    filePaths.sort() # Because the date in in the file is in format yyyymmdd it can be sorted numerically.
+
+    filesInfoList = []
+
+    for filePath in tqdm(filePaths):
+        file = cdflib.CDF(filePath)
+
+        fileInfo = dict()
+        for measurment in measurements:
+            measurmentData = file.varget(measurment)
+            # measurementUnit = file.varinq(measurment)["Data_Type_Description"]
+
+            fileInfo[measurment] = measurmentData
+        
+        filesInfoList.append(fileInfo)
+
+    return filesInfoList
+
+
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, downloadNewData=True):
     # Takes one of the subplot axes as input
-    # NOTE: Functionality to automatically download the data would be useful
     
     print("Retrieving waves data...")
 
-    DownloadWavesData(r"/home/daraghhollman/Main/data/", "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/", timeFrame) # Path should be in format .../data/
+    if downloadNewData == True:
+        DownloadWavesData(dataDirectory, "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/", timeFrame) # Path should be in format .../data/
 
-    wavesPath = "/home/daraghhollman/Main/data/jno_wav_cdr_lesia_20220101_v02.cdf"
+    filesWithInfo = LoadCdfFiles(dataDirectory, ["Epoch", "Frequency", "Data"])
 
-    wavesCDF = cdflib.CDF(wavesPath)
-    
-    epoch = wavesCDF.varget("Epoch")
-    epochUnit = wavesCDF.varinq("Epoch")["Data_Type_Description"] # Time since 2000-01-01 in nanoseconds
+    # Initialise lists to put the data into
+    time = []
+    frequency = []
+    data = []
 
-    time = Time(epoch, format="cdf_tt2000")
+    for i, fileInfo in enumerate(filesWithInfo): # enumerate could be computationally expensive here. Perhaps change to a boolean test as it is only a one time use?
+        # Next we must contract the lists to the timeframe we have selected.
+        if i==0:
+            sliceStart = 0
+            
+            print("Shortening data to match time frame. This may take some time")
+            print("Finding start point...")
+            for j, t in tqdm(enumerate(fileInfo["Epoch"]), total = len(fileInfo["Epoch"])): # this is quite slow, takes around 30 seconds
+                t = Time(t, format="cdf_tt2000")
+                t.format="isot"
+                tFrame = Time(timeFrame[0], format = "isot") 
+
+                if t <= tFrame:
+                    sliceStart = j
+            
+            time.extend(fileInfo["Epoch"][sliceStart:])
+            frequency.extend(fileInfo["Frequency"][sliceStart:])
+            data.extend(fileInfo["Data"][sliceStart])
+
+        elif i==len(filesWithInfo)-1:
+            sliceEnd = 0
+            
+            print("Finding end point...")
+            for j, t in tqdm(enumerate(fileInfo["Epoch"]), total = len(fileInfo["Epoch"])): # Similarly very slow around 30 seconds
+                t = Time(t, format="cdf_tt2000")
+                t.format="isot"
+                tFrame = Time(timeFrame[1], format = "isot")
+
+                if t <= tFrame:
+                    sliceEnd = j
+                    
+            time.extend(fileInfo["Epoch"][:sliceEnd])            
+            frequency.extend(fileInfo["Frequency"][:sliceEnd])
+            data.extend(fileInfo["Data"][:sliceEnd])
+        
+        else:
+            time.extend(fileInfo["Epoch"])
+            frequency.extend(fileInfo["Frequency"])
+            data.extend(fileInfo["Data"])
+
+
+    # Reformat time into something we can use
+    time = Time(time, format="cdf_tt2000")
     time.format = "isot"
 
+
+
+    """
     # Check if WAVES time matches overall timeFrame
     if time[0] >= timeFrame[0] or time[-1] <= timeFrame[1]:
         print("WARNING: Waves epoch from file is shorter than that provided time frame")
         print(f"WARNING: Waves start time: {time[0]}, waves end time: {time[-1]}")
         print(f"WARNING: Timeframe: {timeFrame}")
+    """
 
     frequency = wavesCDF.varget("Frequency")
     # print(frequency)
@@ -99,5 +170,5 @@ def PlotData(fig, ax, timeFrame, vmin=False, vmax=False, plotEphemeris=False):
 
 
 def DateRange(start_date, end_date):
-    for n in range(int((end_date - start_date).days)):
+    for n in range(int((end_date - start_date).days) + 1): # NOTE: adding +1 to include endDate
         yield start_date + datetime.timedelta(n)
