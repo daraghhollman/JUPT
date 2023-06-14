@@ -6,7 +6,7 @@ import junoMAG
 import junoEphemeris
 import junoWAVES
 
-timeFrame = ["2022-01-01T00:00:00", "2022-01-4T23:59:59"]
+timeFrame = ["2021-01-08T10:00:00", "2021-01-9T12:00:00"]
 
 plotMag = False
 plotWaves = True
