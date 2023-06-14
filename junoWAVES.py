@@ -3,9 +3,13 @@ from astropy.time import Time, TimeDelta
 import datetime
 import numpy as np
 import matplotlib.colors as colors
+import matplotlib.ticker as ticker
 from tqdm import tqdm
 import os
 from glob import glob
+import pandas
+
+import junoEphemeris
 
 def PathsFromTimeDifference(t1, t2, pathFormat):
     # Inputs are time in format "2022-06-01T00:00:00"
@@ -155,14 +159,34 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     image = ax.pcolormesh(index_array, wavesFrequencies, wavesData, cmap="Spectral_r", norm=colors.LogNorm(vmin, vmax))
     ax.set_yscale("log")
     
+    if not plotEphemeris:
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, wavesTime)))
+        ax.set_xlabel(f"Time from {timeFrame[0]} (s)")
+    else:
+        ax = junoEphemeris.PlotEphemeris(ax, wavesTime, timeFrame)        
+    
     ax.set_ylabel("Frequency (kHz)")
-    ax.set_xlabel("Time (s)")
 
     # cax = divider.append_axes("right", size=0.15, pad=0.2)
 
     fig.colorbar(image, extend='both', shrink=0.9,ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
 
     DeleteData(dataDirectory)
+
+
+def format_xlabel(timeIndex, time):
+    timeLength = len(time)
+    time = [el.to_datetime() for el in time]
+    hoursAndMinutes = pandas.to_datetime(time).strftime('%H:%M')
+    dayAndMonthAndYear = pandas.to_datetime(time).strftime('%Y-%m-%d')
+    
+    def inner_function(index, pos=None):
+        #  np.clip will avoid having to check the value (to see if it's outside the array) 
+        clipedIndex = np.clip(int(index + 0.5), 0, timeLength - 1)
+        return f"{dayAndMonthAndYear[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}"
+
+    return inner_function
+
 
 
 def DateRange(start_date, end_date):
