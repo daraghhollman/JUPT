@@ -6,9 +6,9 @@ import junoMAG
 import junoEphemeris
 import junoWAVES
 
-timeFrame = ["2021-01-08T10:00:00", "2021-01-9T12:00:00"]
+timeFrame = ["2021-09-09T00:00:00", "2021-09-12T05:05:00"]
 
-plotMag = False
+plotMag = True
 plotWaves = True
 
 numSubPlots = 2
@@ -19,12 +19,12 @@ positionIndex = 1
 
 if plotMag:
     ax = fig.add_subplot(numSubPlots, 1, positionIndex)
-    junoMAG.PlotData(ax, timeFrame, plotEphemeris=True, polarCoordinates=True, linewidth=0.5)
+    junoMAG.PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True, linewidth=0.5)
     positionIndex += 1
 
 if plotWaves:
     ax = fig.add_subplot(numSubPlots, 1, positionIndex)
-    junoWAVES.PlotData(fig, ax, timeFrame, dataDirectory = r"/home/daraghhollman/Main/data/", plotEphemeris=False)
+    junoWAVES.PlotData(fig, ax, timeFrame, dataDirectory = r"/home/daraghhollman/Main/data/", plotEphemeris=True)
     positionIndex += 1
 
 plt.show()

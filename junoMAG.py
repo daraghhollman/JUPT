@@ -42,7 +42,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True, linewidt
 
     # Shrink axis by 10% to make room for legend
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
     ax.legend(loc="center left", ncol=1, bbox_to_anchor=(1, 0.5), labelspacing=2)
     ax.grid()

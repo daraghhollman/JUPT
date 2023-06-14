@@ -34,7 +34,6 @@ def PlotEphemeris(ax, dataTime, timeFrame):
     # to be feed into the format_xlabel function, time array needs to be a datetime.datetime object
     # from numpy.datetime64 --> datetime.datetime, one first needs to transform numpy.datetime64 --> numpy.array(dtype='str'):
     # then to datetime
-    # timeTransformed = datestring_to_datetime(time_str)
     timeTransformed = datetime64_to_datetime(dataTime)
    
     print("Setting ticks")
@@ -46,6 +45,8 @@ def PlotEphemeris(ax, dataTime, timeFrame):
     print(f"TIMEDELTA; Type: {type(timedelta_hours)}, Value: {timedelta_hours}")
 
     major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
+    major_locator = np.multiply(major_locator, 60)
+    minor_locator = np.multiply(minor_locator, 60)
     # ax.set_xlim((0, major_locator[-1]))
 
     ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))

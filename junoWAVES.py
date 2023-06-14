@@ -78,7 +78,7 @@ def LoadCdfFiles(dataDirectory, measurements):
 def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, downloadNewData=True):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, downloadNewData=True, interpolation=False, frequencyBins=1000):
     # Takes one of the subplot axes as input
     
     print("Retrieving waves data...")
@@ -146,8 +146,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     # Calibrating by dividing by 377 Ohms
     for frequencyRow in wavesData:
-        for flux in frequencyRow:
-            flux = flux / 377
+        frequencyRow = frequencyRow / 377
 
     # Adapted code taken from Corentin
     index_array = range(len(wavesTime))
@@ -163,9 +162,18 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, wavesTime)))
         ax.set_xlabel(f"Time from {timeFrame[0]} (s)")
     else:
-        ax = junoEphemeris.PlotEphemeris(ax, wavesTime, timeFrame)        
+        # junoEphemeris.PlotEphemeris requires 
+        wavesTimeDatetime64 = []
+        for time in wavesTime:
+            wavesTimeDatetime64.append(np.datetime64(str(time)))
+
+        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame)        
     
     ax.set_ylabel("Frequency (kHz)")
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+    # ax.set_ylim(9, 140)
 
     # cax = divider.append_axes("right", size=0.15, pad=0.2)
 
@@ -173,6 +181,14 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     DeleteData(dataDirectory)
 
+
+# Following two functions for interpolating the frequency bins
+def FrequencyRemap(originalFrequencyBins, newFrequencyBins):
+    return np.arange(
+        start = np.log10(originalFrequencyBins[0]),
+        stop = np.log10(originalFrequencyBins[-1]),
+        step = np.log10(np.max(originalFrequencyBins) - np.min(originalFrequencyBins) / (newFrequencyBins - 1))
+    )
 
 def format_xlabel(timeIndex, time):
     timeLength = len(time)
