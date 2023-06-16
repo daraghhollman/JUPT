@@ -18,7 +18,7 @@ def format_xlabel(time, r, lon, lat, mlat):
     return inner_function
 
 
-def PlotEphemeris(ax, dataTime, timeFrame):
+def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1):
     # Takes a subplot axis as input
     print("Retreiving ephemeris data...")
     # Pulls ephemeris data in x, y, z
@@ -45,8 +45,8 @@ def PlotEphemeris(ax, dataTime, timeFrame):
     print(f"TIMEDELTA; Type: {type(timedelta_hours)}, Value: {timedelta_hours}")
 
     major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
-    major_locator = np.multiply(major_locator, 60)
-    minor_locator = np.multiply(minor_locator, 60)
+    major_locator = np.multiply(major_locator, resolutionFactor) # resolutionFactor is simply a multiplier to deal with data of differening resolution. It multiplies the tick location - which by default expect the time axis to be of resolution 1 minute - such that the ticks spread over the whole axis.
+    minor_locator = np.multiply(minor_locator, resolutionFactor)
     # ax.set_xlim((0, major_locator[-1]))
 
     ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
@@ -144,15 +144,15 @@ def CalculateTickSpread(timeDelta):
     elif (timeDelta >= 24. and timeDelta < 48.):
         # Plot every 6 hours
         major = np.arange(0, dayLength_mins*2, 60*6)
-        minor = np.arange(0, dayLength_mins*2, 60*2) 
+        minor = np.arange(0, dayLength_mins*2, 60) 
     elif (timeDelta >= 2*24. and timeDelta < 5*24.):
         # Plot every 12 hours
         major = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*12)
-        minor = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*3) 
+        minor = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*2) 
     elif (timeDelta >= 5*24.):
         # Plot every day
         major = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*24)
-        minor = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*8) 
+        minor = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*4) 
 
     print(f"Major ticks every: {(major[1] - major[0])/60} hours, Minor ticks every: {(minor[1] - minor[0])/60} hours")
     # print(f"Major: {major}")

@@ -2,6 +2,7 @@ import speasy as spz
 import numpy as np
 import matplotlib.dates as mdates
 import datetime
+from mpl_toolkits import axes_grid1
 
 import junoEphemeris
 
@@ -9,7 +10,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True, linewidt
     # Takes one of the subplot axes as input
 
     print("Retrieving mag data...")
-    junoFGM = spz.amda.get_parameter("juno_fgm_orb60_jso", timeFrame[0], timeFrame[1])
+    junoFGM = spz.amda.get_parameter("juno_fgm_orb1_jso", timeFrame[0], timeFrame[1])
     
     mag = np.transpose(junoFGM.values)
     magX = mag[0]
@@ -40,25 +41,32 @@ def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True, linewidt
         ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$", linewidth=linewidth)
         ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
 
-    # Shrink axis by 10% to make room for legend
+    ax.hlines(0, xmin=timePlotted[0], xmax=timePlotted[-1], colors="grey", linestyles="dotted")
+
+    # Shrink axis by 20% to make room for legend
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
+    divider = axes_grid1.make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="3%", pad="2%")
+    cax.axis("off")
+
     ax.legend(loc="center left", ncol=1, bbox_to_anchor=(1, 0.5), labelspacing=2)
-    ax.grid()
 
     unit = junoFGM.unit
     
-    ax.set_ylabel(f"Magnetic Field Strength ({unit})")
+    ax.set_ylabel(f"B ({unit})")
     ax.margins(0)
 
     if not plotEphemeris:
         dateFormat = mdates.DateFormatter('%H:%M')
         ax.xaxis.set_major_formatter(dateFormat)
-        ax.set_xlabel("Date and Time")
+        # ax.set_xlabel("Date and Time") 
+        # ax.set_xticklabels([])
+
     else:
-        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame)
-        ax.set_xlabel("Ephemeris")
+        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, resolutionFactor=60)
+        # ax.set_xlabel("Ephemeris")
 
 
 def CartesianPosToPolarPos(bX, bY, bZ, dataTime, timeFrame):

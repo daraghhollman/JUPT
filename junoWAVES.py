@@ -8,6 +8,7 @@ from tqdm import tqdm
 import os
 from glob import glob
 import pandas
+from mpl_toolkits import axes_grid1
 
 import junoEphemeris
 
@@ -78,7 +79,7 @@ def LoadCdfFiles(dataDirectory, measurements):
 def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, downloadNewData=True, interpolation=False, frequencyBins=1000):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, downloadNewData=True, interpolation=False, frequencyBins=1000, colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
     # Takes one of the subplot axes as input
     
     print("Retrieving waves data...")
@@ -155,7 +156,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         vmin=np.quantile(wavesData,0.05)
         vmax=np.quantile(wavesData,0.95)
     
-    image = ax.pcolormesh(index_array, wavesFrequencies, wavesData, cmap="Spectral_r", norm=colors.LogNorm(vmin, vmax))
+    image = ax.pcolormesh(index_array, wavesFrequencies, wavesData, cmap=colormap, norm=colors.LogNorm(vmin, vmax))
     ax.set_yscale("log")
     
     if not plotEphemeris:
@@ -167,17 +168,18 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         for time in wavesTime:
             wavesTimeDatetime64.append(np.datetime64(str(time)))
 
-        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame)        
+        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame, resolutionFactor=60)        
     
     ax.set_ylabel("Frequency (kHz)")
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-    # ax.set_ylim(9, 140)
+    ax.set_ylim(0.1, 150)
+    divider = axes_grid1.make_axes_locatable(ax)
 
-    # cax = divider.append_axes("right", size=0.15, pad=0.2)
+    cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
 
-    fig.colorbar(image, extend='both', shrink=0.9,ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
+    fig.colorbar(image, cax=cax, ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
 
     DeleteData(dataDirectory)
 
