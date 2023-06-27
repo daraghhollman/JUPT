@@ -51,7 +51,11 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
     cax = divider.append_axes("right", size="3%", pad="2%")
     cax.axis("off")
 
-    ax.legend(loc="center left", ncol=1, bbox_to_anchor=(1, 0.5), labelspacing=2)
+    legend = ax.legend(loc="center left", ncol=1, bbox_to_anchor=(1, 0.5), labelspacing=2)
+
+    # change the line width for the legend
+    for line in legend.get_lines():
+        line.set_linewidth(2*linewidth)
 
     unit = junoFGM.unit
     
@@ -61,12 +65,9 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
     if not plotEphemeris:
         dateFormat = mdates.DateFormatter('%H:%M')
         ax.xaxis.set_major_formatter(dateFormat)
-        # ax.set_xlabel("Date and Time") 
-        # ax.set_xticklabels([])
 
     else:
         ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
-        # ax.set_xlabel("Ephemeris")
 
 
 def CartesianPosToPolarPos(bX, bY, bZ, dataTime, timeFrame):

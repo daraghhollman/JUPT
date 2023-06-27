@@ -79,7 +79,7 @@ def LoadCdfFiles(dataDirectory, measurements):
 def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, interpolation=False, frequencyBins=1000, colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, interpolation=False, frequencyBins=1000, yLim=[], colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
     # Takes one of the subplot axes as input
     
     print("Retrieving waves data...")
@@ -174,7 +174,9 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-    ax.set_ylim(0.1, 150)
+    if yLim != []:
+        ax.set_ylim(yLim[0], yLim[1])
+
     divider = axes_grid1.make_axes_locatable(ax)
 
     cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)

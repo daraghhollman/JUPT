@@ -18,7 +18,7 @@ def format_xlabel(time, r, lon, lat, mlat):
     return inner_function
 
 
-def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True):
+def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1):
     # Takes a subplot axis as input
     print("Retreiving ephemeris data...")
     # Pulls ephemeris data in x, y, z
@@ -55,10 +55,7 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True):
     print("Calculated tick spread")
    
     # Set ephemeris labels
-    labelFontsize = 10
-    labelsPos = [-40, -37]
-    posSpacer = 1
-
+    
     if labels:
         ax.annotate('R',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-0*labelFontsize), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
         ax.annotate('Lon',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-1*labelFontsize - posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
