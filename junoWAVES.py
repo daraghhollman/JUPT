@@ -13,8 +13,16 @@ from mpl_toolkits import axes_grid1
 import junoEphemeris
 
 def PathsFromTimeDifference(t1, t2, pathFormat):
-    # Inputs are time in format "2022-06-01T00:00:00"
-    # Outputs a list of paths to the data containing the time
+    """ Creates output path names between two times in a specified format 
+
+    Arguments:
+    t1, t2 -- (str) Input times between which the paths will be created. Must be in the format "YYYY-MM-DDThh:mm:ss"
+    pathFormat -- (str) Path format which the files to be downloaded are in
+
+    Returns:
+    A list of the paths following the pathFormat. One path for each day between t1 and t2
+
+    """
     date1, time1 = t1.split("T")
     date2, time2 = t2.split("T")
 
@@ -43,6 +51,14 @@ def PathsFromTimeDifference(t1, t2, pathFormat):
     return pathExtensions
 
 def DownloadWavesData(dataPath, downloadPath, timeFrame):
+    """ Downloads the waves data using system command wget
+
+    Arguments:
+    dataPath -- (str) Path to directory where data will be saved
+    downloadPath -- (str) Download link passed to wget
+    timeFrame -- (list) The time frame with which to download data
+
+    """
 
     pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")]
     print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
@@ -54,6 +70,17 @@ def LoadCdfFiles(dataDirectory, measurements):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
+    """ Loads the downloaded cdf files from the data directory 
+    
+    Arguments:
+    dataDirectory -- (str) Path do directory where data is stored
+    measurements -- (list) A list containing strings of the data measurments to pull from the cdf files 
+
+    Returns:
+    A list of dictionaries of each file which contains the measurements as keys.
+
+    """
+
 
     print(f"Loading CDF files from {dataDirectory}")
     
@@ -77,10 +104,27 @@ def LoadCdfFiles(dataDirectory, measurements):
     return filesInfoList
 
 def DeleteData(dataDirectory):
+    """ Deletes all .cdf files in a directory"""
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, interpolation=False, frequencyBins=1000, yLim=[], colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
-    # Takes one of the subplot axes as input
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, frequencyBins=1000, yLim=[], colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
+    """ Plots the Waves data 
+
+    Arguments:
+    fig -- (matplotlib.pyplot figure)
+    ax -- (matplotlib.pyplot axis)
+    timeFrame -- (list) Contains a start time and end time of data to be plotted in the format "YYYY-MM-DDThh:mm:dd"
+    dataDirectory -- (str) Path to directory where data will be stored
+    vmin, vmax -- (float) Bounds of the colourbar
+    plotEphemeris -- (bool) Should the time axis use ephemeris
+    ephemerisLabels -- (bool) Should the x axis labels be ephemeris data 
+    downloadNewData -- (bool) Should new data be downloaded and the old data deleted (NOTE: not fully implimented)
+    frequencyBins -- (int) Number of bins to interpolate the data into
+    yLim -- (list) List containing the bounds of the frequency axis
+    colormap -- (str) What matplotlib cmap to use
+    colorbarSize, colorbarPad -- (str) Paramaters to determine the size of the colourbar
+
+    """
     
     print("Retrieving waves data...")
 
@@ -195,6 +239,13 @@ def FrequencyRemap(originalFrequencyBins, newFrequencyBins):
     )
 
 def format_xlabel(timeIndex, time):
+    """ matplotlib ticker custom function formatter to reformat the ephemeris tick labels 
+    
+    Arguments:
+    timeIndex -- (list) An index list of the time coordinates
+    time -- (list) The time coordinates 
+
+    """
     timeLength = len(time)
     time = [el.to_datetime() for el in time]
     hoursAndMinutes = pandas.to_datetime(time).strftime('%H:%M')

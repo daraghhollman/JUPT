@@ -1,51 +1,80 @@
 # import tkinter as tk
 import matplotlib.pyplot as plt
 
-# Importing plotting modules
+# Importing plotting scripts
 import junoMAG
 import junoEphemeris
 import junoWAVES
 
-timeFrame = ["2016-12-18T00:00:00", "2016-12-19T12:01:00"]
+# Selected timeframe to display between
+timeFrame = ["2016-12-18T00:00:00", "2016-12-19T12:00:00"]
 
-majorTickLength=10
+# Set path to place data
+dataDirectory = r"/home/daraghhollman/Main/data/"
+
+# Set parameters for the shape of ticks
+majorTickLength=12
 majorTickWidth=0.8
-
-minorTickLength=7
+minorTickLength=8
 minorTickWidth=majorTickWidth
 
+# Select which panels to plot
 plotWaves = True
 plotMag = True
 
-numSubPlots = 2
+panelsBooleanList = [plotWaves, plotMag]
+numSubPlots = sum(panelsBooleanList)
+
+# Set font parameters
+fontsize = 11
+
+# Space between the panels
+panelSpacing = 0.0
+
 
 fig = plt.figure()
+plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
 
-plt.rcParams.update({'font.size': 11})
+positionIndex = 1 # Define a position index to tell each subplot what position it should be in
 
-positionIndex = 1
-
+# Section controlling Waves plotting
 if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, positionIndex)
-    junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = r"/home/daraghhollman/Main/data/", yLim=[9, 139], vmin=10e-16, vmax=10e-12, plotEphemeris=True, ephemerisLabels=False)
+
+    # Plot the Waves data from the junoWAVES script
+    junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=[9, 139], vmin=10e-16, vmax=10e-12, plotEphemeris=True, ephemerisLabels=False)
     positionIndex += 1
 
+    if numSubPlots != 1:
+        # Make the ephemerisLabels invisible if in a multipanel plot
+        plt.setp(axWaves.get_xticklabels(), visible=False)
+
+
+# Section controlling MAG plotting
 if plotMag:
+    # Test if this subplot needs to share axes
     if plotWaves:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axWaves)
     else:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
+
+    # Plot the MAG data from the junoMAG script
     junoMAG.PlotData(axMag, timeFrame, plotEphemeris=True, ephemerisLabels=True, polarCoordinates=True, linewidth=0.5)
     positionIndex += 1
 
 
-plt.setp(axWaves.get_xticklabels(), visible=False)
+# Set tick formatting
+for i, axis in enumerate(fig.axes):
+    axis.format_coord = lambda x, y: '' # Disables the cursor coordinate display. This feature causes major slowdowns when resizing the window.
+    if i == 0:
+        axis.tick_params("x", which="major", top=False, bottom=True, direction="inout", length=majorTickLength, width=majorTickWidth)
+        axis.tick_params("x", which="minor", top=False, bottom=True, direction="inout", length=minorTickLength, width=minorTickWidth)
+    else:
+        axis.tick_params("x", which="major", top=True, bottom=True, direction="inout", length=majorTickLength, width=majorTickWidth)
+        axis.tick_params("x", which="minor", top=True, bottom=True, direction="inout", length=minorTickLength, width=minorTickWidth)
 
-for axis in fig.axes:
-    axis.tick_params("x", which="major", direction="inout", length=majorTickLength, width=majorTickWidth)
-    axis.tick_params("x", which="minor", direction="inout", length=minorTickLength, width=minorTickWidth)
-
-plt.subplots_adjust(hspace=0, bottom=0.2)
+# Move the subplots together and add room for ephemeris labels
+plt.subplots_adjust(hspace=panelSpacing, bottom=0.2)
 
 
 print("Showing figure")

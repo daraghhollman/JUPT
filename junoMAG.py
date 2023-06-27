@@ -8,6 +8,22 @@ import junoEphemeris
 
 def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1):
     # Takes one of the subplot axes as input
+    """ Plots Juno MAG data from the AMDA database
+
+    Arguments:
+    ax -- Matplotlib subplot axis
+    timeFrame -- (list) A list containing the start and end time of the plot in string format eg. ["2016-12-18T00:00:00", "2016-12-20T12:00:00"]
+
+    plotEphemeris -- (bool) Should the x axis be reformatted for ephemeris data
+    ephemerisLabels -- (bool) Should the ephemeris data be displayed on the x axis of this subplot
+
+    polarCoordinates -- (bool) Should the MAG data be plotted in spherical polar coordinates instead of cartesians
+    
+    linewidth -- (float) Thickness of the lines plotted
+
+    Returns:
+    ax -- Matplotlib subplot axis
+    """
 
     print("Retrieving mag data...")
     junoFGM = spz.amda.get_parameter("juno_fgm_orb1_jso", timeFrame[0], timeFrame[1])
@@ -31,10 +47,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
         ax.plot(timePlotted, magZ, color="blue", label="$B_z$", linewidth=linewidth)
         ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
     else:
-        polarCoords = CartesianPosToPolarPos(magX, magY, magZ, time, timeFrame)
-        magR = polarCoords[0]
-        magTheta = polarCoords[1]
-        magPhi = polarCoords[2]
+        magR, magTheta, magPhi = CartesiansToPolars(magX, magY, magZ, time, timeFrame)
 
         ax.plot(timePlotted, magR, color="red", label="$B_R$", linewidth=linewidth)
         ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$", linewidth=linewidth)
@@ -69,9 +82,24 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
     else:
         ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
 
+    return ax
 
-def CartesianPosToPolarPos(bX, bY, bZ, dataTime, timeFrame):
+
+def CartesiansToPolars(bX, bY, bZ, dataTime, timeFrame):
     # Method adapted from corentin
+    """ Converts MAG data in cartesians to spherical polar coordinates using the spacecraft's position
+
+    Arguments:
+    bX, bY, bZ -- (list) MAG data in cartesian coordinates
+
+    dataTime -- (list) The time parameter corresponding to the cartesian data. As the position of the spacecraft is needed to convert to polars, the time is required to interpolate the data to match the time of the ephemeris data.
+    timeFrame -- (list) The time frame with which to pull the ephemeris data. This should be the same as used to pull the cartesian data.
+
+    Returns:
+    A touple contain the MAG data in polar spherical coordinates.
+    """
+
+
     ephemeris = spz.amda.get_parameter("juno_eph_orb_jso", timeFrame[0], timeFrame[1])
     ephemerisTime = ephemeris.time
 
@@ -102,13 +130,14 @@ def CartesianPosToPolarPos(bX, bY, bZ, dataTime, timeFrame):
     bTheta = bX * np.cos(spacecraftTheta) * np.cos(spacecraftPhi) + bY * np.cos(spacecraftTheta) * np.sin(spacecraftPhi) - bZ * np.sin(spacecraftTheta)
     bPhi = bY * np.cos(spacecraftPhi) - bX * np.sin(spacecraftPhi)
         
-    return [bR, bTheta, bPhi]
+    return (bR, bTheta, bPhi)
 
 def datetime64_to_datetime(time):
+    """ Converts numpy type datetime64 to type datetime """
     timeStr = [np.datetime_as_string(t, unit="s") for t in time]
     return datestring_to_datetime(timeStr)
 
 @np.vectorize
 def datestring_to_datetime(time):
-    #return datetime.datetime.strptime(np.datetime_as_string(time,unit="s"),"%Y-%m-%dT%H:%M:%S")
+    """Converts datestring (i.e. np.datetime_as_string) to type datetime"""
     return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")

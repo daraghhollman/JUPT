@@ -19,6 +19,20 @@ def format_xlabel(time, r, lon, lat, mlat):
 
 
 def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1):
+    """ Plot ephemeris data as axix tick labels 
+
+    Arguments:
+    ax -- (matplotlib axis)
+    dataTime -- (list) Containing the time data corresponding to the data 
+    timeFrame -- (list) Time frame from which the data was pulled from 
+    resolutionFactor -- (int) Parameter to account for differening resolutions (This is no longer needed)
+    labels -- (bool) Should the ephemeris data labels be displayed (i.e. lon, lat...) 
+    labelFontSize -- (float) Fontsize of the labels 
+    labelsPos -- (list) Coordinates of the labels 
+    posSpacer -- (float) Distance between each label 
+    
+    """
+
     # Takes a subplot axis as input
     print("Retreiving ephemeris data...")
     # Pulls ephemeris data in x, y, z
@@ -153,8 +167,6 @@ def CalculateTickSpread(timeDelta):
         minor = np.arange(0, dayLength_mins*(timeDelta/24 + 1), 60*4) 
 
     print(f"Major ticks every: {(major[1] - major[0])/60} hours, Minor ticks every: {(minor[1] - minor[0])/60} hours")
-    # print(f"Major: {major}")
-    # print(f"Minor: {minor}")
   
     return (major, minor)
 
