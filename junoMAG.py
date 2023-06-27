@@ -6,7 +6,7 @@ from mpl_toolkits import axes_grid1
 
 import junoEphemeris
 
-def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True, linewidth=1):
+def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1):
     # Takes one of the subplot axes as input
 
     print("Retrieving mag data...")
@@ -65,7 +65,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False, polarCoordinates=True, linewidt
         # ax.set_xticklabels([])
 
     else:
-        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, resolutionFactor=60)
+        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
         # ax.set_xlabel("Ephemeris")
 
 

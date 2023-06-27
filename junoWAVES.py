@@ -79,7 +79,7 @@ def LoadCdfFiles(dataDirectory, measurements):
 def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, downloadNewData=True, interpolation=False, frequencyBins=1000, colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, interpolation=False, frequencyBins=1000, colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
     # Takes one of the subplot axes as input
     
     print("Retrieving waves data...")
@@ -168,7 +168,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         for time in wavesTime:
             wavesTimeDatetime64.append(np.datetime64(str(time)))
 
-        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame, resolutionFactor=60)        
+        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)        
     
     ax.set_ylabel("Frequency (kHz)")
     box = ax.get_position()

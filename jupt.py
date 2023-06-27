@@ -6,7 +6,7 @@ import junoMAG
 import junoEphemeris
 import junoWAVES
 
-timeFrame = ["2016-12-17T00:00:00", "2016-12-24T05:00:00"]
+timeFrame = ["2016-12-17T00:00:00", "2016-12-19T05:00:00"]
 
 majorTickLength=10
 majorTickWidth=0.8
@@ -25,12 +25,12 @@ positionIndex = 1
 
 if plotMag:
     axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
-    junoMAG.PlotData(axMag, timeFrame, plotEphemeris=True, polarCoordinates=True, linewidth=0.5)
+    junoMAG.PlotData(axMag, timeFrame, plotEphemeris=True, ephemerisLabels=False, polarCoordinates=True, linewidth=0.5)
     positionIndex += 1
 
 if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axMag)
-    junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = r"/home/daraghhollman/Main/data/", plotEphemeris=True)
+    junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = r"/home/daraghhollman/Main/data/", plotEphemeris=True, ephemerisLabels=True)
     # axWaves.get_shared_x_axes().join(axMag, axWaves)
     positionIndex += 1
 
