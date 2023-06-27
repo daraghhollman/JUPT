@@ -6,7 +6,7 @@ from mpl_toolkits import axes_grid1
 
 import junoEphemeris
 
-def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1):
+def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1, plotLobeField=False):
     # Takes one of the subplot axes as input
     """ Plots Juno MAG data from the AMDA database
 
@@ -20,6 +20,7 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
     polarCoordinates -- (bool) Should the MAG data be plotted in spherical polar coordinates instead of cartesians
     
     linewidth -- (float) Thickness of the lines plotted
+    plotLobeField -- (bool) Should the expected lobe field be plotted
 
     Returns:
     ax -- Matplotlib subplot axis
@@ -40,20 +41,36 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
     else:
         # If ephemerides are added later, an index must be used instead of a time table for the plot
         timePlotted = np.arange(len(junoFGM.time))
+
+    bLobe = [LobeField(r)[0] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
+    bLobe_err_plus = [LobeField(r)[1] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
+    bLobe_err_minus = [LobeField(r)[2] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
    
     if not polarCoordinates:
         ax.plot(timePlotted, magX, color="red", label="$B_x$", linewidth=linewidth)
         ax.plot(timePlotted, magY, color="green", label="$B_y$", linewidth=linewidth)
         ax.plot(timePlotted, magZ, color="blue", label="$B_z$", linewidth=linewidth)
         ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
+
+        if plotLobeField:
+            ax.plot(timePlotted, bLobe, color="orange", label="B$_{Lobe}$", linewidth=2*linewidth)
+            ax.plot(timePlotted, bLobe_err_plus, color="orange", linewidth=linewidth, linestyle="dashed")
+            ax.plot(timePlotted, bLobe_err_minus, color="orange", linewidth=linewidth, linestyle="dashed")
+
     else:
         magR, magTheta, magPhi = CartesiansToPolars(magX, magY, magZ, time, timeFrame)
 
-        ax.plot(timePlotted, magR, color="red", label="$B_R$", linewidth=linewidth)
-        ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$", linewidth=linewidth)
-        ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$", linewidth=linewidth)
+        # ax.plot(timePlotted, magR, color="red", label="$B_R$", linewidth=linewidth)
+        # ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$", linewidth=linewidth)
+        # ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$", linewidth=linewidth)
         ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
 
+        if plotLobeField:
+            ax.plot(timePlotted, bLobe, color="orange", label="B$_{Lobe}$", linewidth=2*linewidth)
+            ax.plot(timePlotted, bLobe_err_plus, color="orange", linewidth=linewidth, linestyle="dashed")
+            ax.plot(timePlotted, bLobe_err_minus, color="orange", linewidth=linewidth, linestyle="dashed")
+
+    # Add dotted line at y=0
     ax.hlines(0, xmin=timePlotted[0], xmax=timePlotted[-1], colors="grey", linestyles="dotted")
 
     # Shrink axis by 20% to make room for legend
@@ -84,6 +101,15 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
 
     return ax
 
+
+def LobeField(r):
+    """ Plots the lobe field estimation where r is the radial distance from the jupiter"""
+    # From Sean McEntee
+    bLobe = 2900 * r**(-1.37)  # Khurana definition
+    bLobe_err_plus = 2970 * r**(-1.36)
+    bLobe_err_minus = 2830 * r**(-1.38)
+
+    return (bLobe, bLobe_err_plus, bLobe_err_minus)
 
 def CartesiansToPolars(bX, bY, bZ, dataTime, timeFrame):
     # Method adapted from corentin

@@ -7,7 +7,7 @@ import junoEphemeris
 import junoWAVES
 
 # Selected timeframe to display between
-timeFrame = ["2016-12-18T00:00:00", "2016-12-19T12:00:00"]
+timeFrame = ["2021-09-11T00:00:00", "2021-09-19T00:00:00"]
 
 # Set path to place data
 dataDirectory = r"/home/daraghhollman/Main/data/"
@@ -59,7 +59,7 @@ if plotMag:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     # Plot the MAG data from the junoMAG script
-    junoMAG.PlotData(axMag, timeFrame, plotEphemeris=True, ephemerisLabels=True, polarCoordinates=True, linewidth=0.5)
+    junoMAG.PlotData(axMag, timeFrame, plotEphemeris=True, ephemerisLabels=True, polarCoordinates=True, linewidth=0.5, plotLobeField=True)
     positionIndex += 1
 
 
