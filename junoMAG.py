@@ -6,7 +6,7 @@ from mpl_toolkits import axes_grid1
 
 import junoEphemeris
 
-def PlotData(ax, timeFrame, plotMeasurements, plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1, plotLobeField=False):
+def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", "blue"], lobeColour="orange", magnitudeColour="black", plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1, plotLobeField=False):
     # Takes one of the subplot axes as input
     """ Plots Juno MAG data from the AMDA database
 
@@ -48,26 +48,27 @@ def PlotData(ax, timeFrame, plotMeasurements, plotEphemeris=False, ephemerisLabe
     bLobe_err_minus = [LobeField(r)[2] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
    
     if plotMeasurements["total"]:
-        ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
+        ax.plot(timePlotted, magTotal, color=magnitudeColour, label="$|B|$", linewidth=linewidth)
 
     if plotMeasurements["cartesians"]:
-        ax.plot(timePlotted, magX, color="red", label="$B_x$", linewidth=linewidth)
-        ax.plot(timePlotted, magY, color="green", label="$B_y$", linewidth=linewidth)
-        ax.plot(timePlotted, magZ, color="blue", label="$B_z$", linewidth=linewidth)
+        ax.plot(timePlotted, magX, color=componentColours[0], label="$B_x$", linewidth=linewidth)
+        ax.plot(timePlotted, magY, color=componentColours[1], label="$B_y$", linewidth=linewidth)
+        ax.plot(timePlotted, magZ, color=componentColours[2], label="$B_z$", linewidth=linewidth)
 
     if plotMeasurements["polars"]:
         magR, magTheta, magPhi = CartesiansToPolars(magX, magY, magZ, time, timeFrame)
 
-        ax.plot(timePlotted, magR, color="red", label="$B_R$", linewidth=linewidth)
-        ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$", linewidth=linewidth)
-        ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$", linewidth=linewidth)
+        ax.plot(timePlotted, magR, color=componentColours[0], label="$B_R$", linewidth=linewidth)
+        ax.plot(timePlotted, magTheta, color=componentColours[1], label="$B_\\theta$", linewidth=linewidth)
+        ax.plot(timePlotted, magPhi, color=componentColours[2], label="$B_\phi$", linewidth=linewidth)
 
     if plotMeasurements["lobe"]:
-        ax.plot(timePlotted, bLobe, color="orange", label="B$_{Lobe}$", linewidth=2*linewidth)
+        ax.plot(timePlotted, bLobe, color=lobeColour, label="B$_{Lobe}$", linewidth=3*linewidth)
 
     if plotMeasurements["lobeUncertainty"]:
-        ax.plot(timePlotted, bLobe_err_plus, color="orange", linewidth=linewidth, linestyle="dashed")
-        ax.plot(timePlotted, bLobe_err_minus, color="orange", linewidth=linewidth, linestyle="dashed")
+        ax.plot(timePlotted, bLobe_err_plus, color=lobeColour, linewidth=2*linewidth, linestyle="dashed")
+        ax.plot(timePlotted, bLobe_err_minus, color=lobeColour, linewidth=2*linewidth, linestyle="dashed")
+        ax.fill_between(timePlotted, bLobe_err_minus, bLobe_err_plus, color=lobeColour, alpha=0.2, label="B$_{Lobe}$ error region")
 
     # Add dotted line at y=0
     ax.hlines(0, xmin=timePlotted[0], xmax=timePlotted[-1], colors="grey", linestyles="dotted")
