@@ -7,7 +7,7 @@ import junoEphemeris
 import junoWAVES
 
 # Selected timeframe to display between
-timeFrame = ["2021-09-11T00:00:00", "2021-09-19T00:00:00"]
+timeFrame = ["2021-09-12T00:00:00", "2021-09-18T00:00:00"]
 
 # Set path to place data
 dataDirectory = r"/home/daraghhollman/Main/data/"
@@ -59,7 +59,13 @@ if plotMag:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     # Plot the MAG data from the junoMAG script
-    junoMAG.PlotData(axMag, timeFrame, plotEphemeris=True, ephemerisLabels=True, polarCoordinates=True, linewidth=0.5, plotLobeField=True)
+    junoMAG.PlotData(axMag, timeFrame, plotMeasurements={
+        "total": True,
+        "cartesians": False,
+        "polars": True,
+        "lobe": True,
+        "lobeUncertainty": True
+    }, plotEphemeris=True, ephemerisLabels=True, linewidth=0.5)
     positionIndex += 1
 
 
@@ -73,7 +79,7 @@ for i, axis in enumerate(fig.axes):
         axis.tick_params("x", which="major", top=True, bottom=True, direction="inout", length=majorTickLength, width=majorTickWidth)
         axis.tick_params("x", which="minor", top=True, bottom=True, direction="inout", length=minorTickLength, width=minorTickWidth)
 
-# Move the subplots together and add room for ephemeris labels
+# Move the subplots together and add room below for ephemeris labels
 plt.subplots_adjust(hspace=panelSpacing, bottom=0.2)
 
 

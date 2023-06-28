@@ -6,13 +6,14 @@ from mpl_toolkits import axes_grid1
 
 import junoEphemeris
 
-def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1, plotLobeField=False):
+def PlotData(ax, timeFrame, plotMeasurements, plotEphemeris=False, ephemerisLabels=False, polarCoordinates=True, linewidth=1, plotLobeField=False):
     # Takes one of the subplot axes as input
     """ Plots Juno MAG data from the AMDA database
 
     Arguments:
     ax -- Matplotlib subplot axis
     timeFrame -- (list) A list containing the start and end time of the plot in string format eg. ["2016-12-18T00:00:00", "2016-12-20T12:00:00"]
+    plotDict -- (dictionary) A dictionary which describes what elements should be plotted
 
     plotEphemeris -- (bool) Should the x axis be reformatted for ephemeris data
     ephemerisLabels -- (bool) Should the ephemeris data be displayed on the x axis of this subplot
@@ -46,29 +47,27 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
     bLobe_err_plus = [LobeField(r)[1] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
     bLobe_err_minus = [LobeField(r)[2] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
    
-    if not polarCoordinates:
+    if plotMeasurements["total"]:
+        ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
+
+    if plotMeasurements["cartesians"]:
         ax.plot(timePlotted, magX, color="red", label="$B_x$", linewidth=linewidth)
         ax.plot(timePlotted, magY, color="green", label="$B_y$", linewidth=linewidth)
         ax.plot(timePlotted, magZ, color="blue", label="$B_z$", linewidth=linewidth)
-        ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
 
-        if plotLobeField:
-            ax.plot(timePlotted, bLobe, color="orange", label="B$_{Lobe}$", linewidth=2*linewidth)
-            ax.plot(timePlotted, bLobe_err_plus, color="orange", linewidth=linewidth, linestyle="dashed")
-            ax.plot(timePlotted, bLobe_err_minus, color="orange", linewidth=linewidth, linestyle="dashed")
-
-    else:
+    if plotMeasurements["polars"]:
         magR, magTheta, magPhi = CartesiansToPolars(magX, magY, magZ, time, timeFrame)
 
-        # ax.plot(timePlotted, magR, color="red", label="$B_R$", linewidth=linewidth)
-        # ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$", linewidth=linewidth)
-        # ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$", linewidth=linewidth)
-        ax.plot(timePlotted, magTotal, color="black", label="$|B|$", linewidth=linewidth)
+        ax.plot(timePlotted, magR, color="red", label="$B_R$", linewidth=linewidth)
+        ax.plot(timePlotted, magTheta, color="green", label="$B_\\theta$", linewidth=linewidth)
+        ax.plot(timePlotted, magPhi, color="blue", label="$B_\phi$", linewidth=linewidth)
 
-        if plotLobeField:
-            ax.plot(timePlotted, bLobe, color="orange", label="B$_{Lobe}$", linewidth=2*linewidth)
-            ax.plot(timePlotted, bLobe_err_plus, color="orange", linewidth=linewidth, linestyle="dashed")
-            ax.plot(timePlotted, bLobe_err_minus, color="orange", linewidth=linewidth, linestyle="dashed")
+    if plotMeasurements["lobe"]:
+        ax.plot(timePlotted, bLobe, color="orange", label="B$_{Lobe}$", linewidth=2*linewidth)
+
+    if plotMeasurements["lobeUncertainty"]:
+        ax.plot(timePlotted, bLobe_err_plus, color="orange", linewidth=linewidth, linestyle="dashed")
+        ax.plot(timePlotted, bLobe_err_minus, color="orange", linewidth=linewidth, linestyle="dashed")
 
     # Add dotted line at y=0
     ax.hlines(0, xmin=timePlotted[0], xmax=timePlotted[-1], colors="grey", linestyles="dotted")
@@ -90,7 +89,6 @@ def PlotData(ax, timeFrame, plotEphemeris=False, ephemerisLabels=False, polarCoo
     unit = junoFGM.unit
     
     ax.set_ylabel(f"B ({unit})")
-    ax.margins(0)
 
     if not plotEphemeris:
         dateFormat = mdates.DateFormatter('%H:%M')
