@@ -1,47 +1,52 @@
-# import tkinter as tk
 import matplotlib.pyplot as plt
 from datetime import datetime
+import configparser
+import ast
+
+config = configparser.ConfigParser()
 
 # Importing plotting scripts
 import junoMAG
 import junoEphemeris
 import junoWAVES
 
+config.read("./config.ini")
+
 # Selected timeframe to display between
-timeFrame = ["2016-12-17T00:00:00", "2016-12-24T04:00:00"]
+timeFrame = [config["plotting"]["start time"], config["plotting"]["end time"]]
 
 # Set path to place data
-dataDirectory = r"/home/daraghhollman/Main/data/"
+dataDirectory = config["data"]["data directory"]
 
 # Set parameters for the shape of ticks
-majorTickLength=12
-majorTickWidth=0.8
-minorTickLength=8
-minorTickWidth=majorTickWidth
+majorTickLength = config["plotting"].getfloat("major tick length")
+majorTickWidth = config["plotting"].getfloat("major tick width")
+minorTickLength = config["plotting"].getfloat("minor tick length")
+minorTickWidth = config["plotting"].getfloat("minor tick width")
 
 # Select which panels to plot
-plotWaves = True
-plotMag = True
-
-panelsBooleanList = [plotWaves, plotMag]
-numSubPlots = sum(panelsBooleanList)
+plotWaves = config["plotting"].getboolean("plot Waves")
+plotMag = config["plotting"].getboolean("plot MAG")
 
 # Set font parameters
-fontsize = 11
+fontsize = config["plotting"].getfloat("font size")
 
 # Space between the panels
-panelSpacing = 0
+panelSpacing = config["plotting"].getfloat("panel spacing")
 
 # Parameters for vertical lines
-vLineLabels = ["Compression", "Example Line"]
-vLinePositions = ["2016-12-18T09:00:00", "2016-12-18T15:00:00"]
+vLineLabels = ast.literal_eval(config["vertical lines"]["labels"])
+vLinePositions = ast.literal_eval(config["vertical lines"]["positions"])
 vLineLabelSpacing = 1/32 # In units of axis length
 
 # Colour Parameters
-vLineColours = ["red"]
-componentColours = ["red", "green", "blue"]
-magnitudeColour = "black"
-lobeColour = "orange"
+vLineColours = ast.literal_eval(config["vertical lines"]["colours"])
+componentColours = ast.literal_eval(config["colours"]["component colours"])
+magnitudeColour = config["colours"]["magnitude colour"]
+lobeColour = config["colours"]["lobe colour"]
+
+panelsBooleanList = [plotWaves, plotMag]
+numSubPlots = sum(panelsBooleanList)
 
 
 fig = plt.figure()
@@ -54,7 +59,7 @@ if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     # Plot the Waves data from the junoWAVES script
-    junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=[0.2, 139], plotEphemeris=True, ephemerisLabels=False)
+    junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"])
     positionIndex += 1
 
     if numSubPlots != 1:
@@ -72,12 +77,12 @@ if plotMag:
 
     # Plot the MAG data from the junoMAG script
     junoMAG.PlotData(axMag, timeFrame, plotMeasurements={
-        "total": True,
-        "cartesians": False,
-        "polars": False,
-        "lobe": True,
-        "lobeUncertainty": True
-    }, plotEphemeris=True, ephemerisLabels=True, linewidth=0.5, componentColours=componentColours, lobeColour=lobeColour, magnitudeColour=magnitudeColour)
+        "total": config["MAG"].getboolean("plot magnitude"),
+        "cartesians": config["MAG"].getboolean("plot cartesians"),
+        "polars": config["MAG"].getboolean("plot polars"),
+        "lobe": config["MAG"].getboolean("plot lobe"),
+        "lobeUncertainty": config["MAG"].getboolean("plot lobe uncertainty")
+    }, plotEphemeris=True, ephemerisLabels=True, linewidth=config["MAG"].getfloat("line width"), componentColours=componentColours, lobeColour=lobeColour, magnitudeColour=magnitudeColour)
     positionIndex += 1
 
 
@@ -85,7 +90,7 @@ if plotMag:
 # Set tick formatting and add vertical lines 
 for i, axis in enumerate(fig.axes):
 
-    if i % 2 == 0: # As each axis is divided to keep widths consistant with colourbars and legends, there are always twice as many axes as data plotted. These are created sequentially in the order data axis, legend axis, and hence we can use the modulo to only get the even index.
+    if i % 2 == 0 and len(vLinePositions) == 0: # As each axis is divided to keep widths consistant with colourbars and legends, there are always twice as many axes as data plotted. These are created sequentially in the order data axis, legend axis, and hence we can use the modulo to only get the even index.
         for label, position, colour in zip(vLineLabels, vLinePositions, vLineColours):
             # convert from string to datetime
             posTime = datetime.strptime(position, "%Y-%m-%dT%H:%M:%S")

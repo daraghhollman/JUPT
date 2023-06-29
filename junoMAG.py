@@ -43,9 +43,9 @@ def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", 
         # If ephemerides are added later, an index must be used instead of a time table for the plot
         timePlotted = np.arange(len(junoFGM.time))
 
-    bLobe = [LobeField(r)[0] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
-    bLobe_err_plus = [LobeField(r)[1] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
-    bLobe_err_minus = [LobeField(r)[2] for r in junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)]
+    radialDist = junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)
+    for r in radialDist:
+        bLobe, bLobe_err_plus, bLobe_err_minus = LobeField(r) 
    
     if plotMeasurements["total"]:
         ax.plot(timePlotted, magTotal, color=magnitudeColour, label="$|B|$", linewidth=linewidth)
@@ -68,7 +68,7 @@ def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", 
     if plotMeasurements["lobeUncertainty"]:
         ax.plot(timePlotted, bLobe_err_plus, color=lobeColour, linewidth=2*linewidth, linestyle="dashed")
         ax.plot(timePlotted, bLobe_err_minus, color=lobeColour, linewidth=2*linewidth, linestyle="dashed")
-        ax.fill_between(timePlotted, bLobe_err_minus, bLobe_err_plus, color=lobeColour, alpha=0.2, label="B$_{Lobe}$ error region")
+        ax.fill_between(timePlotted, bLobe_err_minus, bLobe_err_plus, color=lobeColour, alpha=0.2, label="B$_{Lobe}$\nerror region")
 
     # Add dotted line at y=0
     ax.hlines(0, xmin=timePlotted[0], xmax=timePlotted[-1], colors="grey", linestyles="dotted")
