@@ -44,8 +44,14 @@ def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", 
         timePlotted = np.arange(len(junoFGM.time))
 
     radialDist = junoEphemeris.PullEphemerisData("juno_jup_r", time, timeFrame)
+    bLobe=[]
+    bLobe_err_plus=[]
+    bLobe_err_minus=[]
     for r in radialDist:
-        bLobe, bLobe_err_plus, bLobe_err_minus = LobeField(r) 
+        lobeField = LobeField(r) 
+        bLobe.append(lobeField[0])
+        bLobe_err_plus.append(lobeField[1])
+        bLobe_err_minus.append(lobeField[2])
    
     if plotMeasurements["total"]:
         ax.plot(timePlotted, magTotal, color=magnitudeColour, label="$|B|$", linewidth=linewidth)
