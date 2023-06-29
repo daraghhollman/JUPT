@@ -107,7 +107,7 @@ def DeleteData(dataDirectory):
     """ Deletes all .cdf files in a directory"""
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, frequencyBins=1000, yLim=[], colormap="viridis", colorbarSize="3%", colorbarPad="2%"):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%"):
     """ Plots the Waves data 
 
     Arguments:
@@ -121,7 +121,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     downloadNewData -- (bool) Should new data be downloaded and the old data deleted (NOTE: not fully implimented)
     frequencyBins -- (int) Number of bins to interpolate the data into
     yLim -- (list) List containing the bounds of the frequency axis
-    colormap -- (str) What matplotlib cmap to use
+    colourmap -- (str) What matplotlib cmap to use
     colorbarSize, colorbarPad -- (str) Paramaters to determine the size of the colourbar
 
     """
@@ -200,7 +200,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         vmin=np.quantile(wavesData,0.05)
         vmax=np.quantile(wavesData,0.95)
     
-    image = ax.pcolormesh(index_array, wavesFrequencies, wavesData, cmap=colormap, norm=colors.LogNorm(vmin, vmax))
+    image = ax.pcolormesh(index_array, wavesFrequencies, wavesData, cmap=colourmap, norm=colors.LogNorm(vmin, vmax))
     ax.set_yscale("log")
     
     if not plotEphemeris:

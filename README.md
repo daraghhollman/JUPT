@@ -6,3 +6,10 @@ JUPT - The **J**uno **U**niversal **P**lotting **T**ool - is an all in one tool 
 ![JUPT_sample_MAG_WAVES](https://github.com/daraghhollman/JUPT/assets/62439417/676cf30d-7df2-4468-90b1-7433d2443ac4)
 
 This project is currently a work in progress with updates being posted here frequently. The project is **currently not in a functional state**.
+
+## Instructions
+Edit the configuration settings in **config.ini**.
+
+Run `python jupt.py` to create the plot.
+
+Note, the figure is not automatically saved.
