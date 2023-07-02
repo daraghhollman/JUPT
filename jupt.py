@@ -9,6 +9,7 @@ config = configparser.ConfigParser()
 import junoMAG
 import junoEphemeris
 import junoWAVES
+import vLines
 
 config.read("./config.ini")
 
@@ -37,6 +38,7 @@ panelSpacing = config["plotting"].getfloat("panel spacing")
 # Parameters for vertical lines
 vLineLabels = ast.literal_eval(config["vertical lines"]["labels"])
 vLinePositions = ast.literal_eval(config["vertical lines"]["positions"])
+vLineStyle = config["vertical lines"]["linestyle"]
 vLineLabelSpacing = 1/32 # In units of axis length
 
 # Colour Parameters
@@ -90,19 +92,13 @@ if plotMag:
 # Set tick formatting and add vertical lines 
 for i, axis in enumerate(fig.axes):
 
-    if i % 2 == 0 and len(vLinePositions) == 0: # As each axis is divided to keep widths consistant with colourbars and legends, there are always twice as many axes as data plotted. These are created sequentially in the order data axis, legend axis, and hence we can use the modulo to only get the even index.
-        for label, position, colour in zip(vLineLabels, vLinePositions, vLineColours):
-            # convert from string to datetime
-            posTime = datetime.strptime(position, "%Y-%m-%dT%H:%M:%S")
-            startTime = datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")
-            endTime = datetime.strptime(timeFrame[1], "%Y-%m-%dT%H:%M:%S")
-            axisPos = (posTime-startTime).total_seconds()
-            axisLength = (endTime - startTime).total_seconds()
+    # vLines from file
+    if i % 2 == 0 and config["vertical lines"].getboolean("read from file") == True:
+        vLines.PlotFromFile(axis, i, timeFrame, config["vertical lines"]["file path"], config["vertical lines"]["file line colour"], vLineStyle)
 
-            axis.axvline(axisPos, color=colour, linestyle="--") # x coord in seconds from start
-            
-            if label != "" and i == 0: # Labels on top plot only
-                plt.text((axisPos/axisLength)+vLineLabelSpacing, 0.9, label, transform=axis.transAxes, color=colour)
+    # Manual vLines
+    if i % 2 == 0 and len(vLinePositions) != 0: # As each axis is divided to keep widths consistant with colourbars and legends, there are always twice as many axes as data plotted. These are created sequentially in the order data axis, legend axis, and hence we can use the modulo to only get the even positionIndex
+        vLines.PlotVLines(axis, i, timeFrame, vLinePositions, vLineLabels, vLineColours, vLineStyle)
 
             
     axis.format_coord = lambda x, y: '' # Disables the cursor coordinate display. This feature causes major slowdowns when resizing the window.
