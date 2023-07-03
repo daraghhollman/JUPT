@@ -26,7 +26,7 @@ Edit the configuration settings in **config.ini**:
 |plot MAG|Should MAG data be plotted. Must be either **True** or **False**|
 |panel spacing|The white space vertically between panels in units of panel height. (**default: 0**)|
 |~~font size~~|Base fontsize for the plot. Currently not functional due to **issue #9** (**default: 11**)|
-|major tick length|Length of major ticks. (**defaultL: 12**)|
+|major tick length|Length of major ticks. (**default: 12**)|
 |minor tick length|Length of minor ticks. (**default: 8**)|
 |major tick width|Width of major ticks. (**default: 0.8**)|
 |minor tick width|Width of minor ticks. (**default: 0.8**)|
@@ -47,7 +47,7 @@ Edit the configuration settings in **config.ini**:
 |plot lobe uncertainty|Should the lobe field uncertainty be plotted. Must be either **True** or **False**.|
 |line width|Line width (matplotlib) of the MAG data. (**default: 0.5**)|
 
-Note that the lobe field plotted is the Khurana model.
+Note that the lobe field plotted is the Khurana model. K & K (2002)
 
 #### colours
 |key|description|
