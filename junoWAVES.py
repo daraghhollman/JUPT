@@ -107,7 +107,7 @@ def DeleteData(dataDirectory):
     """ Deletes all .cdf files in a directory"""
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%"):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, loadData=False, numFreqBins=126):
     """ Plots the Waves data 
 
     Arguments:
@@ -122,7 +122,9 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     frequencyBins -- (int) Number of bins to interpolate the data into
     yLim -- (list) List containing the bounds of the frequency axis
     colourmap -- (str) What matplotlib cmap to use
-    colorbarSize, colorbarPad -- (str) Paramaters to determine the size of the colourbar
+    colorbarSize, colorbarPad -- (str) Parameters to determine the size of the colourbar
+    saveData, loadData -- (bool) Parameters defining the saving and loading processes instead of downloading data each time.
+    numFreqBins -- (int) Number of frequency bins to interpolate the data to. Default 126 for no interpolation
 
     """
     
@@ -196,11 +198,24 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     # Adapted code taken from Corentin
     index_array = range(len(wavesTime))
 
+    # rebin frequencies
+    print("Re-binning frequencies")
+    rescaledFrequencies = FrequencyRemap(wavesFrequencies, numFreqBins)
+    newFlux = np.zeros((len(index_array), len(rescaledFrequencies)), dtype=float)
+
+    # interpolate frequencies
+    print("Interpolating Data")
+    for i in tqdm(range(len(index_array)), total= len(index_array)):
+        newFlux[i,:] = np.interp(x=rescaledFrequencies, xp=wavesFrequencies, fp=wavesData.T[i,:])
+    newFlux=newFlux.T
+        
+    # Find colourbar max and min
     if vmin == False and vmax == False:
         vmin=np.quantile(wavesData,0.05)
         vmax=np.quantile(wavesData,0.95)
     
-    image = ax.pcolormesh(index_array, wavesFrequencies, wavesData, cmap=colourmap, norm=colors.LogNorm(vmin, vmax))
+    print("Drawing Waves image")
+    image = ax.pcolormesh(index_array, rescaledFrequencies, newFlux, cmap=colourmap, norm=colors.LogNorm(vmin, vmax))
     ax.set_yscale("log")
     
     if not plotEphemeris:
@@ -218,24 +233,25 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-    if yLim != []:
-        ax.set_ylim(yLim[0], yLim[1])
-
     divider = axes_grid1.make_axes_locatable(ax)
 
     cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
 
     fig.colorbar(image, cax=cax, ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
 
+    if yLim != []:
+        ax.set_ylim(yLim[0], yLim[1])
+
     DeleteData(dataDirectory)
 
 
 # Following two functions for interpolating the frequency bins
 def FrequencyRemap(originalFrequencyBins, newFrequencyBins):
-    return np.arange(
+    return 10**np.linspace(
         start = np.log10(originalFrequencyBins[0]),
         stop = np.log10(originalFrequencyBins[-1]),
-        step = np.log10(np.max(originalFrequencyBins) - np.min(originalFrequencyBins) / (newFrequencyBins - 1))
+        num = newFrequencyBins,
+        dtype = float
     )
 
 def format_xlabel(timeIndex, time):
