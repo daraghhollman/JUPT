@@ -69,7 +69,7 @@ def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", 
         ax.plot(timePlotted, magPhi, color=componentColours[2], label="$B_\phi$", linewidth=linewidth)
 
     if plotMeasurements["lobe"]:
-        ax.plot(timePlotted, bLobe, color=lobeColour, label="B$_{Lobe}$", linewidth=3*linewidth)
+        ax.plot(timePlotted, bLobe, color=lobeColour, label="B$_{Lobe}\nK & K (2002)$", linewidth=3*linewidth)
 
     if plotMeasurements["lobeUncertainty"]:
         ax.plot(timePlotted, bLobe_err_plus, color=lobeColour, linewidth=2*linewidth, linestyle="dashed")

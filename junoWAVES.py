@@ -107,7 +107,7 @@ def DeleteData(dataDirectory):
     """ Deletes all .cdf files in a directory"""
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=True, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, loadData=False, numFreqBins=126):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, downloadNewData=True, numFreqBins=126):
     """ Plots the Waves data 
 
     Arguments:
@@ -214,7 +214,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         vmin=np.quantile(wavesData,0.05)
         vmax=np.quantile(wavesData,0.95)
     
-    print("Drawing Waves image")
+    print("Drawing Waves image... this may take some time")
     image = ax.pcolormesh(index_array, rescaledFrequencies, newFlux, cmap=colourmap, norm=colors.LogNorm(vmin, vmax))
     ax.set_yscale("log")
     
