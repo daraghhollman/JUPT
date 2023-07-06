@@ -37,6 +37,7 @@ Edit the configuration settings in **config.ini**:
 |---|---|
 |frequency limit|The range of frequency bins in kHz to display on the plot. (**default: [0.2, 139]**)|
 |colour map|The matplotlib colour map for the Waves data. Some example colourblind friendly (and perpetually uniform) options are: viridis, plasma, inferno, and magma. (**default: viridis**)|
+|frequency bins|The new number of frequency bins to interpolate the data to. Leave as 126 for no interpolation (**default: 200**).|
 
 #### MAG
 |key|description|

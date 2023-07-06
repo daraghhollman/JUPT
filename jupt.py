@@ -47,6 +47,9 @@ componentColours = ast.literal_eval(config["colours"]["component colours"])
 magnitudeColour = config["colours"]["magnitude colour"]
 lobeColour = config["colours"]["lobe colour"]
 
+saveData = config["saving and loading"]["save data"]
+loadData = config["saving and loading"]["load data"]
+
 panelsBooleanList = [plotWaves, plotMag]
 numSubPlots = sum(panelsBooleanList)
 
@@ -62,6 +65,7 @@ if plotWaves:
 
     # Plot the Waves data from the junoWAVES script
     junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+  
     positionIndex += 1
 
     if numSubPlots != 1:
