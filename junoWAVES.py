@@ -66,7 +66,7 @@ def DownloadWavesData(dataPath, downloadPath, timeFrame):
         os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataPath} {path}")
 
 
-def LoadCdfFiles(dataDirectory, measurements):
+def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -83,12 +83,30 @@ def LoadCdfFiles(dataDirectory, measurements):
 
 
     print(f"Loading CDF files from {dataDirectory}")
+
+    # Check if all filepaths between data are in the folder
+    filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
+    filePathsNeeded.sort()
     
     filePaths = glob(f"{dataDirectory}*.cdf") # returns a list of downloaded file paths (unsorted)
     filePaths.sort() # Because the date in in the file is in format yyyymmdd it can be sorted numerically.
 
+    filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
+
+    fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
+
+    if len(filesToBeDownloaded) > 0:
+        print("Downloading missing data...")
+        for path in tqdm(filesToBeDownloaded):
+            linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
+            os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataDirectory} {downloadPath}{fileLinks[linkIndex]}")
+
+    filePaths = filePathsNeeded
+
+
     filesInfoList = []
 
+    print("Loading data...")
     for filePath in tqdm(filePaths):
         file = cdflib.CDF(filePath)
 
@@ -129,9 +147,10 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     print("Retrieving waves data...")
 
     if downloadNewData == True:
+        DeleteData(dataDirectory)
         DownloadWavesData(dataDirectory, "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/", timeFrame) # Path should be in format .../data/
 
-    filesWithInfo = LoadCdfFiles(dataDirectory, ["Epoch", "Frequency", "Data"])
+    filesWithInfo = LoadCdfFiles(dataDirectory, ["Epoch", "Frequency", "Data"], timeFrame, "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/")
 
     # Initialise lists to put the data into
     time = []
@@ -227,7 +246,6 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     fig.colorbar(image, cax=cax, ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
 
-    DeleteData(dataDirectory)
 
 
 # Following two functions for interpolating the frequency bins
