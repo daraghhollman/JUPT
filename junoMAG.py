@@ -69,12 +69,13 @@ def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", 
         ax.plot(timePlotted, magPhi, color=componentColours[2], label="$B_\phi$", linewidth=linewidth)
 
     if plotMeasurements["lobe"]:
-        ax.plot(timePlotted, bLobe, color=lobeColour, label="B$_{Lobe}\nK & K (2002)$", linewidth=3*linewidth)
+        ax.plot(timePlotted, bLobe, color=lobeColour, label="B$_{Lobe}$\nK & K (2002)", linewidth=3*linewidth)
+
 
     if plotMeasurements["lobeUncertainty"]:
         ax.plot(timePlotted, bLobe_err_plus, color=lobeColour, linewidth=2*linewidth, linestyle="dashed")
         ax.plot(timePlotted, bLobe_err_minus, color=lobeColour, linewidth=2*linewidth, linestyle="dashed")
-        ax.fill_between(timePlotted, bLobe_err_minus, bLobe_err_plus, color=lobeColour, alpha=0.2, label="B$_{Lobe}$\nerror region")
+        ax.fill_between(timePlotted, bLobe_err_minus, bLobe_err_plus, color=lobeColour, alpha=0.2, label="B$_{Lobe}$\nerror\nregion")
 
     # Add dotted line at y=0
     ax.hlines(0, xmin=timePlotted[0], xmax=timePlotted[-1], colors="grey", linestyles="dotted")

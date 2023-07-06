@@ -16,6 +16,7 @@ Edit the configuration settings in **config.ini**:
 |key|description|
 |----|----|
 |data directory|A path pointing to the directory where the data will we automatically downloaded and stored. e.g. /home/user/data/|
+|download new data|Should new data be downloaded regardless. If False, missing data will still be automatically downloaded. Must be either **True** or **False**.|
 
 #### plotting
 |key|description|

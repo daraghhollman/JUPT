@@ -64,11 +64,8 @@ if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     # Plot the Waves data from the junoWAVES script
-    if plotMag:
-        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], saveData=saveData, loadData=loadData, numFreqBins=config["Waves"].getint("frequency bins"))
-    else:
-        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=True, colourmap=config["Waves"]["colour map"], saveData=saveData, loadData=loadData, numFreqBins=config["Waves"].getint("frequency bins"))
-
+    junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+  
     positionIndex += 1
 
     if numSubPlots != 1:
