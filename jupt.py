@@ -51,7 +51,7 @@ componentColours = ast.literal_eval(config["colours"]["component colours"])
 magnitudeColour = config["colours"]["magnitude colour"]
 lobeColour = config["colours"]["lobe colour"]
 
-panelsBooleanList = [plotWaves, plotMag]
+panelsBooleanList = [plotWaves, plotMag, plotJADE]
 numSubPlots = sum(panelsBooleanList)
 
 
@@ -61,10 +61,11 @@ plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
 positionIndex = 1 # Define a position index to tell each subplot what position it should be in
 
 if plotJADE:
-    print("plotting JADE")
     axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
 
-    junoJade.PlotData(fig, ax, timeFrame)
+    junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory)
+
+    positionIndex += 1
 
 
 # Section controlling Waves plotting

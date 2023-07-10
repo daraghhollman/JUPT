@@ -31,7 +31,7 @@ def ReadLabel(labelFilePath):
     return (labelInfo, structClass)
 
 
-def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted):
+def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemented"):
     
     time = []
     spectra = []

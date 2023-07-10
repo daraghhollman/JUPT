@@ -63,7 +63,7 @@ def DownloadWavesData(dataPath, downloadPath, timeFrame):
     pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")]
     print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
     for path in tqdm(pathList):
-        os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataPath} {path}")
+        os.system(f"wget -r --show-progress -nd -np -nH -N -P {dataPath} {path}")
 
 
 def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):

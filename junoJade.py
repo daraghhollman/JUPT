@@ -1,5 +1,8 @@
-from junoWaves import PathsFromTimeDifference
+from junoWAVES import PathsFromTimeDifference
 from pdsBinaryTools import *
+from tqdm import tqdm
+import os
+from glob import glob
 
 def DownloadJadeData(dataPath, downloadPath, timeFrame):
     """ Downloads the JADE data using system command wget
@@ -13,14 +16,19 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame):
 
     binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.DAT")]
     labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.LBL")]
-    print(binaryPathList)
 
-    print(f"Downloading JADE files from {downloadPath} to {dataPath}\n")
-    for path in tqdm(pathList):
-        os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataPath} {path}")
+    print(f"Downloading {len(labelPathList)} JADE label file(s) from {downloadPath} to {dataPath}\n")
+    for path in labelPathList:
+        fileName = dataPath + path.split("/")[-1]
+        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
+
+    print(f"Downloading {len(binaryPathList)} JADE binary file(s) from {downloadPath} to {dataPath}\n")
+    for path in binaryPathList:
+        fileName = dataPath + path.split("/")[-1]
+        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
 
 
-def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
+def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -28,58 +36,76 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
     
     Arguments:
     dataDirectory -- (str) Path do directory where data is stored
-    measurements -- (list) A list containing strings of the data measurments to pull from the cdf files 
 
     Returns:
     A list of dictionaries of each file which contains the measurements as keys.
 
     """
 
+    print(f"Loading JADE files from {dataDirectory}")
 
-    print(f"Loading CDF files from {dataDirectory}")
+    for fileExtension in ["DAT", "LBL"]:
+        # Check if all filepaths between data are in the folder
+        filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
+        filePathsNeeded.sort()
+        # print(f"NEEDED: {filePathsNeeded}")
+        
+        filePaths = glob(f"{dataDirectory}*.{fileExtension}") # returns a list of downloaded file paths (unsorted)
+        filePaths.sort() # Because the date in in the file is in format yyyymmdd it can be sorted numerically.
+        # print(f"HAVE: {filePaths}")
 
-    # Check if all filepaths between data are in the folder
-    filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
-    filePathsNeeded.sort()
-    
-    filePaths = glob(f"{dataDirectory}*.cdf") # returns a list of downloaded file paths (unsorted)
-    filePaths.sort() # Because the date in in the file is in format yyyymmdd it can be sorted numerically.
+        filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
 
-    filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
+        fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
 
-    fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
+        if len(filesToBeDownloaded) > 0:
+            print("Downloading missing data...")
+            for path in filesToBeDownloaded:
+                linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
+                fileName = dataDirectory + path.split("/")[-1]
+                os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {downloadPath}{fileLinks[linkIndex]}")
+        
+        filePaths = filePathsNeeded
+        
+        if fileExtension == "DAT":
+            binaryFilePaths = filePaths
 
-    if len(filesToBeDownloaded) > 0:
-        print("Downloading missing data...")
-        for path in tqdm(filesToBeDownloaded):
-            linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
-            os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataDirectory} {downloadPath}{fileLinks[linkIndex]}")
-
-    filePaths = filePathsNeeded
+        elif fileExtension == "LBL":
+            labelFilePaths = filePaths
 
 
     filesInfoList = []
 
     print("Loading data...")
-    for filePath in tqdm(filePaths):
-        file = cdflib.CDF(filePath)
 
-        fileInfo = dict()
-        for measurment in measurements:
-            measurmentData = file.varget(measurment)
+    for labelFilePath, binaryFilePath in zip(labelFilePaths, binaryFilePaths):
+
+        labelInfo, structClass = ReadLabel(labelFilePath)
+
+        binaryDictionary = ReadBinary(binaryFilePath, structClass, labelInfo)
+
+        fileInfo = binaryDictionary
+        # for measurment in measurements:
+            # measurmentData = file.varget(measurment)
             # measurementUnit = file.varinq(measurment)["Data_Type_Description"]
 
-            fileInfo[measurment] = measurmentData
+            # fileInfo[measurment] = measurmentData
         
         filesInfoList.append(fileInfo)
 
     return filesInfoList
 
+
 def DeleteData(dataDirectory):
     """ Deletes all .cdf files in a directory"""
-    os.system(f"rm {dataDirectory}*.cdf")
+    os.system(f"rm {dataDirectory}*.DAT")
+    os.system(f"rm {dataDirectory}*.LBL")
 
 
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False)
-    DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame)
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False):
 
+    if downloadNewData:
+        DeleteData(dataDirectory)
+        DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame)
+
+    LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/")
