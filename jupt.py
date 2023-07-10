@@ -1,3 +1,5 @@
+print("Importing packages")
+
 import matplotlib.pyplot as plt
 from datetime import datetime
 import configparser
@@ -9,6 +11,7 @@ config = configparser.ConfigParser()
 import junoMAG
 import junoEphemeris
 import junoWAVES
+import junoJade
 import vLines
 
 config.read("./config.ini")
@@ -28,6 +31,7 @@ minorTickWidth = config["plotting"].getfloat("minor tick width")
 # Select which panels to plot
 plotWaves = config["plotting"].getboolean("plot Waves")
 plotMag = config["plotting"].getboolean("plot MAG")
+plotJADE = config["plotting"].getboolean("plot JADE")
 
 # Set font parameters
 fontsize = config["plotting"].getfloat("font size")
@@ -55,6 +59,13 @@ fig = plt.figure()
 plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
 
 positionIndex = 1 # Define a position index to tell each subplot what position it should be in
+
+if plotJADE:
+    print("plotting JADE")
+    axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
+
+    junoJade.PlotData(fig, ax, timeFrame)
+
 
 # Section controlling Waves plotting
 if plotWaves:

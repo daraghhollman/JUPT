@@ -16,7 +16,7 @@ def PathsFromTimeDifference(t1, t2, pathFormat):
     """ Creates output path names between two times in a specified format 
 
     Arguments:
-    t1, t2 -- (str) Input times between which the paths will be created. Must be in the format "YYYY-MM-DDThh:mm:ss"
+t1, t2 -- (str) Input times between which the paths will be created. Must be in the format "YYYY-MM-DDThh:mm:ss"
     pathFormat -- (str) Path format which the files to be downloaded are in
 
     Returns:
