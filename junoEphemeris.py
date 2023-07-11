@@ -121,7 +121,12 @@ def CalculateTickSpread(timeDelta):
 
     timeDelta = timeDelta.astype("int")
 
-    if (timeDelta < 0.5):
+    if (timeDelta < 0.25):
+        #Plot every 5 mins
+        major = np.arange(0, dayLength_mins, 1)
+        minor = np.arange(0, dayLength_mins, 0.1)
+
+    elif (timeDelta >= 0.25 and timeDelta < 0.5):
         #Plot every 5 mins
         major = np.arange(0, dayLength_mins, 5)
         minor = np.arange(0, dayLength_mins, 1)

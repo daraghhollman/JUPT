@@ -35,6 +35,8 @@ def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemen
     
     time = []
     spectra = []
+    dataUnits = []
+    energyScale = []
     with open(binaryFilePath, "rb") as binaryFile:
         while True:
             # if n == 3:
@@ -58,12 +60,16 @@ def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemen
 
             utc = dataDictionary["DIM0_UTC"]["data"]
             convertedUtc = datetime.strptime(''.join([time.decode('utf-8') for time in utc]), '%Y-%jT%H:%M:%S.%f').strftime("%Y-%m-%dT%H:%M:%S.%f")
-            # print(convertedUtc)
 
             time.append(convertedUtc)
             spectra.append(np.array(dataDictionary["DATA"]["data"]).reshape(dataDictionary["DATA"]["shape"]))
+            dataUnits.append(dataDictionary["DATA_UNITS"]["data"])
+            energyScale.append(np.array(dataDictionary["DIM1_E"]["data"]).reshape(dataDictionary["DIM1_E"]["shape"]))
+
         
     return {
         "time": time,
-        "spectra": spectra
+        "data": spectra,
+        "data units": dataUnits[0],
+        "energy scale": energyScale[0]
     }

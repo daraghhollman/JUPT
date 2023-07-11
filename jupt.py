@@ -63,7 +63,7 @@ positionIndex = 1 # Define a position index to tell each subplot what position i
 if plotJADE:
     axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
 
-    junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory)
+    junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=True, plotEphemeris=True, ephemerisLabels=True, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
 
     positionIndex += 1
 

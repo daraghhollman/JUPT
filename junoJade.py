@@ -1,10 +1,17 @@
 from junoWAVES import PathsFromTimeDifference
 from pdsBinaryTools import *
+import junoEphemeris
+
 from tqdm import tqdm
 import os
 from glob import glob
+from astropy.time import Time, TimeDelta
+import matplotlib.colors as colors
+import matplotlib.ticker as ticker
+from mpl_toolkits import axes_grid1
 
-def DownloadJadeData(dataPath, downloadPath, timeFrame):
+
+def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
     """ Downloads the JADE data using system command wget
 
     Arguments:
@@ -14,8 +21,13 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame):
 
     """
 
-    binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.DAT")]
-    labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.LBL")]
+    if hiRes:
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.LBL")]
+    else:
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.LBL")]
+
 
     print(f"Downloading {len(labelPathList)} JADE label file(s) from {downloadPath} to {dataPath}\n")
     for path in labelPathList:
@@ -28,7 +40,7 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame):
         os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
 
 
-def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath):
+def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -46,7 +58,11 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath):
 
     for fileExtension in ["DAT", "LBL"]:
         # Check if all filepaths between data are in the folder
-        filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
+        if hiRes:
+            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.{fileExtension}")
+        else:
+            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
+
         filePathsNeeded.sort()
         # print(f"NEEDED: {filePathsNeeded}")
         
@@ -56,7 +72,10 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath):
 
         filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
 
-        fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
+        if hiRes:
+            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.{fileExtension}")
+        else:
+            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
 
         if len(filesToBeDownloaded) > 0:
             print("Downloading missing data...")
@@ -79,6 +98,7 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath):
     print("Loading data...")
 
     for labelFilePath, binaryFilePath in zip(labelFilePaths, binaryFilePaths):
+        print(labelFilePath)
 
         labelInfo, structClass = ReadLabel(labelFilePath)
 
@@ -102,10 +122,161 @@ def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.LBL")
 
 
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False):
+def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%"):
 
     if downloadNewData:
         DeleteData(dataDirectory)
-        DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame)
+        DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
 
-    LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/")
+    filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=True)
+
+    time = []
+    energy = []
+    lookAngle = []
+    data = []
+
+    print("Shortening data to match time frame. This may take some time")
+    for i, fileInfo in enumerate(filesWithInfo):
+
+        if i == 0 and i == len(filesWithInfo) -1:
+            print("Note: using only one file")
+            sliceStart = 0
+
+            print("Finding start point")
+            for j, t in tqdm(enumerate(fileInfo["time"])):
+                t = Time(t, format="isot")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[0], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceStart = j
+
+            print("Found start point")
+            
+            sliceEnd = 0
+
+            print("Finding end point")
+
+            for j, t in tqdm(enumerate(fileInfo["time"])):
+
+                t = Time(t, format="isot")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[1], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceEnd = j
+
+            print("Found end point")
+
+            if sliceStart == sliceEnd:
+                raise ValueError(f"Timeframe start point and end point are closer than timestep in JADE data")
+
+            time = fileInfo["time"][sliceStart:sliceEnd]
+            data = fileInfo["data"][sliceStart:sliceEnd]
+
+        elif i == 0:
+            sliceStart = 0
+            print("Finding start point")
+
+            for j, t in tqdm(enumerate(fileInfo["time"])):
+                t = Time(t, format="isot")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[0], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceStart = j
+
+            print("Found start point")
+            time.extend(fileInfo["time"][sliceStart:])
+            data.extend(fileInfo["data"][sliceStart:])
+
+        elif i == len(filesWithInfo) -1:
+            sliceEnd = 0
+
+            print("Finding end point")
+
+            for j, t in tqdm(enumerate(fileInfo["time"])):
+                
+                t = Time(t, format="isot")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[1], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceEnd = j
+
+            print("Found end point")
+            time.extend(fileInfo["time"][:sliceEnd])
+            data.extend(fileInfo["data"][:sliceEnd])
+
+        else:
+            time.extend(fileInfo["time"])
+            data.extend(fileInfo["data"])
+
+        print(f"Slicing at {sliceStart} to {sliceEnd}")
+
+    sumOverLookAngles = np.transpose(np.sum(data, axis=2)) # Transpose to get to shape (numEnergyBins, Time)
+
+    index_array = range(len(time))
+
+    print("Drawing JADE image...")
+
+    image = ax.pcolormesh(time, [el*1000*1.602e-19 for el in np.add(filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles, cmap=colourmap, norm=colors.LogNorm())
+
+    if not plotEphemeris:
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, time)))
+        ax.set_xlabel(f"Time from {timeFrame[0]} (s)")
+
+    else:
+        timeDatetime64 = []
+        for t in time:
+            timeDatetime64.append(np.datetime64(str(t)))
+
+        ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
+
+    ax.set_ylabel("Electron Energy (keV)")
+    ax.set_yscale("log")
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+    divider = axes_grid1.make_axes_locatable(ax)
+
+    cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
+
+    if filesWithInfo[0]["data units"] == (3,):
+        fig.colorbar(image, cax=cax, ax=ax, label="Differential Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+    else:
+        raise RuntimeError("Unknown data units")
+
+
+
+def format_xlabel(timeIndex, time):
+    """ matplotlib ticker custom function formatter to reformat the ephemeris tick labels 
+    
+    Arguments:
+    timeIndex -- (list) An index list of the time coordinates
+    time -- (list) The time coordinates 
+
+    """
+    timeLength = len(time)
+    time = [el.to_datetime() for el in time]
+    hoursAndMinutes = pandas.to_datetime(time).strftime('%H:%M')
+    dayAndMonthAndYear = pandas.to_datetime(time).strftime('%Y-%m-%d')
+    
+    def inner_function(index, pos=None):
+        #  np.clip will avoid having to check the value (to see if it's outside the array) 
+        clipedIndex = np.clip(int(index + 0.5), 0, timeLength - 1)
+        return f"{dayAndMonthAndYear[clipedIndex]}\n{hoursAndMinutes[clipedIndex]}"
+
+    return inner_function

@@ -159,12 +159,56 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     frequency = []
     data = []
 
+    print("Shortening data to match time frame. This may take some time")
     for i, fileInfo in enumerate(filesWithInfo): # enumerate could be computationally expensive here. Perhaps change to a boolean test as it is only a one time use?
         # Next we must contract the lists to the timeframe we have selected.
+        if i ==0 and i == len(filesWithInfo) -1:
+            print("Note: using only one file")
+            sliceStart = 0
+
+            print("Finding start point")
+            for j, t in tqdm(enumerate(fileInfo["Epoch"])):
+                t = Time(t, format="cdf_tt2000")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[0], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceStart = j
+
+            print("Found start point")
+            
+            sliceEnd = 0
+
+            print("Finding end point")
+
+            for j, t in tqdm(enumerate(fileInfo["Epoch"])):
+
+                t = Time(t, format="cdf_tt2000")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[1], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceEnd = j
+
+            print("Found end point")
+
+            if sliceStart == sliceEnd:
+                raise ValueError(f"Timeframe start point and end point are closer than timestep in JADE data")
+
+            time = fileInfo["time"][sliceStart:sliceEnd]
+            data = fileInfo["data"][sliceStart:sliceEnd]
+
+
+
         if i==0:
             sliceStart = 0
             
-            print("Shortening data to match time frame. This may take some time")
             print("Finding start point...")
             for j, t in tqdm(enumerate(fileInfo["Epoch"]), total=len(fileInfo["Epoch"])): # this is quite slow, takes around 30 seconds
                 t = Time(t, format="cdf_tt2000")
@@ -209,6 +253,8 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     wavesFrequencies = filesWithInfo[0]["Frequency"]
 
     wavesData = np.transpose(data)
+
+    print(np.shape(wavesData))
 
     # Calibrating by dividing by 377 Ohms
     for frequencyRow in wavesData:
