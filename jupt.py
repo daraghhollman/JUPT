@@ -60,23 +60,20 @@ plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
 
 positionIndex = 1 # Define a position index to tell each subplot what position it should be in
 
-if plotJADE:
-    axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
-
-    junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=True, plotEphemeris=True, ephemerisLabels=True, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
-
-    positionIndex += 1
-
-
 # Section controlling Waves plotting
 if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     # Plot the Waves data from the junoWAVES script
-    if plotMag:
-        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+    if plotMag or plotJADE:
+        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), yscale=config["Waves"]["y scale"])
+        axWaves.set_xticklabels('')
     else:
-        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=True, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=True, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), yscale=config["Waves"]["y scale"])
+
+    axWaves.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
+    axWaves.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
+    axWaves.margins(x=0)
   
     positionIndex += 1
 
@@ -84,12 +81,35 @@ if plotWaves:
         # Make the ephemerisLabels invisible if in a multipanel plot
         plt.setp(axWaves.get_xticklabels(), visible=False)
 
+if plotJADE:
+    """
+    if plotWaves:
+        axJade = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axWaves)
+    else:
+        axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
+    """
+    axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
+
+    if plotMag:
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=True, plotEphemeris=True, ephemerisLabels=False, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+        axJade.set_xticklabels('')
+    else:
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=True, plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+        
+    axJade.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
+    axJade.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
+    axJade.margins(x=0)
+
+    positionIndex += 1
+
 
 # Section controlling MAG plotting
 if plotMag:
     # Test if this subplot needs to share axes
     if plotWaves:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axWaves)
+    elif plotJADE:
+        axMag = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axJade)
     else:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
 
@@ -103,6 +123,8 @@ if plotMag:
     }, plotEphemeris=True, ephemerisLabels=True, linewidth=config["MAG"].getfloat("line width"), componentColours=componentColours, lobeColour=lobeColour, magnitudeColour=magnitudeColour)
     positionIndex += 1
 
+    axMag.tick_params("y", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
+    axMag.margins(x=0)
 
 
 # Set tick formatting and add vertical lines 

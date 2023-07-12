@@ -125,7 +125,7 @@ def DeleteData(dataDirectory):
     """ Deletes all .cdf files in a directory"""
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, downloadNewData=True, numFreqBins=126):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, downloadNewData=True, numFreqBins=126, yscale="log"):
     """ Plots the Waves data 
 
     Arguments:
@@ -146,7 +146,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     """
     
-    print("Retrieving waves data...")
+    print("Retrieving Waves data...")
 
     if downloadNewData == True:
         DeleteData(dataDirectory)
@@ -201,12 +201,12 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
             if sliceStart == sliceEnd:
                 raise ValueError(f"Timeframe start point and end point are closer than timestep in JADE data")
 
-            time = fileInfo["time"][sliceStart:sliceEnd]
-            data = fileInfo["data"][sliceStart:sliceEnd]
+            time = fileInfo["Epoch"][sliceStart:sliceEnd]
+            data = fileInfo["Data"][sliceStart:sliceEnd]
 
 
 
-        if i==0:
+        elif i==0:
             sliceStart = 0
             
             print("Finding start point...")
@@ -281,7 +281,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     
     print("Drawing Waves image... this may take some time")
     image = ax.pcolormesh(index_array, rescaledFrequencies, newFlux, cmap=colourmap, norm=colors.LogNorm(vmin, vmax))
-    ax.set_yscale("log")
+    ax.set_yscale(yscale)
     
     if not plotEphemeris:
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, wavesTime)))

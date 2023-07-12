@@ -232,7 +232,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     print("Drawing JADE image...")
 
-    image = ax.pcolormesh(time, [el*1000*1.602e-19 for el in np.add(filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles, cmap=colourmap, norm=colors.LogNorm())
+    image = ax.pcolormesh(index_array, [el*1000*1.602e-19 for el in filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles, cmap=colourmap, norm=colors.LogNorm())
 
     if not plotEphemeris:
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, time)))
@@ -245,7 +245,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
         ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
 
-    ax.set_ylabel("Electron Energy (keV)")
+    ax.set_ylabel("Electron Energy (arb.)")
     ax.set_yscale("log")
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
@@ -255,7 +255,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
     cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
 
     if filesWithInfo[0]["data units"] == (3,):
-        fig.colorbar(image, cax=cax, ax=ax, label="Differential Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+        fig.colorbar(image, cax=cax, ax=ax, label="Diff. Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
     else:
         raise RuntimeError("Unknown data units")
 
