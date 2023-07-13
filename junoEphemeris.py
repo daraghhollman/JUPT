@@ -38,6 +38,8 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labe
     # Pulls ephemeris data in x, y, z
     junoEphemeris = spz.amda.get_parameter("juno_eph_orb_jso", timeFrame[0], timeFrame[1])
 
+    
+
     distanceValues = PullEphemerisData("juno_jup_r", dataTime, timeFrame)
     longitudeValues = PullEphemerisData("juno_jup_lon", dataTime, timeFrame)
     latitudeValues = PullEphemerisData("juno_jup_lat", dataTime, timeFrame)
@@ -180,4 +182,4 @@ def CalculateTickSpread(timeDelta):
 @np.vectorize
 def datestring_to_datetime(time):
     #return datetime.datetime.strptime(np.datetime_as_string(time,unit="s"),"%Y-%m-%dT%H:%M:%S")
-    return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")
+    return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") + datetime.timedelta(minutes=1)
