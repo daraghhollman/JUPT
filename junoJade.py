@@ -122,13 +122,13 @@ def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.LBL")
 
 
-def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%"):
+def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotLookAngle=False):
 
     if downloadNewData:
         DeleteData(dataDirectory)
         DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
 
-    filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=True)
+    filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=hiRes)
 
     time = []
     energy = []
@@ -224,15 +224,38 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
             time.extend(fileInfo["time"])
             data.extend(fileInfo["data"])
 
-        print(f"Slicing at {sliceStart} to {sliceEnd}")
+        # print(f"Slicing at {sliceStart} to {sliceEnd}")
+
 
     sumOverLookAngles = np.transpose(np.sum(data, axis=2)) # Transpose to get to shape (numEnergyBins, Time)
+    # lookAngles = np.transpose(np.array(data)[:, 0, :])
+    lookAngles = np.transpose(np.sum(data, axis=1))
+    # print(np.shape(filesWithInfo[0]["look angle scale"][]))
+
+    yes = ax.pcolormesh(filesWithInfo[0]["look angle scale"])
+    fig.colorbar(yes)
+
+    return
 
     index_array = range(len(time))
 
     print("Drawing JADE image...")
 
-    image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles, cmap=colourmap, norm=colors.LogNorm())
+    for fileInfo in filesWithInfo:
+        if not (fileInfo["energy scale"][:,0] == filesWithInfo[0]["energy scale"][:,0]).all():
+            raise RuntimeError("Energy channel values inconsistant across list of files")
+        if not (fileInfo["look angle scale"][:,0] == filesWithInfo[0]["look angle scale"][:,0]).all():
+            raise RuntimeError("Look angle channel values inconsistant across list of files")
+
+    if plotElectronEnergy:
+        image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles/1000, cmap=colourmap, norm=colors.LogNorm())
+        ax.set_ylabel("Electron Energy (keV)")
+        ax.set_yscale("log")
+
+    if plotLookAngle:
+        image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["look angle scale"][0]], lookAngles, cmap=colourmap, norm=colors.LogNorm())
+        ax.set_ylabel("Pitch Angle (deg)")
+        ax.set_yscale("linear")
 
     if not plotEphemeris:
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, time)))
@@ -245,8 +268,6 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
         ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
 
-    ax.set_ylabel("Electron Energy (eV/q)")
-    ax.set_yscale("log")
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 

@@ -74,9 +74,9 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labe
     
     if labels:
         ax.annotate('R (R$_J$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-0*labelFontsize), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
-        ax.annotate('Lon ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-1*labelFontsize - posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+        ax.annotate('Lon$_{III}$ ($^\circ}$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-1*labelFontsize - posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
         ax.annotate('Lat ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-2*labelFontsize - 2*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
-        ax.annotate('mLat ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-3*labelFontsize - 3*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+        ax.annotate('MLat ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-3*labelFontsize - 3*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
     else:
         ax.set_xticklabels('')
 

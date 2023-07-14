@@ -13,6 +13,7 @@ import junoEphemeris
 import junoWAVES
 import junoJade
 import vLines
+import junoDerivedMoments
 
 config.read("./config.ini")
 
@@ -32,6 +33,7 @@ minorTickWidth = config["plotting"].getfloat("minor tick width")
 plotWaves = config["plotting"].getboolean("plot Waves")
 plotMag = config["plotting"].getboolean("plot MAG")
 plotJADE = config["plotting"].getboolean("plot JADE")
+plotDensity = config["plotting"].getboolean("plot density")
 
 # Set font parameters
 fontsize = config["plotting"].getfloat("font size")
@@ -51,7 +53,7 @@ componentColours = ast.literal_eval(config["colours"]["component colours"])
 magnitudeColour = config["colours"]["magnitude colour"]
 lobeColour = config["colours"]["lobe colour"]
 
-panelsBooleanList = [plotWaves, plotMag, plotJADE]
+panelsBooleanList = [plotWaves, plotMag, plotJADE, plotDensity]
 numSubPlots = sum(panelsBooleanList)
 
 
@@ -91,16 +93,26 @@ if plotJADE:
     axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     if plotMag:
-        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=True, plotEphemeris=True, ephemerisLabels=False, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=False, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
         axJade.set_xticklabels('')
     else:
-        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=True, plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=False, plotLookAngle=True)
         
     axJade.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
     axJade.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
     axJade.margins(x=0)
 
     positionIndex += 1
+
+# Moments
+if plotDensity:
+    axDensity = fig.add_subplot(numSubPlots, 1, positionIndex)
+    junoDerivedMoments.PlotDensity(fig, axDensity, timeFrame, dataDirectory, plotEphemeris=False, ephemerisLabels=False, downloadNewData=config["data"].getboolean("download new data"))
+
+    positionIndex += 1
+    
+
+
 
 
 # Section controlling MAG plotting
