@@ -57,10 +57,10 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labe
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, distanceValues, longitudeValues, latitudeValues, mLatitudeValues)))
  
     # Following section adapted from Corentin
-    timedelta_hours = np.timedelta64(ephemerisTime[-1] - ephemerisTime[0]).astype("timedelta64[h]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
-    print(f"TIMEDELTA; Type: {type(timedelta_hours)}, Value: {timedelta_hours}")
+    timedelta_seconds = np.timedelta64(ephemerisTime[-1] - ephemerisTime[0]).astype("timedelta64[s]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
+    print(f"TIMEDELTA; Type: {type(timedelta_seconds)}, Value: {timedelta_seconds}")
 
-    major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
+    major_locator, minor_locator = CalculateTickSpread(timedelta_seconds)
     major_locator = np.multiply(major_locator, resolutionFactor) # resolutionFactor is simply a multiplier to deal with data of differening resolution. It multiplies the tick location - which by default expect the time axis to be of resolution 1 minute - such that the ticks spread over the whole axis.
     minor_locator = np.multiply(minor_locator, resolutionFactor)
     # ax.set_xlim((0, major_locator[-1]))
@@ -123,7 +123,7 @@ def CalculateTickSpread(timeDelta):
     # Adjusted code taken from Corentin, function takes the timedelta plotted in hours.
     dayLength_mins = 1400 # number of minutes in one day
 
-    timeDelta = timeDelta.astype("int")
+    timeDelta = timeDelta.astype("float")/3600
 
     if (timeDelta < 0.25):
         #Plot every 5 mins
