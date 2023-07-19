@@ -182,4 +182,4 @@ def CalculateTickSpread(timeDelta):
 @np.vectorize
 def datestring_to_datetime(time):
     #return datetime.datetime.strptime(np.datetime_as_string(time,unit="s"),"%Y-%m-%dT%H:%M:%S")
-    return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") + datetime.timedelta(minutes=1)
+    return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") #+ datetime.timedelta(minutes=1)

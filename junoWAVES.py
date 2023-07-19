@@ -254,8 +254,6 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     wavesData = np.transpose(data)
 
-    print(np.shape(wavesData))
-
     # Calibrating by dividing by 377 Ohms
     for frequencyRow in wavesData:
         frequencyRow = frequencyRow / 377

@@ -230,12 +230,6 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
     sumOverLookAngles = np.transpose(np.sum(data, axis=2)) # Transpose to get to shape (numEnergyBins, Time)
     # lookAngles = np.transpose(np.array(data)[:, 0, :])
     lookAngles = np.transpose(np.sum(data, axis=1))
-    # print(np.shape(filesWithInfo[0]["look angle scale"][]))
-
-    yes = ax.pcolormesh(filesWithInfo[0]["look angle scale"])
-    fig.colorbar(yes)
-
-    return
 
     index_array = range(len(time))
 
@@ -248,8 +242,8 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
             raise RuntimeError("Look angle channel values inconsistant across list of files")
 
     if plotElectronEnergy:
-        image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles/1000, cmap=colourmap, norm=colors.LogNorm())
-        ax.set_ylabel("Electron Energy (keV)")
+        image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles, cmap=colourmap, norm=colors.LogNorm())
+        ax.set_ylabel("Electron Energy (eV)")
         ax.set_yscale("log")
 
     if plotLookAngle:
@@ -266,7 +260,14 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         for t in time:
             timeDatetime64.append(np.datetime64(str(t)))
 
-        ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
+        print(f"plotting ephemeris for {len(time)} points")
+        if hiRes:
+            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
+        else:
+            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=0.5, labels=ephemerisLabels)
+
+    # (datetime.strptime(timeFrame[1], "%Y-%m-%dT%H:%M:%S") - datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")) / len(timeDatetime64)
+
 
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])

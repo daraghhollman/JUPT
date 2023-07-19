@@ -67,7 +67,7 @@ if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     # Plot the Waves data from the junoWAVES script
-    if plotMag or plotJADE:
+    if plotMag or plotJADE or plotDensity:
         junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), yscale=config["Waves"]["y scale"])
         axWaves.set_xticklabels('')
     else:
@@ -92,11 +92,11 @@ if plotJADE:
     """
     axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
 
-    if plotMag:
+    if plotMag or plotDensity:
         junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=False, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
         axJade.set_xticklabels('')
     else:
-        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=False, plotLookAngle=True)
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=config["JADE"].getboolean("plot electron energy"), plotLookAngle=config["JADE"].getboolean("plot look angle"))
         
     axJade.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
     axJade.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
@@ -107,21 +107,22 @@ if plotJADE:
 # Moments
 if plotDensity:
     axDensity = fig.add_subplot(numSubPlots, 1, positionIndex)
-    junoDerivedMoments.PlotDensity(fig, axDensity, timeFrame, dataDirectory, plotEphemeris=False, ephemerisLabels=False, downloadNewData=config["data"].getboolean("download new data"))
+
+    if plotMag:
+        junoDerivedMoments.PlotDensity(fig, axDensity, timeFrame, dataDirectory, plotEphemeris=True, ephemerisLabels=False, downloadNewData=config["data"].getboolean("download new data"))
+    else:
+        junoDerivedMoments.PlotDensity(fig, axDensity, timeFrame, dataDirectory, plotEphemeris=True, ephemerisLabels=True, downloadNewData=config["data"].getboolean("download new data"))
+
 
     positionIndex += 1
-    
-
-
-
-
+   
 # Section controlling MAG plotting
 if plotMag:
     # Test if this subplot needs to share axes
     if plotWaves:
-        axMag = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axWaves)
+        axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
     elif plotJADE:
-        axMag = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axJade)
+        axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
     else:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
 

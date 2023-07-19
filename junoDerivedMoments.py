@@ -5,11 +5,13 @@ from tqdm import tqdm
 from glob import glob
 from astropy.time import Time
 from datetime import datetime
+from mpl_toolkits import axes_grid1
 
 import os
 import matplotlib.colors as colors
 import matplotlib.ticker as ticker
 import pandas
+import numpy as np
 
 def DownloadJadeMoments(dataPath, downloadPath, timeFrame):
     """ Downloads the JADE derived moments data using system command wget
@@ -59,7 +61,7 @@ def LoadMomentFiles(dataDirectory, timeFrame, downloadPath):
     print("Loading data...")
     for filePath in tqdm(filePaths):
         
-        fileInfoList.append(pandas.read_csv(filePath, index_col=False, names=["UTC", "SOURCE_JADE_LEVEL5_DEF_VERSION_INPUT", "INPUT_DATA_SELECTION", "PACKET_MODE", "ACCUMULATION_TIME", "SOURCE_BACKGROUND", "ISSUES", "EV_PER_Q_RANGE", "SC_POS_R", "SC_POS_LAT", "SC_POS_LOCAL_TIME", "SC_POS_SYSIII_ELONG", "DIMENSIONS", "M", "Q", "NUM_LOOK_DIRS", "null", "N_CC", "N_SIGMA_CC", "PRESSURE_PA", "PRESSURE_SIGMA_PA", "TEMP_EV", "TEMP_SIGMA_EV", "QUALITY_FLAG"], header=None))
+        fileInfoList.append(pandas.read_csv(filePath, names=["UTC", "SOURCE_JADE_LEVEL5_DEF_VERSION_INPUT", "INPUT_DATA_SELECTION", "PACKET_MODE", "ACCUMULATION_TIME", "SOURCE_BACKGROUND", "ISSUES", "EV_PER_Q_RANGE", "SC_POS_R", "SC_POS_LAT", "SC_POS_LOCAL_TIME", "SC_POS_SYSIII_ELONG", "DIMENSIONS", "M", "Q", "NUM_LOOK_DIRS", "null", "N_CC", "N_SIGMA_CC", "PRESSURE_PA", "PRESSURE_SIGMA_PA", "TEMP_EV", "TEMP_SIGMA_EV", "QUALITY_FLAG"], header=None))
 
     return fileInfoList
 
@@ -83,14 +85,56 @@ def PlotDensity(fig, ax, timeFrame, dataDirectory, plotEphemeris=False, ephemeri
     
     filesWithInfo = PullJadeMoments(dataDirectory, timeFrame, downloadNewData)
 
-    totalFile = pandas.concat(filesWithInfo)
-    print(len(totalFile))
+    totalFile = pandas.concat(filesWithInfo, ignore_index=True)
 
-    times = [datetime.strptime(el, "%Y-%jT%H:%M:%S.%f") for el in totalFile["UTC"]]
+    print("Shortening data to match time frame")
+    foundStart=False
+    foundEnd=False
 
-    density = totalFile["N_CC"]
+    timeFrameStart = datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")
+    timeFrameEnd = datetime.strptime(timeFrame[1], "%Y-%m-%dT%H:%M:%S")
 
-    ax.scatter(times, density)
-    ax.set_xlabel("Time")
+    for index, row in tqdm(totalFile.iterrows(), total=len(totalFile)):
+        time = datetime.strptime(row["UTC"], "%Y-%jT%H:%M:%S.%f")
+        
+        if time >= timeFrameStart and foundStart == False:
+            sliceStart=index
+            foundStart=True
+
+        if time >= timeFrameEnd and foundEnd == False:
+            sliceEnd = index
+            foundEnd = True
+
+    slicedFile = totalFile.truncate(sliceStart, sliceEnd)
+
+
+    times = [datetime.strptime(el, "%Y-%jT%H:%M:%S.%f") for el in slicedFile["UTC"]]
+
+    density = slicedFile["N_CC"]
+
+    ax.plot(times, density, linestyle="dotted")
+    ax.scatter(times, density, marker=".")
+
     ax.set_ylabel("Number Density (cm$^{-3}$)")
-    # ax.scatter(times[57:90], density[57:90])
+
+    if not plotEphemeris:
+        ax.set_xlabel("UT")
+
+    else:
+        timesDatetime64 = []
+        for t in times:
+            timesDatetime64.append(np.datetime64(str(t)))
+
+        ax = junoEphemeris.PlotEphemeris(ax, timesDatetime64, timeFrame, resolutionFactor=0.1, labels=ephemerisLabels)
+
+    ax.margins(x=0)
+
+    # Srink axis
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+    divider = axes_grid1.make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="3%", pad="2%")
+    cax.axis("off")
+
+    return ax
