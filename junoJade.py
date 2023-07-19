@@ -22,11 +22,11 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
     """
 
     if hiRes:
-        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.DAT")]
-        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.LBL")]
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L30_HRS_ELC_TWO_CNT_%Y%j_V04.DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L30_HRS_ELC_TWO_CNT_%Y%j_V04.LBL")]
     else:
-        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.DAT")]
-        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.LBL")]
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L30_LRS_ELC_ANY_CNT_%Y%j_V04.DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L30_LRS_ELC_ANY_CNT_%Y%j_V04.LBL")]
 
 
     print(f"Downloading {len(labelPathList)} JADE label file(s) from {downloadPath} to {dataPath}\n")
@@ -37,6 +37,7 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
     print(f"Downloading {len(binaryPathList)} JADE binary file(s) from {downloadPath} to {dataPath}\n")
     for path in binaryPathList:
         fileName = dataPath + path.split("/")[-1]
+        print(path)
         os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
 
 
@@ -59,9 +60,9 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
     for fileExtension in ["DAT", "LBL"]:
         # Check if all filepaths between data are in the folder
         if hiRes:
-            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.{fileExtension}")
+            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L30_HRS_ELC_TWO_CNT_%Y%j_V04.{fileExtension}")
         else:
-            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
+            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L30_LRS_ELC_ANY_CNT_%Y%j_V04.{fileExtension}")
 
         filePathsNeeded.sort()
         # print(f"NEEDED: {filePathsNeeded}")
@@ -73,15 +74,16 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
         filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
 
         if hiRes:
-            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.{fileExtension}")
+            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L30_HRS_ELC_TWO_CNT_%Y%j_V04.{fileExtension}")
         else:
-            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
+            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L30_LRS_ELC_ANY_CNT_%Y%j_V04.{fileExtension}")
 
         if len(filesToBeDownloaded) > 0:
-            print("Downloading missing data...")
+            print("Downloading missing data..")
             for path in filesToBeDownloaded:
                 linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
                 fileName = dataDirectory + path.split("/")[-1]
+                print(downloadPath + fileLinks[linkIndex])
                 os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {downloadPath}{fileLinks[linkIndex]}")
         
         filePaths = filePathsNeeded
@@ -126,9 +128,9 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     if downloadNewData:
         DeleteData(dataDirectory)
-        DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
+        DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-3-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
 
-    filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=hiRes)
+    filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-3-CALIBRATED-V1.0/DATA/", hiRes=hiRes)
 
     time = []
     energy = []
@@ -264,7 +266,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         if hiRes:
             ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
         else:
-            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=0.5, labels=ephemerisLabels)
+            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=2, labels=ephemerisLabels)
 
     # (datetime.strptime(timeFrame[1], "%Y-%m-%dT%H:%M:%S") - datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")) / len(timeDatetime64)
 
@@ -276,8 +278,11 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
 
+    print(filesWithInfo[0]["data units"])
     if filesWithInfo[0]["data units"] == (3,):
         fig.colorbar(image, cax=cax, ax=ax, label="Diff. Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+    elif filesWithInfo[0]["data units"] == (2,):
+        fig.colorbar(image, cax=cax, ax=ax, label="Counts / s")
     else:
         raise RuntimeError("Unknown data units")
 
