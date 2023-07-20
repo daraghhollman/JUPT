@@ -290,7 +290,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         for time in wavesTime:
             wavesTimeDatetime64.append(np.datetime64(str(time)))
 
-        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)        
+        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame, labels=ephemerisLabels)        
     
     ax.set_ylabel("Frequency (kHz)")
     box = ax.get_position()

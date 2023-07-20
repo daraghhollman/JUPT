@@ -125,7 +125,7 @@ def PlotDensity(fig, ax, timeFrame, dataDirectory, plotEphemeris=False, ephemeri
         for t in times:
             timesDatetime64.append(np.datetime64(str(t)))
 
-        ax = junoEphemeris.PlotEphemeris(ax, timesDatetime64, timeFrame, resolutionFactor=0.1, labels=ephemerisLabels)
+        ax = junoEphemeris.PlotEphemeris(ax, timesDatetime64, timeFrame, labels=ephemerisLabels)
 
     ax.margins(x=0)
 

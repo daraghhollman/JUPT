@@ -18,7 +18,7 @@ def format_xlabel(time, r, lon, lat, mlat):
     return inner_function
 
 
-def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1):
+def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=None, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1):
     """ Plot ephemeris data as axix tick labels 
 
     Arguments:
@@ -61,6 +61,11 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labe
     print(f"TIMEDELTA; Type: {type(timedelta_seconds)}, Value: {timedelta_seconds}")
 
     major_locator, minor_locator = CalculateTickSpread(timedelta_seconds)
+
+    if resolutionFactor is None:
+        resolutionFactor = len(dataTime)/(timedelta_seconds.astype("float") / 60)
+        print(f"Resolution factor calculated to be {resolutionFactor}")
+
     major_locator = np.multiply(major_locator, resolutionFactor) # resolutionFactor is simply a multiplier to deal with data of differening resolution. It multiplies the tick location - which by default expect the time axis to be of resolution 1 minute - such that the ticks spread over the whole axis.
     minor_locator = np.multiply(minor_locator, resolutionFactor)
     # ax.set_xlim((0, major_locator[-1]))

@@ -247,7 +247,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         ax.set_yscale("log")
 
     if plotLookAngle:
-        image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["look angle scale"][0]], lookAngles, cmap=colourmap, norm=colors.LogNorm())
+        image = ax.pcolormesh(lookAngles, cmap=colourmap, norm=colors.LogNorm())
         ax.set_ylabel("Pitch Angle (deg)")
         ax.set_yscale("linear")
 
@@ -262,9 +262,9 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
         print(f"plotting ephemeris for {len(time)} points")
         if hiRes:
-            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
+            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels)
         else:
-            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, resolutionFactor=0.5, labels=ephemerisLabels)
+            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels)
 
     # (datetime.strptime(timeFrame[1], "%Y-%m-%dT%H:%M:%S") - datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")) / len(timeDatetime64)
 
