@@ -37,7 +37,7 @@ def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemen
     spectra = []
     dataUnits = []
     energyScale = []
-    lookAngleScale = []
+    pitchAngleScale = []
     with open(binaryFilePath, "rb") as binaryFile:
         while True:
             # if n == 3:
@@ -66,7 +66,7 @@ def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemen
             spectra.append(np.array(dataDictionary["DATA"]["data"]).reshape(dataDictionary["DATA"]["shape"]))
             dataUnits.append(dataDictionary["DATA_UNITS"]["data"])
             energyScale.append(np.array(dataDictionary["DIM1_E"]["data"]).reshape(dataDictionary["DIM1_E"]["shape"]))
-            lookAngleScale.append(np.array(dataDictionary["DIM2_ELEVATION"]["data"]).reshape(dataDictionary["DIM2_ELEVATION"]["shape"]))
+            pitchAngleScale.append(np.array(dataDictionary["DIM3_PITCH_ANGLES"]["data"]).reshape(dataDictionary["DIM3_PITCH_ANGLES"]["shape"]))
 
         
     return {
@@ -74,5 +74,5 @@ def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemen
         "data": spectra,
         "data units": dataUnits[0],
         "energy scale": energyScale[0],
-        "look angle scale": lookAngleScale[0]
+        "pitch angle scale": pitchAngleScale
     }

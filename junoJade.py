@@ -9,6 +9,7 @@ from astropy.time import Time, TimeDelta
 import matplotlib.colors as colors
 import matplotlib.ticker as ticker
 from mpl_toolkits import axes_grid1
+from matplotlib.tri import Triangulation
 
 
 def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
@@ -122,7 +123,7 @@ def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.LBL")
 
 
-def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotLookAngle=False):
+def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotPitchAngle=False, pitchBinStep=10):
 
     if downloadNewData:
         DeleteData(dataDirectory)
@@ -132,8 +133,8 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     time = []
     energy = []
-    lookAngle = []
     data = []
+    pitchAngles = []
 
     print("Shortening data to match time frame. This may take some time")
     for i, fileInfo in enumerate(filesWithInfo):
@@ -179,6 +180,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
             time = fileInfo["time"][sliceStart:sliceEnd]
             data = fileInfo["data"][sliceStart:sliceEnd]
+            pitchAngles = fileInfo["pitch angle scale"][sliceStart:sliceEnd]
 
         elif i == 0:
             sliceStart = 0
@@ -198,6 +200,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
             print("Found start point")
             time.extend(fileInfo["time"][sliceStart:])
             data.extend(fileInfo["data"][sliceStart:])
+            pitchAngles.extend(fileInfo["pitch angle scale"][sliceStart:])
 
         elif i == len(filesWithInfo) -1:
             sliceEnd = 0
@@ -219,37 +222,68 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
             print("Found end point")
             time.extend(fileInfo["time"][:sliceEnd])
             data.extend(fileInfo["data"][:sliceEnd])
+            pitchAngles.extend(fileInfo["pitch angle scale"][:sliceEnd])
 
         else:
             time.extend(fileInfo["time"])
             data.extend(fileInfo["data"])
+            pitchAngles.extend(fileInfo["pitch angle scale"])
 
         # print(f"Slicing at {sliceStart} to {sliceEnd}")
 
 
     sumOverLookAngles = np.transpose(np.sum(data, axis=2)) # Transpose to get to shape (numEnergyBins, Time)
     # lookAngles = np.transpose(np.array(data)[:, 0, :])
-    lookAngles = np.transpose(np.sum(data, axis=1))
+    lookAnglesData = np.transpose(np.sum(data, axis=1))
+    pitchAngles = np.array(pitchAngles)
 
     index_array = range(len(time))
+
 
     print("Drawing JADE image...")
 
     for fileInfo in filesWithInfo:
         if not (fileInfo["energy scale"][:,0] == filesWithInfo[0]["energy scale"][:,0]).all():
             raise RuntimeError("Energy channel values inconsistant across list of files")
-        if not (fileInfo["look angle scale"][:,0] == filesWithInfo[0]["look angle scale"][:,0]).all():
-            raise RuntimeError("Look angle channel values inconsistant across list of files")
+        # if np.max(fileInfo["pitch angle scale"]) > 180:
+                        # raise RuntimeError(f"Pitch Angle missing data (value: {np.max(fileInfo['pitch angle scale'])})for this timestep")
 
     if plotElectronEnergy:
         image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles, cmap=colourmap, norm=colors.LogNorm())
         ax.set_ylabel("Electron Energy (eV)")
         ax.set_yscale("log")
 
-    if plotLookAngle:
-        image = ax.pcolormesh(lookAngles, cmap=colourmap, norm=colors.LogNorm())
+
+    if plotPitchAngle:
+
+        invalidPitchAngleIndices = []
+        for i, timestep in enumerate(pitchAngles):
+            if np.max(timestep) > 180:
+                invalidPitchAngleIndices.append(i)
+
+        np.put(pitchAngles, invalidPitchAngleIndices, np.nan)
+        np.put(lookAnglesData, invalidPitchAngleIndices, np.nan)
+
+
+        pitchAngleValues = np.transpose([np.sum(i, axis=0) / len(filesWithInfo[0]["energy scale"][:,0]) for i in pitchAngles])
+
+        timeArray = np.tile(index_array, (len(pitchAngleValues), 1))
+        
+        reBinnedData = np.zeros((int(180 / pitchBinStep), len(index_array)))
+        for t in index_array:
+            pitchBins = np.arange(0, 180+pitchBinStep, pitchBinStep) # the bottom and left edges of the mesh ranging from 0 to 180+step
+            
+            for i in range(len(pitchBins)-1):
+                binIndices = np.where(pitchAngleValues < pitchBins[i+1])
+                reBinnedData[i][t] = np.mean(lookAnglesData[binIndices])
+
+
+        print(np.shape(timeArray), np.shape(pitchAngleValues), np.shape(lookAnglesData))
+
+        image = ax.pcolormesh(reBinnedData, cmap=colourmap, norm=colors.LogNorm())
         ax.set_ylabel("Pitch Angle (deg)")
         ax.set_yscale("linear")
+
 
     if not plotEphemeris:
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, time)))
@@ -277,10 +311,13 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
     cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
 
     if filesWithInfo[0]["data units"] == (3,):
-        fig.colorbar(image, cax=cax, ax=ax, label="Diff. Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+        if plotElectronEnergy:
+            fig.colorbar(image, cax=cax, ax=ax, label="Diff. Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+        elif plotPitchAngle:
+            fig.colorbar(image, cax=cax, ax=ax, label="Mean Diff. Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+
     else:
         raise RuntimeError("Unknown data units")
-
 
 
 def format_xlabel(timeIndex, time):

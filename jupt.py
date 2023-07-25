@@ -84,19 +84,15 @@ if plotWaves:
         plt.setp(axWaves.get_xticklabels(), visible=False)
 
 if plotJADE:
-    """
-    if plotWaves:
-        axJade = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axWaves)
-    else:
-        axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
-    """
+   
     axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     if plotMag or plotDensity:
+        
         junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=False, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
         axJade.set_xticklabels('')
     else:
-        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=config["JADE"].getboolean("plot electron energy"), plotLookAngle=config["JADE"].getboolean("plot pitch angle"))
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=config["JADE"].getboolean("plot electron energy"), plotPitchAngle=config["JADE"].getboolean("plot pitch angle"))
         
     axJade.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
     axJade.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
