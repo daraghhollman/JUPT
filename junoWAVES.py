@@ -300,7 +300,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
 
-    fig.colorbar(image, cax=cax, ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
+    fig.colorbar(image, cax=cax, ax=ax, label="Flux Density\n(W m$^{-2}$ Hz$^{-1}$)")
 
     if yLim != []:
         ax.set_ylim(yLim[0], yLim[1])

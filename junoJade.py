@@ -123,7 +123,7 @@ def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.LBL")
 
 
-def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotPitchAngle=False, pitchBinStep=10):
+def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotPitchAngle=False, reBin=True, pitchBinStep=10):
 
     if downloadNewData:
         DeleteData(dataDirectory)
@@ -269,18 +269,24 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
         timeArray = np.tile(index_array, (len(pitchAngleValues), 1))
         
-        reBinnedData = np.zeros((int(180 / pitchBinStep), len(index_array)))
-        for t in index_array:
-            pitchBins = np.arange(0, 180+pitchBinStep, pitchBinStep) # the bottom and left edges of the mesh ranging from 0 to 180+step
-            
-            for i in range(len(pitchBins)-1):
-                binIndices = np.where(pitchAngleValues < pitchBins[i+1])
-                reBinnedData[i][t] = np.mean(lookAnglesData[binIndices])
+        if reBin:
+            reBinnedData = np.zeros((int(180 / pitchBinStep), len(index_array)))
+            for t in index_array:
+                pitchBins = np.arange(0, 180+pitchBinStep, pitchBinStep) # the bottom and left edges of the mesh ranging from 0 to 180+step
+                
+                for i in range(len(pitchBins)-1):
+                    # print(f"Greater than {pitchBins[i]}, less than {pitchBins[i+1]}")
+                    binIndices = np.where((pitchAngleValues[:,t] > pitchBins[i]) & (pitchAngleValues[:,t] < pitchBins[i+1]))
+                    reBinnedData[i][t] = np.mean(lookAnglesData[:,t][binIndices])
 
+            reBinnedData = reBinnedData[:,:-1]
 
-        print(np.shape(timeArray), np.shape(pitchAngleValues), np.shape(lookAnglesData))
+            image = ax.pcolormesh(index_array, pitchBins, reBinnedData, cmap=colourmap, norm=colors.LogNorm(), shading="flat")
+        else:
+            image = ax.pcolormesh(timeArray, pitchAngleValues, lookAnglesData, cmap=colourmap, norm=colors.LogNorm())
 
-        image = ax.pcolormesh(reBinnedData, cmap=colourmap, norm=colors.LogNorm())
+        # print(np.shape(timeArray), np.shape(pitchAngleValues), np.shape(lookAnglesData))
+
         ax.set_ylabel("Pitch Angle (deg)")
         ax.set_yscale("linear")
 
@@ -296,11 +302,9 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
         print(f"plotting ephemeris for {len(time)} points")
         if hiRes:
-            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels)
+            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True)
         else:
-            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels)
-
-    # (datetime.strptime(timeFrame[1], "%Y-%m-%dT%H:%M:%S") - datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")) / len(timeDatetime64)
+            ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True)
 
 
     box = ax.get_position()
@@ -312,9 +316,9 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     if filesWithInfo[0]["data units"] == (3,):
         if plotElectronEnergy:
-            fig.colorbar(image, cax=cax, ax=ax, label="Diff. Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+            fig.colorbar(image, cax=cax, ax=ax, label="Diff. Energy Flux\n(m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
         elif plotPitchAngle:
-            fig.colorbar(image, cax=cax, ax=ax, label="Mean Diff. Energy Flux (m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+            fig.colorbar(image, cax=cax, ax=ax, label="Mean Diff. Energy Flux\n(m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
 
     else:
         raise RuntimeError("Unknown data units")

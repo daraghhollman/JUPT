@@ -18,7 +18,7 @@ def format_xlabel(time, r, lon, lat, mlat):
     return inner_function
 
 
-def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=None, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1):
+def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=None, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1, isJade=False):
     """ Plot ephemeris data as axix tick labels 
 
     Arguments:
@@ -50,7 +50,7 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=None, labels=True, l
     # to be feed into the format_xlabel function, time array needs to be a datetime.datetime object
     # from numpy.datetime64 --> datetime.datetime, one first needs to transform numpy.datetime64 --> numpy.array(dtype='str'):
     # then to datetime
-    timeTransformed = datetime64_to_datetime(dataTime)
+    timeTransformed = datetime64_to_datetime(dataTime, isJade=isJade)
    
     print("Setting ticks")
 
@@ -68,7 +68,6 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=None, labels=True, l
 
     major_locator = np.multiply(major_locator, resolutionFactor) # resolutionFactor is simply a multiplier to deal with data of differening resolution. It multiplies the tick location - which by default expect the time axis to be of resolution 1 minute - such that the ticks spread over the whole axis.
     minor_locator = np.multiply(minor_locator, resolutionFactor)
-    # ax.set_xlim((0, major_locator[-1]))
 
     ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
     ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
@@ -108,9 +107,9 @@ def PullEphemerisData(amdaId, inputTime, timeFrame):
 
 
 
-def datetime64_to_datetime(time):
+def datetime64_to_datetime(time, isJade=False):
     timeStr = [np.datetime_as_string(t, unit="s") for t in time]
-    return datestring_to_datetime(timeStr)
+    return datestring_to_datetime(timeStr, isJade)
 
 def CoordLengthsToMatchTime(time, coords):
     newCoordsList = []
@@ -185,6 +184,9 @@ def CalculateTickSpread(timeDelta):
     return (major, minor)
 
 @np.vectorize
-def datestring_to_datetime(time):
+def datestring_to_datetime(time, isJade=False):
     #return datetime.datetime.strptime(np.datetime_as_string(time,unit="s"),"%Y-%m-%dT%H:%M:%S")
-    return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") #+ datetime.timedelta(minutes=1)
+    if isJade:
+        return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") + datetime.timedelta(seconds=1)
+    else:
+        return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") 
