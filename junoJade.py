@@ -9,7 +9,6 @@ from astropy.time import Time, TimeDelta
 import matplotlib.colors as colors
 import matplotlib.ticker as ticker
 from mpl_toolkits import axes_grid1
-from matplotlib.tri import Triangulation
 
 
 def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
@@ -123,7 +122,7 @@ def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.LBL")
 
 
-def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotPitchAngle=False, reBin=True, pitchBinStep=10):
+def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotPitchAngle=False, reBin=True, pitchBinStep=10, pitchAngleEnergyRange=[]):
 
     if downloadNewData:
         DeleteData(dataDirectory)
@@ -234,7 +233,27 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     sumOverLookAngles = np.transpose(np.sum(data, axis=2)) # Transpose to get to shape (numEnergyBins, Time)
     # lookAngles = np.transpose(np.array(data)[:, 0, :])
-    lookAnglesData = np.transpose(np.sum(data, axis=1))
+
+
+    if pitchAngleEnergyRange != []:
+        # Indicies of energy scale where energy is within band specified
+        energyBandIndices = np.where((filesWithInfo[0]["energy scale"][:,0] > pitchAngleEnergyRange[0]) & (filesWithInfo[0]["energy scale"][:,0] < pitchAngleEnergyRange[1]))
+
+        # Loop through energy bins
+        energiesToExclude = []
+        for i in range(int(np.shape(data)[1])):
+            if np.isin(energyBandIndices, i).any():
+                continue
+            else:
+                energiesToExclude.append(i)
+
+
+        data = np.delete(data, energiesToExclude, axis=1)
+        lookAnglesData = np.transpose(np.sum(data, axis=1)) / np.shape(data)[1]
+
+    else:
+        lookAnglesData = np.transpose(np.sum(data, axis=1)) / np.shape(data)[1]
+
     pitchAngles = np.array(pitchAngles)
 
     index_array = range(len(time))
@@ -285,9 +304,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         else:
             image = ax.pcolormesh(timeArray, pitchAngleValues, lookAnglesData, cmap=colourmap, norm=colors.LogNorm())
 
-        # print(np.shape(timeArray), np.shape(pitchAngleValues), np.shape(lookAnglesData))
-
-        ax.set_ylabel("Pitch Angle (deg)")
+        ax.set_ylabel(f"Pitch Angle (deg)\nfrom:{pitchAngleEnergyRange[0]} - {pitchAngleEnergyRange[1]} eV")
         ax.set_yscale("linear")
 
 
@@ -318,7 +335,8 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         if plotElectronEnergy:
             fig.colorbar(image, cax=cax, ax=ax, label="Diff. Energy Flux\n(m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
         elif plotPitchAngle:
-            fig.colorbar(image, cax=cax, ax=ax, label="Mean Diff. Energy Flux\n(m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+            fig.colorbar(image, cax=cax, ax=ax, label=f"Mean Diff. Energy Flux \n(m$^{-2}$ sr$^{-1}$ s$^{-1}$)")
+
 
     else:
         raise RuntimeError("Unknown data units")
