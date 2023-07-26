@@ -18,7 +18,7 @@ def format_xlabel(time, r, lon, lat, mlat):
     return inner_function
 
 
-def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1):
+def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=None, labels=True, labelFontsize=11, labelsPos=[-40, -40], posSpacer=1, isJade=False):
     """ Plot ephemeris data as axix tick labels 
 
     Arguments:
@@ -38,6 +38,8 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labe
     # Pulls ephemeris data in x, y, z
     junoEphemeris = spz.amda.get_parameter("juno_eph_orb_jso", timeFrame[0], timeFrame[1])
 
+    
+
     distanceValues = PullEphemerisData("juno_jup_r", dataTime, timeFrame)
     longitudeValues = PullEphemerisData("juno_jup_lon", dataTime, timeFrame)
     latitudeValues = PullEphemerisData("juno_jup_lat", dataTime, timeFrame)
@@ -48,20 +50,24 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labe
     # to be feed into the format_xlabel function, time array needs to be a datetime.datetime object
     # from numpy.datetime64 --> datetime.datetime, one first needs to transform numpy.datetime64 --> numpy.array(dtype='str'):
     # then to datetime
-    timeTransformed = datetime64_to_datetime(dataTime)
+    timeTransformed = datetime64_to_datetime(dataTime, isJade=isJade)
    
     print("Setting ticks")
 
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(timeTransformed, distanceValues, longitudeValues, latitudeValues, mLatitudeValues)))
  
     # Following section adapted from Corentin
-    timedelta_hours = np.timedelta64(ephemerisTime[-1] - ephemerisTime[0]).astype("timedelta64[h]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
-    print(f"TIMEDELTA; Type: {type(timedelta_hours)}, Value: {timedelta_hours}")
+    timedelta_seconds = np.timedelta64(ephemerisTime[-1] - ephemerisTime[0]).astype("timedelta64[s]") # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
+    print(f"TIMEDELTA; Type: {type(timedelta_seconds)}, Value: {timedelta_seconds}")
 
-    major_locator, minor_locator = CalculateTickSpread(timedelta_hours)
+    major_locator, minor_locator = CalculateTickSpread(timedelta_seconds)
+
+    if resolutionFactor is None:
+        resolutionFactor = len(dataTime)/(timedelta_seconds.astype("float") / 60)
+        print(f"Resolution factor calculated to be {resolutionFactor}")
+
     major_locator = np.multiply(major_locator, resolutionFactor) # resolutionFactor is simply a multiplier to deal with data of differening resolution. It multiplies the tick location - which by default expect the time axis to be of resolution 1 minute - such that the ticks spread over the whole axis.
     minor_locator = np.multiply(minor_locator, resolutionFactor)
-    # ax.set_xlim((0, major_locator[-1]))
 
     ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
     ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
@@ -72,9 +78,11 @@ def PlotEphemeris(ax, dataTime, timeFrame, resolutionFactor=1, labels=True, labe
     
     if labels:
         ax.annotate('R (R$_J$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-0*labelFontsize), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
-        ax.annotate('Lon ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-1*labelFontsize - posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+        ax.annotate('Lon$_{III}$ ($^\circ}$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-1*labelFontsize - posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
         ax.annotate('Lat ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-2*labelFontsize - 2*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
-        ax.annotate('mLat ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-3*labelFontsize - 3*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+        ax.annotate('MLat ($^\circ$)',xy=(0,0), xycoords='axes fraction', xytext=(labelsPos[0], labelsPos[1]-3*labelFontsize - 3*posSpacer), textcoords='offset points', horizontalalignment='right', verticalalignment='center',fontsize=labelFontsize)
+    else:
+        ax.set_xticklabels('')
 
     return ax
 
@@ -99,9 +107,9 @@ def PullEphemerisData(amdaId, inputTime, timeFrame):
 
 
 
-def datetime64_to_datetime(time):
+def datetime64_to_datetime(time, isJade=False):
     timeStr = [np.datetime_as_string(t, unit="s") for t in time]
-    return datestring_to_datetime(timeStr)
+    return datestring_to_datetime(timeStr, isJade)
 
 def CoordLengthsToMatchTime(time, coords):
     newCoordsList = []
@@ -119,9 +127,14 @@ def CalculateTickSpread(timeDelta):
     # Adjusted code taken from Corentin, function takes the timedelta plotted in hours.
     dayLength_mins = 1400 # number of minutes in one day
 
-    timeDelta = timeDelta.astype("int")
+    timeDelta = timeDelta.astype("float")/3600
 
-    if (timeDelta < 0.5):
+    if (timeDelta < 0.25):
+        #Plot every 5 mins
+        major = np.arange(0, dayLength_mins, 1)
+        minor = np.arange(0, dayLength_mins, 0.1)
+
+    elif (timeDelta >= 0.25 and timeDelta < 0.5):
         #Plot every 5 mins
         major = np.arange(0, dayLength_mins, 5)
         minor = np.arange(0, dayLength_mins, 1)
@@ -171,6 +184,9 @@ def CalculateTickSpread(timeDelta):
     return (major, minor)
 
 @np.vectorize
-def datestring_to_datetime(time):
+def datestring_to_datetime(time, isJade=False):
     #return datetime.datetime.strptime(np.datetime_as_string(time,unit="s"),"%Y-%m-%dT%H:%M:%S")
-    return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S")
+    if isJade:
+        return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") + datetime.timedelta(seconds=1)
+    else:
+        return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") 

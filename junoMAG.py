@@ -103,7 +103,7 @@ def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", 
         ax.xaxis.set_major_formatter(dateFormat)
 
     else:
-        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, resolutionFactor=60, labels=ephemerisLabels)
+        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, labels=ephemerisLabels)
 
     return ax
 

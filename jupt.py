@@ -1,3 +1,5 @@
+print("Importing packages")
+
 import matplotlib.pyplot as plt
 from datetime import datetime
 import configparser
@@ -9,7 +11,9 @@ config = configparser.ConfigParser()
 import junoMAG
 import junoEphemeris
 import junoWAVES
+import junoJade
 import vLines
+import junoDerivedMoments
 
 config.read("./config.ini")
 
@@ -28,6 +32,9 @@ minorTickWidth = config["plotting"].getfloat("minor tick width")
 # Select which panels to plot
 plotWaves = config["plotting"].getboolean("plot Waves")
 plotMag = config["plotting"].getboolean("plot MAG")
+plotJADE = config["plotting"].getboolean("plot JADE")
+plotPitchAngle = config["JADE"].getboolean("plot pitch angle")
+plotDensity = config["plotting"].getboolean("plot density")
 
 # Set font parameters
 fontsize = config["plotting"].getfloat("font size")
@@ -47,7 +54,7 @@ componentColours = ast.literal_eval(config["colours"]["component colours"])
 magnitudeColour = config["colours"]["magnitude colour"]
 lobeColour = config["colours"]["lobe colour"]
 
-panelsBooleanList = [plotWaves, plotMag]
+panelsBooleanList = [plotWaves, plotMag, plotJADE, plotPitchAngle, plotDensity]
 numSubPlots = sum(panelsBooleanList)
 
 
@@ -61,10 +68,15 @@ if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, positionIndex)
 
     # Plot the Waves data from the junoWAVES script
-    if plotMag:
-        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+    if plotMag or plotJADE or plotDensity:
+        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=False, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), yscale=config["Waves"]["y scale"])
+        axWaves.set_xticklabels('')
     else:
-        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=True, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"))
+        junoWAVES.PlotData(fig, axWaves, timeFrame, dataDirectory = dataDirectory, yLim=ast.literal_eval(config["Waves"]["frequency limit"]), plotEphemeris=True, ephemerisLabels=True, colourmap=config["Waves"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), yscale=config["Waves"]["y scale"])
+
+    axWaves.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
+    axWaves.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
+    axWaves.margins(x=0)
   
     positionIndex += 1
 
@@ -72,12 +84,58 @@ if plotWaves:
         # Make the ephemerisLabels invisible if in a multipanel plot
         plt.setp(axWaves.get_xticklabels(), visible=False)
 
+if plotJADE:
+   
+    axJade = fig.add_subplot(numSubPlots, 1, positionIndex)
 
+    if plotMag or plotDensity or plotPitchAngle:
+        
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=False, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=True, plotPitchAngle=False)
+        axJade.set_xticklabels('')
+    else:
+        junoJade.PlotData(fig, axJade, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=config["JADE"].getboolean("plot electron energy"), plotPitchAngle=False)
+
+    positionIndex+=1
+
+    if plotPitchAngle:
+        axJadePitch = fig.add_subplot(numSubPlots, 1, positionIndex)
+
+        if plotMag or plotDensity:
+
+            junoJade.PlotData(fig, axJadePitch, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=False, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=False, plotPitchAngle=True)
+            axJade.set_xticklabels('')
+        else:
+            junoJade.PlotData(fig, axJadePitch, timeFrame, dataDirectory=dataDirectory, hiRes=config["JADE"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=config["JADE"]["colour map"], downloadNewData=config["data"].getboolean("download new data"), plotElectronEnergy=False, plotPitchAngle=True)
+
+        
+    axJade.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
+    axJade.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
+    axJade.margins(x=0)
+    axJadePitch.tick_params("y", which="major", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
+    axJadePitch.tick_params("y", which="minor", length=config["plotting"].getfloat("y tick length")/2, width=config["plotting"].getfloat("y tick width"))
+    axJadePitch.margins(x=0)
+
+    positionIndex += 1
+
+# Moments
+if plotDensity:
+    axDensity = fig.add_subplot(numSubPlots, 1, positionIndex)
+
+    if plotMag:
+        junoDerivedMoments.PlotDensity(fig, axDensity, timeFrame, dataDirectory, plotEphemeris=True, ephemerisLabels=False, downloadNewData=config["data"].getboolean("download new data"))
+    else:
+        junoDerivedMoments.PlotDensity(fig, axDensity, timeFrame, dataDirectory, plotEphemeris=True, ephemerisLabels=True, downloadNewData=config["data"].getboolean("download new data"))
+
+
+    positionIndex += 1
+   
 # Section controlling MAG plotting
 if plotMag:
     # Test if this subplot needs to share axes
     if plotWaves:
-        axMag = fig.add_subplot(numSubPlots, 1, positionIndex, sharex=axWaves)
+        axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
+    elif plotJADE:
+        axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
     else:
         axMag = fig.add_subplot(numSubPlots, 1, positionIndex)
 
@@ -91,6 +149,8 @@ if plotMag:
     }, plotEphemeris=True, ephemerisLabels=True, linewidth=config["MAG"].getfloat("line width"), componentColours=componentColours, lobeColour=lobeColour, magnitudeColour=magnitudeColour)
     positionIndex += 1
 
+    axMag.tick_params("y", length=config["plotting"].getfloat("y tick length"), width=config["plotting"].getfloat("y tick width"))
+    axMag.margins(x=0)
 
 
 # Set tick formatting and add vertical lines 

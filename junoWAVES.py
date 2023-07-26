@@ -16,7 +16,7 @@ def PathsFromTimeDifference(t1, t2, pathFormat):
     """ Creates output path names between two times in a specified format 
 
     Arguments:
-    t1, t2 -- (str) Input times between which the paths will be created. Must be in the format "YYYY-MM-DDThh:mm:ss"
+t1, t2 -- (str) Input times between which the paths will be created. Must be in the format "YYYY-MM-DDThh:mm:ss"
     pathFormat -- (str) Path format which the files to be downloaded are in
 
     Returns:
@@ -63,7 +63,7 @@ def DownloadWavesData(dataPath, downloadPath, timeFrame):
     pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")]
     print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
     for path in tqdm(pathList):
-        os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataPath} {path}")
+        os.system(f"wget -r --show-progress -nd -np -nH -N -P {dataPath} {path}")
 
 
 def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
@@ -125,7 +125,7 @@ def DeleteData(dataDirectory):
     """ Deletes all .cdf files in a directory"""
     os.system(f"rm {dataDirectory}*.cdf")
     
-def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, downloadNewData=True, numFreqBins=126):
+def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, downloadNewData=True, numFreqBins=126, yscale="log"):
     """ Plots the Waves data 
 
     Arguments:
@@ -146,7 +146,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     """
     
-    print("Retrieving waves data...")
+    print("Retrieving Waves data...")
 
     if downloadNewData == True:
         DeleteData(dataDirectory)
@@ -159,12 +159,56 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     frequency = []
     data = []
 
+    print("Shortening data to match time frame. This may take some time")
     for i, fileInfo in enumerate(filesWithInfo): # enumerate could be computationally expensive here. Perhaps change to a boolean test as it is only a one time use?
         # Next we must contract the lists to the timeframe we have selected.
-        if i==0:
+        if i ==0 and i == len(filesWithInfo) -1:
+            print("Note: using only one file")
+            sliceStart = 0
+
+            print("Finding start point")
+            for j, t in tqdm(enumerate(fileInfo["Epoch"])):
+                t = Time(t, format="cdf_tt2000")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[0], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceStart = j
+
+            print("Found start point")
+            
+            sliceEnd = 0
+
+            print("Finding end point")
+
+            for j, t in tqdm(enumerate(fileInfo["Epoch"])):
+
+                t = Time(t, format="cdf_tt2000")
+                t.format="datetime"
+
+                tFrame = Time(timeFrame[1], format="isot")
+                tFrame.format="datetime"
+
+                if t >= tFrame:
+                    break
+                sliceEnd = j
+
+            print("Found end point")
+
+            if sliceStart == sliceEnd:
+                raise ValueError(f"Timeframe start point and end point are closer than timestep in JADE data")
+
+            time = fileInfo["Epoch"][sliceStart:sliceEnd]
+            data = fileInfo["Data"][sliceStart:sliceEnd]
+
+
+
+        elif i==0:
             sliceStart = 0
             
-            print("Shortening data to match time frame. This may take some time")
             print("Finding start point...")
             for j, t in tqdm(enumerate(fileInfo["Epoch"]), total=len(fileInfo["Epoch"])): # this is quite slow, takes around 30 seconds
                 t = Time(t, format="cdf_tt2000")
@@ -235,7 +279,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     
     print("Drawing Waves image... this may take some time")
     image = ax.pcolormesh(index_array, rescaledFrequencies, newFlux, cmap=colourmap, norm=colors.LogNorm(vmin, vmax))
-    ax.set_yscale("log")
+    ax.set_yscale(yscale)
     
     if not plotEphemeris:
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, wavesTime)))
@@ -246,7 +290,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
         for time in wavesTime:
             wavesTimeDatetime64.append(np.datetime64(str(time)))
 
-        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame, resolutionFactor=60, labels=ephemerisLabels)        
+        ax = junoEphemeris.PlotEphemeris(ax, wavesTimeDatetime64, timeFrame, labels=ephemerisLabels)        
     
     ax.set_ylabel("Frequency (kHz)")
     box = ax.get_position()
@@ -256,7 +300,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
 
     cax = divider.append_axes("right", size=colorbarSize, pad=colorbarPad)
 
-    fig.colorbar(image, cax=cax, ax=ax, label="Flux Density (W m$^{-2}$ Hz$^{-1}$)")
+    fig.colorbar(image, cax=cax, ax=ax, label="Flux Density\n(W m$^{-2}$ Hz$^{-1}$)")
 
     if yLim != []:
         ax.set_ylim(yLim[0], yLim[1])
