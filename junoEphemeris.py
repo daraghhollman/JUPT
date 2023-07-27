@@ -185,7 +185,6 @@ def CalculateTickSpread(timeDelta):
 
 @np.vectorize
 def datestring_to_datetime(time, isJade=False):
-    #return datetime.datetime.strptime(np.datetime_as_string(time,unit="s"),"%Y-%m-%dT%H:%M:%S")
     if isJade:
         return datetime.datetime.strptime(time,"%Y-%m-%dT%H:%M:%S") + datetime.timedelta(seconds=1)
     else:
