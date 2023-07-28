@@ -12,7 +12,7 @@ This project is currently a work in progress with updates being posted here freq
 ### Installation
 Navigate to your desired install directory:
 
-`cd ~/path/to/directory/`
+`cd ~/path/to/data/directory/`
 
 Download the repository to this location:
 
@@ -22,7 +22,31 @@ Create a directory to store data:
 
 `mkdir ./data`
 
-Add the path to this directory to the config.ini file.
+Add the path to this directory to the 'data directory' in the config.ini file.
+
+#### Setting up SPICE (Required for trajectories plots)
+Navigate to your desired directory. (This will contain all of your spice kernels which will be a large number of files.)
+
+`cd ~/path/to/spice/directory/`
+
+Download the DIASPICETools repository:
+
+`git clone https://github.com/mjrutala/DIASPICETools`
+
+Open this directory, and run the tool using a python terminal:
+
+`cd DIASPICETools/`
+
+`python` (the command to open a python terminal may be different on your system)
+
+*In the python terminal:*
+`from make_Metakernel import *`
+`make_Metakernel("Juno", "/full/path/to/spice/directory")`
+
+This will download the required SPICE kernels to `.../DIASPICETools/SPICE/`. This may take some time.
+
+Simply exit the python terminal and edit the 'spice directory' in config.ini file with the path to this `.../SPICE/` directory.
+
 
 ### Config
 Edit the configuration settings in **config.ini** as explained in section "config.ini"
