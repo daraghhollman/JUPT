@@ -304,7 +304,10 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         else:
             image = ax.pcolormesh(timeArray, pitchAngleValues, lookAnglesData, cmap=colourmap, norm=colors.LogNorm())
 
-        ax.set_ylabel(f"Pitch Angle (deg)\nfrom:{pitchAngleEnergyRange[0]} - {pitchAngleEnergyRange[1]} eV")
+        if pitchAngleEnergyRange != []:
+            ax.set_ylabel(f"Pitch Angle (deg)\nfrom:{pitchAngleEnergyRange[0]/1000} - {pitchAngleEnergyRange[1]/1000} keV")
+        else:
+            ax.set_ylabel(f"Pitch Angle (deg)")
         ax.set_yscale("linear")
 
 

@@ -29,7 +29,17 @@ def PlotFromFile(ax, axisIndex, timeFrame, path, colour, linestyle):
     labels = data["In/Out"]
 
     for date, time, label, boundary in zip(dates, times, labels, boundaries):
-        label = f"{boundary}: {label}"
+        if boundary == "bow shock":
+            if label == "in":
+                label = "BS-I"
+            elif label == "out":
+                label = "BS-O"
+
+        elif boundary == "magnetopause":
+            if label == "in":
+                label = "MP-I"
+            elif label == "out":
+                label = "MP-O"
 
         # convert from string to datetime
         posTime = datetime.strptime(date+time, "%Y/%m/%d%H:%M")
