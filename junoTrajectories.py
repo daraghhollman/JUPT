@@ -2,10 +2,17 @@ import spiceypy as spice
 from datetime import datetime
 import datetime as dt
 from mpl_toolkits.axes_grid1 import make_axes_locatable, SubplotDivider
+from matplotlib.ticker import MultipleLocator
 from matplotlib.patches import Circle 
 import numpy as np
+import sys
 
-def ThreePanelTrajectories(ax, timeFrame, spiceDirectory, frame="JUNO_JSS", centre="JUPITER", timeStep_mins=1, scale=71492, unitLabel="R$_J$", timeExtension=25, plottedColour="magenta", extensionColour="black"):
+
+def ThreePanelTrajectories(ax, timeFrame, spiceDirectory, frame="JUNO_JSS", centre="JUPITER", timeStep_mins=1, scale=71492, unitLabel="R$_J$", timeExtension=25, plottedColour="magenta", extensionColour="black", trajectoryMajorTickLength=20, trajectoryMinorTickLength=10, majorLocator=20, minorLocator=10, xBounds=[], yBounds=[], zBounds=[], aspect="auto", magBoundariesRepoPath="", plotBowShock=False, plotMagnetopause=False, p_dyn=0.209, bsColour="black", mpColour="purple"):
+
+    if magBoundariesRepoPath != "":
+        sys.path.append(magBoundariesRepoPath)
+        from pdyn_to_ms_boundaries import pdyn_to_bs, pdyn_to_mp
 
     print("Plotting trajectories...")
 
@@ -68,28 +75,94 @@ def ThreePanelTrajectories(ax, timeFrame, spiceDirectory, frame="JUNO_JSS", cent
     axes = (xyAxis, xzAxis, yzAxis)
 
 
+    concentricCircleRadii = np.arange(10, max(np.array([xBounds, yBounds, zBounds]).max(), np.array([xBounds, yBounds, zBounds]).min() , key=abs)+ 2*majorLocator, majorLocator)
+
     for ax in axes:
-        jupiterCircle = Circle((0,0), 1, facecolor="black", edgecolor="black")
-        ax.add_patch(jupiterCircle)
+        ax.scatter(0, 0, color="orange", marker="o", label="Jupiter", zorder=5)
+        ax.tick_params(which="major", direction="in", length=trajectoryMajorTickLength, bottom=True, top=True, left=True, right=True)
+        ax.tick_params(which="minor", direction="in", length=trajectoryMinorTickLength, bottom=True, top=True, left=True, right=True)
 
-        ax.set_aspect("equal")
+        ax.xaxis.set_major_locator(MultipleLocator(majorLocator))
+        ax.xaxis.set_minor_locator(MultipleLocator(minorLocator))
+        ax.yaxis.set_major_locator(MultipleLocator(majorLocator))
+        ax.yaxis.set_minor_locator(MultipleLocator(minorLocator))
 
-    xyAxis.plot(positionsDict["x"], positionsDict["y"], color=plottedColour, linewidth=4, zorder=10, label="Trajectory Plotted")
-    xyAxis.plot(extendedPositionsDict["x"], extendedPositionsDict["y"], color=extensionColour, label=f"Trajectory $\pm$ {timeExtension} days")
+        ax.set_aspect(aspect)
+
+        for r in concentricCircleRadii:
+            circ = Circle((0,0), radius=r, edgecolor="lightgrey", facecolor="None")
+            ax.add_artist(circ)
+
+
+    xyAxis.plot(positionsDict["x"], positionsDict["y"], color=plottedColour, linewidth=4, zorder=10)
+    xyAxis.plot(extendedPositionsDict["x"], extendedPositionsDict["y"], color=extensionColour, zorder=2)
     xyAxis.set_xlabel("X$_{"+ f"{frame[5:]}" + "}$ (R$_J$)")
     xyAxis.set_ylabel("Y$_{"+ f"{frame[5:]}" + "}$ (R$_J$)")
 
-    xzAxis.plot(positionsDict["x"], positionsDict["z"], color=plottedColour, linewidth=4, zorder=10)
-    xzAxis.plot(extendedPositionsDict["x"], extendedPositionsDict["z"], color=extensionColour)
+    xzAxis.plot(positionsDict["x"], positionsDict["z"], color=plottedColour, linewidth=4, zorder=10, label="Trajectory Plotted")
+    xzAxis.plot(extendedPositionsDict["x"], extendedPositionsDict["z"], color=extensionColour, zorder=2, label=f"Trajectory $\pm$ {timeExtension} days")
     xzAxis.set_xlabel("X$_{"+ f"{frame[5:]}" + "}$ (R$_J$)")
     xzAxis.set_ylabel("Z$_{"+ f"{frame[5:]}" + "}$ (R$_J$)")
 
     yzAxis.plot(positionsDict["y"], positionsDict["z"], color=plottedColour, linewidth=4, zorder=10)
-    yzAxis.plot(extendedPositionsDict["y"], extendedPositionsDict["z"], color=extensionColour)
+    yzAxis.plot(extendedPositionsDict["y"], extendedPositionsDict["z"], color=extensionColour, zorder=2)
     yzAxis.set_xlabel("Y$_{"+ f"{frame[5:]}" + "}$ (R$_J$)")
     yzAxis.set_ylabel("Z$_{"+ f"{frame[5:]}" + "}$ (R$_J$)")
 
-    xyAxis.legend()
+    if xBounds != []:
+        xyAxis.set_xlim(xBounds)
+        xzAxis.set_xlim(xBounds)
+
+    if yBounds != []:
+        xyAxis.set_ylim(yBounds)
+        yzAxis.set_xlim(yBounds)
+
+    if zBounds != []:
+        xzAxis.set_ylim(zBounds)
+        yzAxis.set_ylim(zBounds)
+
+    
+    if frame != "JUNO_JSS" and (plotBowShock or plotMagnetopause) is True:
+        raise ValueError("Not implemented: Cannot plot magnetopsheric boundaries in coordinate systems other than JSS.")
+
+
+    # Plot magnetopsheric boundaries 
+    if plotBowShock:
+        
+        (x_eq, y_eq, standoff) = pdyn_to_bs(Pdyn=p_dyn, equatorial=True)
+        # Plot is called twice as the function returns the positive y and negative y separately
+        xyAxis.plot(x_eq[0], y_eq[0], linestyle="dashed", color=bsColour, zorder=5)
+        xyAxis.plot(x_eq[1], y_eq[1], linestyle="dashed", color=bsColour, zorder=5)
+
+        (x_eq, z_eq, standoff) = pdyn_to_bs(Pdyn=p_dyn, noon_midnight=True)
+        # Plot is called twice as the function returns the positive y and negative y separately
+        xzAxis.plot(x_eq[0], z_eq[0], linestyle="dashed", color=bsColour, zorder=5, label="Bow Shock P$_{dyn}$=" + str(p_dyn) + "\n    Joy et al. (2002)")
+        xzAxis.plot(x_eq[1], z_eq[1], linestyle="dashed", color=bsColour, zorder=5)
+
+        (y_eq, z_eq, standoff) = pdyn_to_bs(Pdyn=p_dyn, dawn_dusk=True)
+        # Plot is called twice as the function returns the positive y and negative y separately
+        yzAxis.plot(y_eq[0], z_eq[0], linestyle="dashed", color=bsColour, zorder=5)
+        yzAxis.plot(y_eq[1], z_eq[1], linestyle="dashed", color=bsColour, zorder=5)
+
+    if plotMagnetopause:
+        
+        (x_eq, y_eq, standoff) = pdyn_to_mp(Pdyn=p_dyn, equatorial=True)
+        # Plot is called twice as the function returns the positive y and negative y separately
+        xyAxis.plot(x_eq[0], y_eq[0], linestyle="dashed", color=mpColour, zorder=5)
+        xyAxis.plot(x_eq[1], y_eq[1], linestyle="dashed", color=mpColour, zorder=5)
+
+        (x_eq, z_eq, standoff) = pdyn_to_mp(Pdyn=p_dyn, noon_midnight=True)
+        # Plot is called twice as the function returns the positive y and negative y separately
+        xzAxis.plot(x_eq[0], z_eq[0], linestyle="dashed", color=mpColour, zorder=5, label="Magnetopause P$_{dyn}$=" + str(p_dyn) + "\n    Joy et al. (2002)")
+        xzAxis.plot(x_eq[1], z_eq[1], linestyle="dashed", color=mpColour, zorder=5)
+
+        (y_eq, z_eq, standoff) = pdyn_to_mp(Pdyn=p_dyn, dawn_dusk=True)
+        # Plot is called twice as the function returns the positive y and negative y separately
+        yzAxis.plot(y_eq[0], z_eq[0], linestyle="dashed", color=mpColour, zorder=5)
+        yzAxis.plot(y_eq[1], z_eq[1], linestyle="dashed", color=mpColour, zorder=5)
+
+
+    xzAxis.legend(bbox_to_anchor=(0.5, 1.2), loc="center", ncol=5, borderaxespad=0)
 
 
     return axes

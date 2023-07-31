@@ -64,7 +64,7 @@ def PlotData(ax, timeFrame, plotMeasurements, componentColours=["red", "green", 
     if plotMeasurements["polars"]:
         magR, magTheta, magPhi = CartesiansToPolars(magX, magY, magZ, time, timeFrame)
 
-        ax.plot(timePlotted, magR, color=componentColours[0], label="$B_R$", linewidth=linewidth)
+        ax.plot(timePlotted, magR, color=componentColours[0], label="$B_r$", linewidth=linewidth)
         ax.plot(timePlotted, magTheta, color=componentColours[1], label="$B_\\theta$", linewidth=linewidth)
         ax.plot(timePlotted, magPhi, color=componentColours[2], label="$B_\phi$", linewidth=linewidth)
 

@@ -157,11 +157,11 @@ def CalculateTickSpread(timeDelta):
     elif (timeDelta >= 4. and timeDelta < 8.):
         # Plot every hour
         major = np.arange(0, dayLength_mins, 60)
-        minor = np.arange(0, dayLength_mins, 20) 
+        minor = np.arange(0, dayLength_mins, 10) 
     elif (timeDelta >= 8. and timeDelta < 16.):
         # Plot every 2 hours
         major = np.arange(0, dayLength_mins, 60*2)
-        minor = np.arange(0, dayLength_mins, 30) 
+        minor = np.arange(0, dayLength_mins, 15) 
     elif (timeDelta >= 16. and timeDelta < 24.):
         # Plot every 3 hours
         major = np.arange(0, dayLength_mins, 60*3)

@@ -47,6 +47,12 @@ This will download the required SPICE kernels to `.../DIASPICETools/SPICE/`. Thi
 
 Simply exit the python terminal and edit the 'spice directory' in config.ini file with the path to this `.../SPICE/` directory.
 
+#### Setting up Magnetospheric Boundaries
+Navigate to a separate directory where you will install the [jupiter_magnetosphere_boundaries](https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries/) code. Download the github repository as follows:
+
+`git clone https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries`
+
+Update the **magnetosphere boundaries path** field in your config.ini file under **[trajectories]** to point to this repository.
 
 ### Config
 Edit the configuration settings in **config.ini** as explained in section "config.ini"
@@ -54,8 +60,6 @@ Edit the configuration settings in **config.ini** as explained in section "confi
 ### Running
 
 Run `python jupt.py` to create the plot.
-
-Note, the figure is not automatically saved.
 
 
 ## config.ini
@@ -68,13 +72,16 @@ Note, the figure is not automatically saved.
 #### plotting
 |key|description|
 |---|---|
+|save figure|Should the figure be automatically saved. If False, the figure will be opened in a window to view and save manually.|
 |start time|The time with which to start your plot from. Must be in the format YYYY-MM-DDTHH:MM:SS|
 |end time|The time with which to end your plot. Must be in the format YYYY-MM-DDTHH:MM:SS|
+|plot trajectories|At what subplot index should trajectories data be plotted. Leave as 0 to not plot trajectories.|
 |plot Waves|At what subplot index should Waves data be plotted. Leave as 0 to not plot Waves|
 |plot JADE electron energies|At what subplot index should JADE electron energies data be plotted. Leave as 0 to not plot|
 |plot JADE electron pitch angles|At what subplot index should JADE electron pitch angles data be plotted. Leave as 0 to not plot|
+|~~plot density~~|JADE moments are currently not supported.|
 |plot MAG|At what subplot index should MAG data be plotted. Leave as 0 to not plot MAG|
-|panel spacing|The white space vertically between panels in units of panel height. Note, this can be 0. (**default: 0.1**)|
+|panel spacing|The white space vertically between panels in units of panel height. Note, this can be 0. (**default: 0.2**)|
 |~~font size~~|Base fontsize for the plot. Currently not functional due to **issue #9** (**default: 11**)|
 |major tick length|Length of major ticks. (**default: 16**)|
 |minor tick length|Length of minor ticks. (**default: 8**)|
@@ -116,7 +123,7 @@ Note, the figure is not automatically saved.
 |bin pitch angles|Should the pitch angle data be binned into regular chunks of degrees. (**default: True**)|
 |bin size|The size, in degrees, of these bins. (**default: 10**)|
 |colour map|The matplotlib colormap for JADE data. (**default: magma**)|
-|high resolution|The JADE instrument splits its data into two modes, a high resolution (sampling every second) and a low resolution (integrating over 30s, approx. one full spacecraft rotation). Note: For times containing high resolution data there is an absence of low resolution data. (**default: True**)|
+|high resolution|The JADE instrument splits its data into two modes, a high resolution (sampling every second) and a low resolution (integrating over 30s, approx. one full spacecraft rotation). Note: For times containing high resolution data there is an absence of low resolution data. Note, this tool can mis-create plots which contain sections of time containing both resolutions. These mis-creations can be easily noticed by a discontinuity in tick labels. (**default: True**)|
 
 #### MAG
 |key|description|
@@ -128,5 +135,24 @@ Note, the figure is not automatically saved.
 |plot lobe uncertainty|Should the lobe field uncertainty be plotted. Must be either **True** or **False**.|
 |line width|Line width (matplotlib) of the MAG data. (**default: 0.5**)|
 
-
-
+#### Trajectories
+|key|description|
+|---|---|
+|magnetosphere boundaries path|Path to the location of the jupiter_magnetosphere_boundaries as described in the instructions section.|
+|dynamic pressure|Dynamic pressure (nPa) to be passed to the Joy model bow shock and magetopause. Joy et al. (2002)|
+|plot bow shock|Should the Joy model bow shock be plotted on the trajectories plots|
+|plot magnetopause|Should the Joy model magnetopause be plotted on the trajectories plots|
+|bow shock colour|What colour should the bow shock model be on the plot.|
+|magnetopause colour|What colour should the magnetopause model be on the plot.|
+|frame|What SPICE frame should the trajectories be plotted in. Common options include JUNO_JSS and JUNO_JSO. Note that magnetospheric boundaries can only currently be plotted using JSS.|
+|plotted colour|Matplotlib colour to denote the section of orbit being plotted in the panels.|
+|extension colour|Matplotlib colour to denote the orbit before and after the section of orbit being plotted in the panels.|
+|time extensions|How long before and after the data plotted should the trajectory plot be extended. (In units of days)|
+|major tick length|Major tick length for the trajectories plots|
+|mionr tick length|Minor tick length for the trajectories plots|
+|major tick multiple|Major ticks will be placed at a multiple of this number.|
+|minor tick multiple|Minor ticks will be placed at a multiple of this number.|
+|x bounds|The bounds of the x axis on the trajectory plots|
+|y bounds|The bounds of the y axis on the trajectory plots|
+|z bounds|The bounds of the z axis on the trajectory plots|
+|equal aspect|Should the axes of the trajectory plots be equal scaling. (**default: True**)|

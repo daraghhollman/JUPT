@@ -18,6 +18,9 @@ import junoTrajectories
 
 config.read("./config.ini")
 
+# Add path to magnetopsheric boundary plotting
+magBoundariesRepoPath = config["trajectories"]["magnetophere boundaries path"]
+
 # Selected timeframe to display between
 timeFrame = [config["plotting"]["start time"], config["plotting"]["end time"]]
 
@@ -99,7 +102,7 @@ for plotType in panelsList:
         numSubPlots += 1
 
 
-fig = plt.figure()
+fig = plt.figure(figsize=(16, 5*numSubPlots))
 plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
 
 
@@ -244,12 +247,19 @@ if plotTrajectories:
 
     axTrajectories = fig.add_subplot(numSubPlots, 1, trajectoriesPlotIndex)
 
-    axTrajectories = junoTrajectories.ThreePanelTrajectories(axTrajectories, timeFrame, spiceDirectory, frame=config["trajectories"]["frame"], plottedColour=config["trajectories"]["plotted colour"], extensionColour=config["trajectories"]["extension colour"], timeExtension=config["trajectories"].getint("time extension"))
+    if config["trajectories"].getboolean("equal aspect") is True:
+        aspect="equal"
+    else:
+        aspect="auto"
 
+    axTrajectories = junoTrajectories.ThreePanelTrajectories(axTrajectories, timeFrame, spiceDirectory, frame=config["trajectories"]["frame"], plottedColour=config["trajectories"]["plotted colour"], extensionColour=config["trajectories"]["extension colour"], timeExtension=config["trajectories"].getint("time extension"), trajectoryMajorTickLength=config["trajectories"].getfloat("major tick length"), trajectoryMinorTickLength=config["trajectories"].getfloat("minor tick length"), majorLocator=config["trajectories"].getfloat("major tick multiple"), minorLocator=config["trajectories"].getfloat("minor tick multiple"), xBounds=ast.literal_eval(config["trajectories"]["x bounds"]), yBounds=ast.literal_eval(config["trajectories"]["y bounds"]), zBounds=ast.literal_eval(config["trajectories"]["z bounds"]), aspect=aspect, magBoundariesRepoPath=magBoundariesRepoPath, plotBowShock=config["trajectories"].getboolean("plot bow shock"), plotMagnetopause=config["trajectories"].getboolean("plot magnetopause"), p_dyn=config["trajectories"].getfloat("dynamic pressure"), bsColour=config["trajectories"]["bow shock colour"], mpColour=config["trajectories"]["magnetopause colour"])
 
 # Move the subplots together and add room below for ephemeris labels
 plt.subplots_adjust(hspace=panelSpacing, bottom=0.2)
 
 
-print("Showing figure")
-plt.show()
+if not config["plotting"].getboolean("save figure"):
+    print("Showing figure")
+    plt.show()
+else:
+    plt.savefig(f"JUPT_{timeFrame[0]}_{timeFrame[1]}", format="png")
