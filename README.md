@@ -33,9 +33,11 @@ Download the DIASPICETools repository:
 
 `git clone https://github.com/mjrutala/DIASPICETools`
 
-Open this directory, and run the tool using a python terminal:
+Open this directory:
 
 `cd DIASPICETools/`
+
+Run the tool from a python terminal by starting python:
 
 `python` (the command to open a python terminal may be different on your system)
 
