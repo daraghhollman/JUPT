@@ -3,10 +3,10 @@
 
 JUPT - The **J**uno **U**niversal **P**lotting **T**ool - is an all in one tool for creating and customising plots of any combination of data from the Juno spacecraft, inlcuding (but not limited to) MAG, Waves, JADE and Trajectories.
 
-![sampleFigure](https://github.com/daraghhollman/JUPT/assets/62439417/9f8834ee-ef1b-4198-a058-f9f649da1a18)
+This project is currently a work in progress with updates being posted here frequently.
 
-This project is currently a work in progress with updates being posted here frequently. The project is **currently not in a functional state**.
-
+Sample figure:
+![JUPT_2017-07-06T00:00:00_2017-07-09T00:00:00](https://github.com/daraghhollman/JUPT/assets/62439417/143b9ede-efb4-4d1f-a15e-b6de69baae36)
 ## Instructions
 
 ### Installation
