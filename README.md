@@ -24,6 +24,8 @@ Create a directory to store data:
 
 Add the path to this directory to the 'data directory' in the directory_config.ini file.
 
+'data directory = /path/to/data/directory/data/'
+
 #### Setting up SPICE (Required for trajectories plots)
 Navigate to your desired directory. (This will contain all of your spice kernels which will be a large number of files.)
 
@@ -150,7 +152,7 @@ Run `python jupt.py` to create the plot.
 |extension colour|Matplotlib colour to denote the orbit before and after the section of orbit being plotted in the panels.|
 |time extensions|How long before and after the data plotted should the trajectory plot be extended. (In units of days)|
 |major tick length|Major tick length for the trajectories plots|
-|mionr tick length|Minor tick length for the trajectories plots|
+|minor tick length|Minor tick length for the trajectories plots|
 |major tick multiple|Major ticks will be placed at a multiple of this number.|
 |minor tick multiple|Minor ticks will be placed at a multiple of this number.|
 |x bounds|The bounds of the x axis on the trajectory plots|
