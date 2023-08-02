@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import configparser
 import ast
+import sys
+import os
 
 directoryConfig = configparser.ConfigParser()
 plottingConfig = configparser.ConfigParser()
@@ -19,7 +21,8 @@ import junoTrajectories
 import userAdditions
 
 directoryConfig.read("./directory_config.ini")
-plottingConfig.read("./plot_info.ini")
+plottingConfig.read(f"./{sys.argv[1]}")
+configName = sys.argv[1].split("/")[-1]
 
 # Add path to magnetopsheric boundary plotting
 magBoundariesRepoPath = directoryConfig["trajectories"]["magnetophere boundaries path"]
@@ -275,4 +278,8 @@ if not directoryConfig["plotting"].getboolean("save figure"):
     print("Showing figure")
     plt.show()
 else:
-    plt.savefig(f"JUPT_{timeFrame[0]}_{timeFrame[1]}.png", format="png")
+    # Test if output directory exists
+    if not os.path.exists("./JUPT_output/"):
+        os.system("mkdir ./JUPT_output/")
+
+    plt.savefig("./JUPT_output/" + str(configName)[0:-4]+".png", format="png")
