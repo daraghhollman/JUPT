@@ -16,6 +16,7 @@ import junoJade
 import vLines
 import junoDerivedMoments
 import junoTrajectories
+import userAdditions
 
 directoryConfig.read("./directory_config.ini")
 plottingConfig.read("./plot_info.ini")
@@ -107,10 +108,13 @@ for plotType in panelsList:
 fig = plt.figure(figsize=(16, 5*numSubPlots))
 plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
 
+# Create axes dictionary
+axesDict = {}
 
 # Section controlling Waves plotting
 if plotWaves:
     axWaves = fig.add_subplot(numSubPlots, 1, wavesPlotIndex)
+    axesDict["Waves"] = axWaves
 
     # Plot the Waves data from the junoWAVES script
     if wavesPlotIndex < numSubPlots:
@@ -135,6 +139,7 @@ if plotJADE:
    
     if plotElectronEnergy:
         axJade = fig.add_subplot(numSubPlots, 1, electronEnergyPlotIndex)
+        axesDict["JADE-E energy"] = axJade
 
         if electronEnergyPlotIndex < numSubPlots:
             
@@ -157,6 +162,7 @@ if plotJADE:
 
     if plotPitchAngle:
         axJadePitch = fig.add_subplot(numSubPlots, 1, pitchAnglePlotIndex)
+        axesDict["JADE-E pitch"] = axJadePitch
 
         if pitchAnglePlotIndex < numSubPlots:
 
@@ -180,6 +186,7 @@ if plotJADE:
 # Moments
 if plotDensity:
     axDensity = fig.add_subplot(numSubPlots, 1, densityPlotIndex)
+    axesDict["JADE density"]
 
     if densityPlotIndex < numSubPlots:
         junoDerivedMoments.PlotDensity(fig, axDensity, timeFrame, dataDirectory, plotEphemeris=True, ephemerisLabels=False, downloadNewData=directoryConfig["data"].getboolean("download new data"))
@@ -199,6 +206,7 @@ if plotDensity:
 if plotMag:
 
     axMag = fig.add_subplot(numSubPlots, 1, magPlotIndex)
+    axesDict["MAG"] = axMag
 
     if magPlotIndex < numSubPlots:
         # Plot the MAG data from the junoMAG script
@@ -248,6 +256,7 @@ for i, axis in enumerate(fig.axes):
 if plotTrajectories:
 
     axTrajectories = fig.add_subplot(numSubPlots, 1, trajectoriesPlotIndex)
+    axesDict["Trajectories"] = axTrajectories
 
     if plottingConfig["trajectories"].getboolean("equal aspect") is True:
         aspect="equal"
@@ -259,6 +268,8 @@ if plotTrajectories:
 # Move the subplots together and add room below for ephemeris labels
 plt.subplots_adjust(hspace=panelSpacing, bottom=0.2)
 
+
+userAdditions.UserAdditions(fig=fig, axes=axesDict)
 
 if not directoryConfig["plotting"].getboolean("save figure"):
     print("Showing figure")
