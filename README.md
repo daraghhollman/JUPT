@@ -61,7 +61,9 @@ Edit the configuration settings in **plot_info.ini** as explained  at the end of
 
 ### Running
 
-Run `python jupt.py` to create the plot.
+Run `python jupt.py path_to_config_file.ini` to create the plot.
+
+There is a default_config.ini to test if you have installed the tool correctly. Config files may be placed in the input_config directory, but note that any path is okay.
 
 
 #### data
