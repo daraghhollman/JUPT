@@ -22,7 +22,7 @@ Create a directory to store data:
 
 `mkdir ./data`
 
-Add the path to this directory to the 'data directory' in the config.ini file.
+Add the path to this directory to the 'data directory' in the directory_config.ini file.
 
 #### Setting up SPICE (Required for trajectories plots)
 Navigate to your desired directory. (This will contain all of your spice kernels which will be a large number of files.)
@@ -47,24 +47,23 @@ Run the tool from a python terminal by starting python:
 
 This will download the required SPICE kernels to `.../DIASPICETools/SPICE/`. This may take some time.
 
-Simply exit the python terminal and edit the 'spice directory' in config.ini file with the path to this `.../SPICE/` directory.
+Simply exit the python terminal and edit the 'spice directory' in directory_config.ini file with the path to this `.../SPICE/` directory.
 
 #### Setting up Magnetospheric Boundaries
 Navigate to a separate directory where you will install the [jupiter_magnetosphere_boundaries](https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries/) code. Download the github repository as follows:
 
 `git clone https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries`
 
-Update the **magnetosphere boundaries path** field in your config.ini file under **[trajectories]** to point to this repository.
+Update the **magnetosphere boundaries path** field in your directory_config.ini file under **[trajectories]** to point to this repository.
 
 ### Config
-Edit the configuration settings in **config.ini** as explained in section "config.ini"
+Edit the configuration settings in **plot_info.ini** as explained  at the end of this section.
 
 ### Running
 
 Run `python jupt.py` to create the plot.
 
 
-## config.ini
 #### data
 |key|description|
 |----|----|
