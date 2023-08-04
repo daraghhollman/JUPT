@@ -1,4 +1,6 @@
 # Juno Universal Plotting Tool
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 *An all in one tool for creating plots using data from the Juno spacecraft*
 
 JUPT - The **J**uno **U**niversal **P**lotting **T**ool - is an all in one tool for creating and customising plots of any combination of data from the Juno spacecraft, inlcuding MAG, Waves, JADE and Trajectories.
