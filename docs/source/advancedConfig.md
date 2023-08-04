@@ -2,6 +2,8 @@
 
 More detailed configuration options for those who wish to customise their plots further. This includes both style options, but also more complex plotting settings which require a scientific understanding.
 
+These plotting options correspond to the *dynamic* config file, as described in the [Basic Configuration](basicConfig) section.
+
 ## plotting
 |key|description|
 |---|---|
@@ -71,7 +73,8 @@ More detailed configuration options for those who wish to customise their plots 
 ## Trajectories
 |key|description|
 |---|---|
-|dynamic pressure|Dynamic pressure (nPa) to be passed to the Joy model bow shock and magetopause. Joy et al. (2002)|
+|BS dynamic pressure|Dynamic pressure (nPa) to be passed to the Joy model bow shock. Joy et al. (2002)|
+|MP dynamic pressure|Dynamic pressure (nPa) to be passed to the Joy model magetopause. Joy et al. (2002)|
 |plot bow shock|Should the Joy model bow shock be plotted on the trajectories plots|
 |plot magnetopause|Should the Joy model magnetopause be plotted on the trajectories plots|
 |bow shock colour|What colour should the bow shock model be on the plot.|

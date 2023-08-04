@@ -96,22 +96,34 @@
 </section>
 <section id="dependancies">
 <h2>Dependancies<a class="headerlink" href="#dependancies" title="Permalink to this heading"></a></h2>
-<p>All packages required are located in the <strong>requirements.txt</strong> file. These can be installed using pip, and automatically installed using the command: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p>
-<p>We recommend using a Python virtual enviroment.</p>
+<p>All packages required are located in the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file.</p>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>Navigate to your desired install directory:</p>
-<p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">~/path/to/data/directory/</span></code></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/path/to/data/directory/
+</pre></div>
+</div>
 <p>Download the repository to this location:</p>
-<p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/daraghhollman/JUPT</span></code></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/daraghhollman/JUPT
+</pre></div>
+</div>
+<p>Install the required packages:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<p>(Note that we recommend using a Python virtual environment)</p>
 <p>Create a directory to store data:</p>
-<p><code class="docutils literal notranslate"><span class="pre">mkdir</span> <span class="pre">JUPT/data</span></code></p>
-<p>Add the path to this directory to the ‘data directory’ in the directory_config.ini file.</p>
-<p>‘data directory = /path/to/data/directory/data/’</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>JUPT/data
+</pre></div>
+</div>
+<p>Add the path to this directory to the <strong>data directory</strong> in the <code class="docutils literal notranslate"><span class="pre">directory_config.ini</span></code> file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="n">directory</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">directory</span><span class="o">/</span><span class="n">data</span><span class="o">/</span>
+</pre></div>
+</div>
 <section id="setting-up-spice-required-for-trajectories-plots">
 <h3>Setting up SPICE (Required for trajectories plots)<a class="headerlink" href="#setting-up-spice-required-for-trajectories-plots" title="Permalink to this heading"></a></h3>
-<p>To set the tool up to work with SPICE you will need to point the ‘spice directory’ field in the <code class="docutils literal notranslate"><span class="pre">directory_config.ini</span></code> file to directory containing a SPICE MetaKernel appropriate for the Juno mission. <strong>The following structure is expected with this directory:</strong></p>
+<p>To set the tool up to work with SPICE you will need to point the <strong>spice directory</strong> field in the <code class="docutils literal notranslate"><span class="pre">directory_config.ini</span></code> file to directory containing a SPICE MetaKernel appropriate for the Juno mission. <strong>The following structure is expected with this directory:</strong></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>SPICE/
 ├─ juno/
 │  ├─ metakernel_juno.txt
@@ -128,14 +140,18 @@
 <section id="setting-up-magnetospheric-boundaries">
 <h3>Setting up Magnetospheric Boundaries<a class="headerlink" href="#setting-up-magnetospheric-boundaries" title="Permalink to this heading"></a></h3>
 <p>Navigate to a separate directory where you will install the <a class="reference external" href="https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries/">jupiter_magnetosphere_boundaries</a> code. Download the github repository as follows:</p>
-<p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries</span></code></p>
-<p>Update the <strong>magnetosphere boundaries path</strong> field in your directory_config.ini file under <strong>trajectories</strong> to point to this repository.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries
+</pre></div>
+</div>
+<p>Update the <strong>magnetosphere boundaries path</strong> field in your <code class="docutils literal notranslate"><span class="pre">directory_config.ini</span></code> file under <strong>trajectories</strong> to point to this repository.</p>
 </section>
 </section>
 <section id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h2>
-<p>To test if the tool was installed correctly, you can run the script with the default config file by running the following command from the <strong>JUPT/</strong> repository:
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">jupt.py</span> <span class="pre">default_config.ini</span></code></p>
+<p>To test if the tool was installed correctly, you can run the script with the default config file by running the following command from the <code class="docutils literal notranslate"><span class="pre">JUPT/</span></code> repository:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>jupt.py<span class="w"> </span>default_config.ini
+</pre></div>
+</div>
 <p>Note that this initial test may take some time, as the requested data needs to first be downloaded.</p>
 </section>
 </section>

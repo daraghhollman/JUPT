@@ -1,6 +1,10 @@
 # Basic Configuration
 
-The config options for JUPT are contained in two separate files. One *static* file which is used for configuring paths (**directory_config.ini**). And one *dynamic* file which is used to define the plotting settings for each output.
+The config options for JUPT are contained in two separate files. One *static* file which is used for configuring paths (`directory_config.ini`). And one *dynamic* file which is used to define the plotting settings for each output (`default_config.ini`).
+
+We describe the first as *static*, meaning that this file will not be changing from plot to plot; And the second as *dynamic*, as for each plot created, you should create a copy of `default_config.ini`, and customise it for that plot specifically.
+
+This *dynamic* config file is what is passed as an argument to the tool, as descibed in the [usage](usage) section.
 
 ## directory_config.ini
 
@@ -12,7 +16,7 @@ This is a config file which should contain the necessary file paths required by 
 
 `spice metakernel` : A path pointing to a spice metakernel to load for trajectories (and in the future trajectories) plotting. e.g. /home/user/spice/juno_metakernel.txt
 
-See [installtion guide](installation)
+See [installation guide](installation)
 
 If you do not have a metakernel, you can create one using this tool: [DIASPICETools](https://github.com/mjrutala/DIASPICETools)
 
@@ -27,6 +31,7 @@ If False, the figure is opened in a new window to be resized and viewed. An opti
 ### Trajectories
 
 `magnetosphere boundaries repo path` : A path pointing to where the [jupiter_magnetosphere_boundaries](https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries/) repo is downloaded. See [installation guide](installation)
+
 
 ## default_config.ini
 

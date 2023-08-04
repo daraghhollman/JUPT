@@ -3,8 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to JUPT's documentation!
-================================
+JUPT Documentation
+==================
+
+The **J**\uno **U**\niversal **P**\lotting **T**\ool is an all in one tool for creating and customising plots of many combinations of data from the Juno spacecraft, currently including magnetometer (MAG), radio wave (Waves), plasma (JADE) and Trajectory data.
+
 
 .. toctree::
    :maxdepth: 2

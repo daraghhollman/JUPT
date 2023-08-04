@@ -1,9 +1,9 @@
 # Usage
-This siection presents a cocise user's guide to running JUPT
+This section presents a concise user's guide to running JUPT.
 
 To run the tool, the following command must be run from the terminal:
 
-```
+```shell
 python jupt.py CONFIG
 ```
 

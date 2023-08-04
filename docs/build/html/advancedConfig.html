@@ -90,6 +90,7 @@
   <section id="advanced-configuration">
 <h1>Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Permalink to this heading"></a></h1>
 <p>More detailed configuration options for those who wish to customise their plots further. This includes both style options, but also more complex plotting settings which require a scientific understanding.</p>
+<p>These plotting options correspond to the <em>dynamic</em> config file, as described in the <a class="reference internal" href="basicConfig.html"><span class="doc std std-doc">Basic Configuration</span></a> section.</p>
 <section id="plotting">
 <h2>plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h2>
 <table class="docutils align-default">
@@ -297,55 +298,58 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>dynamic pressure</p></td>
-<td><p>Dynamic pressure (nPa) to be passed to the Joy model bow shock and magetopause. Joy et al. (2002)</p></td>
+<tr class="row-even"><td><p>BS dynamic pressure</p></td>
+<td><p>Dynamic pressure (nPa) to be passed to the Joy model bow shock. Joy et al. (2002)</p></td>
 </tr>
-<tr class="row-odd"><td><p>plot bow shock</p></td>
+<tr class="row-odd"><td><p>MP dynamic pressure</p></td>
+<td><p>Dynamic pressure (nPa) to be passed to the Joy model magetopause. Joy et al. (2002)</p></td>
+</tr>
+<tr class="row-even"><td><p>plot bow shock</p></td>
 <td><p>Should the Joy model bow shock be plotted on the trajectories plots</p></td>
 </tr>
-<tr class="row-even"><td><p>plot magnetopause</p></td>
+<tr class="row-odd"><td><p>plot magnetopause</p></td>
 <td><p>Should the Joy model magnetopause be plotted on the trajectories plots</p></td>
 </tr>
-<tr class="row-odd"><td><p>bow shock colour</p></td>
+<tr class="row-even"><td><p>bow shock colour</p></td>
 <td><p>What colour should the bow shock model be on the plot.</p></td>
 </tr>
-<tr class="row-even"><td><p>magnetopause colour</p></td>
+<tr class="row-odd"><td><p>magnetopause colour</p></td>
 <td><p>What colour should the magnetopause model be on the plot.</p></td>
 </tr>
-<tr class="row-odd"><td><p>frame</p></td>
+<tr class="row-even"><td><p>frame</p></td>
 <td><p>What SPICE frame should the trajectories be plotted in. Common options include JUNO_JSS and JUNO_JSO. Note that magnetospheric boundaries can only currently be plotted using JSS.</p></td>
 </tr>
-<tr class="row-even"><td><p>plotted colour</p></td>
+<tr class="row-odd"><td><p>plotted colour</p></td>
 <td><p>Matplotlib colour to denote the section of orbit being plotted in the panels.</p></td>
 </tr>
-<tr class="row-odd"><td><p>extension colour</p></td>
+<tr class="row-even"><td><p>extension colour</p></td>
 <td><p>Matplotlib colour to denote the orbit before and after the section of orbit being plotted in the panels.</p></td>
 </tr>
-<tr class="row-even"><td><p>time extensions</p></td>
+<tr class="row-odd"><td><p>time extensions</p></td>
 <td><p>How long before and after the data plotted should the trajectory plot be extended. (In units of days)</p></td>
 </tr>
-<tr class="row-odd"><td><p>major tick length</p></td>
+<tr class="row-even"><td><p>major tick length</p></td>
 <td><p>Major tick length for the trajectories plots</p></td>
 </tr>
-<tr class="row-even"><td><p>minor tick length</p></td>
+<tr class="row-odd"><td><p>minor tick length</p></td>
 <td><p>Minor tick length for the trajectories plots</p></td>
 </tr>
-<tr class="row-odd"><td><p>major tick multiple</p></td>
+<tr class="row-even"><td><p>major tick multiple</p></td>
 <td><p>Major ticks will be placed at a multiple of this number.</p></td>
 </tr>
-<tr class="row-even"><td><p>minor tick multiple</p></td>
+<tr class="row-odd"><td><p>minor tick multiple</p></td>
 <td><p>Minor ticks will be placed at a multiple of this number.</p></td>
 </tr>
-<tr class="row-odd"><td><p>x bounds</p></td>
+<tr class="row-even"><td><p>x bounds</p></td>
 <td><p>The bounds of the x axis on the trajectory plots</p></td>
 </tr>
-<tr class="row-even"><td><p>y bounds</p></td>
+<tr class="row-odd"><td><p>y bounds</p></td>
 <td><p>The bounds of the y axis on the trajectory plots</p></td>
 </tr>
-<tr class="row-odd"><td><p>z bounds</p></td>
+<tr class="row-even"><td><p>z bounds</p></td>
 <td><p>The bounds of the z axis on the trajectory plots</p></td>
 </tr>
-<tr class="row-even"><td><p>equal aspect</p></td>
+<tr class="row-odd"><td><p>equal aspect</p></td>
 <td><p>Should the axes of the trajectory plots be equal scaling. (<strong>default: True</strong>)</p></td>
 </tr>
 </tbody>
