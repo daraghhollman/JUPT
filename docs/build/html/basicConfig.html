@@ -104,7 +104,13 @@
 <section id="data">
 <h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">directory</span></code> : A path pointing to the directory where the data will we automatically downloaded and stored. e.g. /home/user/jupt_data/</p>
-<p><code class="docutils literal notranslate"><span class="pre">spice</span> <span class="pre">metakernel</span></code> : A path pointing to a spice metakernel to load for trajectories (and in the future trajectories) plotting. e.g. /home/user/spice/juno_metakernel.txt</p>
+<p><code class="docutils literal notranslate"><span class="pre">spice</span> <span class="pre">directory</span></code> : A path pointing to a directory containing a spice metakernel to load for trajectories (and in the future, ephemeris) plotting. e.g. <code class="docutils literal notranslate"><span class="pre">/home/user/spice/</span></code></p>
+<p>The following structure is expected in this directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>SPICE/
+├─ juno/
+│  ├─ metakernel_juno.txt
+</pre></div>
+</div>
 <p>See <a class="reference internal" href="installation.html"><span class="doc std std-doc">installation guide</span></a></p>
 <p>If you do not have a metakernel, you can create one using this tool: <a class="reference external" href="https://github.com/mjrutala/DIASPICETools">DIASPICETools</a></p>
 <p><code class="docutils literal notranslate"><span class="pre">download</span> <span class="pre">new</span> <span class="pre">data</span></code> : If True, this option deletes all data files of that data type before attempting to download new data.</p>

@@ -12,7 +12,7 @@ All packages required are located in the `requirements.txt` file.
 Navigate to your desired install directory:
 
 ```shell
-cd ~/path/to/data/directory/
+cd ~/path/to/install/directory/
 
 ```
 
@@ -38,7 +38,7 @@ mkdir JUPT/data
 Add the path to this directory to the **data directory** in the `directory_config.ini` file.
 
 ```
-data directory = /path/to/data/directory/data/
+data directory = /path/to/install/directory/data/
 ```
 
 ### Setting up SPICE (Required for trajectories plots)

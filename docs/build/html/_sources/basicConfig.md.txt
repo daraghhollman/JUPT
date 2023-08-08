@@ -14,7 +14,15 @@ This is a config file which should contain the necessary file paths required by 
 
 `data directory` : A path pointing to the directory where the data will we automatically downloaded and stored. e.g. /home/user/jupt_data/
 
-`spice metakernel` : A path pointing to a spice metakernel to load for trajectories (and in the future trajectories) plotting. e.g. /home/user/spice/juno_metakernel.txt
+`spice directory` : A path pointing to a directory containing a spice metakernel to load for trajectories (and in the future, ephemeris) plotting. e.g. `/home/user/spice/`
+
+The following structure is expected in this directory:
+
+```
+SPICE/
+├─ juno/
+│  ├─ metakernel_juno.txt
+```
 
 See [installation guide](installation)
 
