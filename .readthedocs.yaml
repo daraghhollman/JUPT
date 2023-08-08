@@ -1,0 +1,25 @@
+# Read the Docs configuration file for Sphinx projects
+
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+
+# Required
+
+version: 1.0.0
+
+
+# Set the OS, Python version and other tools you might need
+
+build:
+
+  os: 6.3.2-arch1-1
+
+  tools:
+
+    python: "3.11"
+
+# Build documentation in the "docs/" directory with Sphinx
+
+sphinx:
+
+  configuration: docs/conf.py
