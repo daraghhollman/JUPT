@@ -10,3 +10,4 @@ spiceypy
 scipy
 requests
 myst-parser
+sphinx_rtd_theme
