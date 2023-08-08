@@ -9,7 +9,7 @@ This project is currently a work in progress with updates being posted here freq
 
 ## Installation
 
-See our [documentation](jupt.readthedocs.io) for instructions on installtion, dependancies, usage, and configuration.
+See our [documentation](https://jupt.readthedocs.io/en/latest/) for instructions on installtion, dependancies, usage, and configuration.
 
 ## Sample figure:
 ![JUPT_2017-07-06T00:00:00_2017-07-09T00:00:00](https://github.com/daraghhollman/JUPT/assets/62439417/143b9ede-efb4-4d1f-a15e-b6de69baae36)
