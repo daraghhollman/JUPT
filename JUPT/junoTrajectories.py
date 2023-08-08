@@ -8,7 +8,7 @@ import numpy as np
 import sys
 
 
-def ThreePanelTrajectories(ax, timeFrame, spiceDirectory, frame="JUNO_JSS", centre="JUPITER", timeStep_mins=1, scale=71492, unitLabel="R$_J$", timeExtension=25, plottedColour="magenta", extensionColour="black", trajectoryMajorTickLength=20, trajectoryMinorTickLength=10, majorLocator=20, minorLocator=10, xBounds=[], yBounds=[], zBounds=[], aspect="auto", magBoundariesRepoPath="", plotBowShock=False, plotMagnetopause=False, p_dyn=0.209, bsColour="black", mpColour="purple"):
+def ThreePanelTrajectories(ax, timeFrame, spiceDirectory, frame="JUNO_JSS", centre="JUPITER", timeStep_mins=1, scale=71492, unitLabel="R$_J$", timeExtension=25, plottedColour="magenta", extensionColour="black", trajectoryMajorTickLength=20, trajectoryMinorTickLength=10, majorLocator=20, minorLocator=10, xBounds=[], yBounds=[], zBounds=[], aspect="auto", magBoundariesRepoPath="", plotBowShock=False, plotMagnetopause=False, BS_p_dyn=0.3, MP_p_dyn=0.3, bsColour="black", mpColour="purple"):
 
     if magBoundariesRepoPath != "":
         sys.path.append(magBoundariesRepoPath)
@@ -129,34 +129,34 @@ def ThreePanelTrajectories(ax, timeFrame, spiceDirectory, frame="JUNO_JSS", cent
     # Plot magnetopsheric boundaries 
     if plotBowShock:
         
-        (x_eq, y_eq, standoff) = pdyn_to_bs(Pdyn=p_dyn, equatorial=True)
+        (x_eq, y_eq, standoff) = pdyn_to_bs(Pdyn=BS_p_dyn, equatorial=True)
         # Plot is called twice as the function returns the positive y and negative y separately
         xyAxis.plot(x_eq[0], y_eq[0], linestyle="dashed", color=bsColour, zorder=5)
         xyAxis.plot(x_eq[1], y_eq[1], linestyle="dashed", color=bsColour, zorder=5)
 
-        (x_eq, z_eq, standoff) = pdyn_to_bs(Pdyn=p_dyn, noon_midnight=True)
+        (x_eq, z_eq, standoff) = pdyn_to_bs(Pdyn=BS_p_dyn, noon_midnight=True)
         # Plot is called twice as the function returns the positive y and negative y separately
-        xzAxis.plot(x_eq[0], z_eq[0], linestyle="dashed", color=bsColour, zorder=5, label="Bow Shock P$_{dyn}$=" + str(p_dyn) + "\n    Joy et al. (2002)")
+        xzAxis.plot(x_eq[0], z_eq[0], linestyle="dashed", color=bsColour, zorder=5, label="Bow Shock P$_{dyn}$=" + str(BS_p_dyn) + "\n    Joy et al. (2002)")
         xzAxis.plot(x_eq[1], z_eq[1], linestyle="dashed", color=bsColour, zorder=5)
 
-        (y_eq, z_eq, standoff) = pdyn_to_bs(Pdyn=p_dyn, dawn_dusk=True)
+        (y_eq, z_eq, standoff) = pdyn_to_bs(Pdyn=BS_p_dyn, dawn_dusk=True)
         # Plot is called twice as the function returns the positive y and negative y separately
         yzAxis.plot(y_eq[0], z_eq[0], linestyle="dashed", color=bsColour, zorder=5)
         yzAxis.plot(y_eq[1], z_eq[1], linestyle="dashed", color=bsColour, zorder=5)
 
     if plotMagnetopause:
         
-        (x_eq, y_eq, standoff) = pdyn_to_mp(Pdyn=p_dyn, equatorial=True)
+        (x_eq, y_eq, standoff) = pdyn_to_mp(Pdyn=MP_p_dyn, equatorial=True)
         # Plot is called twice as the function returns the positive y and negative y separately
         xyAxis.plot(x_eq[0], y_eq[0], linestyle="dashed", color=mpColour, zorder=5)
         xyAxis.plot(x_eq[1], y_eq[1], linestyle="dashed", color=mpColour, zorder=5)
 
-        (x_eq, z_eq, standoff) = pdyn_to_mp(Pdyn=p_dyn, noon_midnight=True)
+        (x_eq, z_eq, standoff) = pdyn_to_mp(Pdyn=MP_p_dyn, noon_midnight=True)
         # Plot is called twice as the function returns the positive y and negative y separately
-        xzAxis.plot(x_eq[0], z_eq[0], linestyle="dashed", color=mpColour, zorder=5, label="Magnetopause P$_{dyn}$=" + str(p_dyn) + "\n    Joy et al. (2002)")
+        xzAxis.plot(x_eq[0], z_eq[0], linestyle="dashed", color=mpColour, zorder=5, label="Magnetopause P$_{dyn}$=" + str(MP_p_dyn) + "\n    Joy et al. (2002)")
         xzAxis.plot(x_eq[1], z_eq[1], linestyle="dashed", color=mpColour, zorder=5)
 
-        (y_eq, z_eq, standoff) = pdyn_to_mp(Pdyn=p_dyn, dawn_dusk=True)
+        (y_eq, z_eq, standoff) = pdyn_to_mp(Pdyn=MP_p_dyn, dawn_dusk=True)
         # Plot is called twice as the function returns the positive y and negative y separately
         yzAxis.plot(y_eq[0], z_eq[0], linestyle="dashed", color=mpColour, zorder=5)
         yzAxis.plot(y_eq[1], z_eq[1], linestyle="dashed", color=mpColour, zorder=5)

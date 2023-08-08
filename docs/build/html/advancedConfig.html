@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Configuration &mdash; JUPT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Rules of use" href="rulesOfUse.html" />
+    <link rel="prev" title="Basic Configuration" href="basicConfig.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            JUPT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basicConfig.html">Basic Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#plotting">plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#colours">colours</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vertical-lines">vertical lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#waves">Waves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jade">JADE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mag">MAG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trajectories">Trajectories</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rulesOfUse.html">Rules of use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributingGuidelines.html">Contributing to JUPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="futureWork.html">Future Work</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">JUPT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Advanced Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/advancedConfig.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="advanced-configuration">
+<h1>Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Permalink to this heading"></a></h1>
+<p>More detailed configuration options for those who wish to customise their plots further. This includes both style options, but also more complex plotting settings which require a scientific understanding.</p>
+<p>These plotting options correspond to the <em>dynamic</em> config file, as described in the <a class="reference internal" href="basicConfig.html"><span class="doc std std-doc">Basic Configuration</span></a> section.</p>
+<section id="plotting">
+<h2>plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>save figure</p></td>
+<td><p>Should the figure be automatically saved. If False, the figure will be opened in a window to view and save manually.</p></td>
+</tr>
+<tr class="row-odd"><td><p>start time</p></td>
+<td><p>The time with which to start your plot from. Must be in the format YYYY-MM-DDTHH:MM:SS</p></td>
+</tr>
+<tr class="row-even"><td><p>end time</p></td>
+<td><p>The time with which to end your plot. Must be in the format YYYY-MM-DDTHH:MM:SS</p></td>
+</tr>
+<tr class="row-odd"><td><p>plot trajectories</p></td>
+<td><p>At what subplot index should trajectories data be plotted. Leave as 0 to not plot trajectories.</p></td>
+</tr>
+<tr class="row-even"><td><p>plot Waves</p></td>
+<td><p>At what subplot index should Waves data be plotted. Leave as 0 to not plot Waves</p></td>
+</tr>
+<tr class="row-odd"><td><p>plot JADE electron energies</p></td>
+<td><p>At what subplot index should JADE electron energies data be plotted. Leave as 0 to not plot</p></td>
+</tr>
+<tr class="row-even"><td><p>plot JADE electron pitch angles</p></td>
+<td><p>At what subplot index should JADE electron pitch angles data be plotted. Leave as 0 to not plot</p></td>
+</tr>
+<tr class="row-odd"><td><p>~~plot density~~</p></td>
+<td><p>JADE moments are currently not supported.</p></td>
+</tr>
+<tr class="row-even"><td><p>plot MAG</p></td>
+<td><p>At what subplot index should MAG data be plotted. Leave as 0 to not plot MAG</p></td>
+</tr>
+<tr class="row-odd"><td><p>panel spacing</p></td>
+<td><p>The white space vertically between panels in units of panel height. Note, this can be 0. (<strong>default: 0.2</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>~~font size~~</p></td>
+<td><p>Base fontsize for the plot. Currently not functional due to <strong>issue #9</strong> (<strong>default: 11</strong>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>major tick length</p></td>
+<td><p>Length of major ticks. (<strong>default: 16</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>minor tick length</p></td>
+<td><p>Length of minor ticks. (<strong>default: 8</strong>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>major tick width</p></td>
+<td><p>Width of major ticks. (<strong>default: 0.8</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>minor tick width</p></td>
+<td><p>Width of minor ticks. (<strong>default: 0.8</strong>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>y tick length</p></td>
+<td><p>Length of major ticks on the y axes. (<strong>default: 12</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>y tick width</p></td>
+<td><p>Width of major ticks on the y axes. (<strong>default: 0.8</strong>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="colours">
+<h2>colours<a class="headerlink" href="#colours" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>magnitude colour</p></td>
+<td><p>The colour (matplotlib) of the magnitude of the MAG data. (<strong>default: black</strong>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>component colours</p></td>
+<td><p>The colours (matplotlib) of the coordinate components of the MAG data. Must be formated as [“colour1”, “colour2”, “colour3”]. (<strong>default: [“indianred”,”mediumturquoise”,”cornflowerblue”]</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>lobe colour</p></td>
+<td><p>The colour (matplotlib) of the lobe field and its uncertainty. (<strong>default: gold</strong>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="vertical-lines">
+<h2>vertical lines<a class="headerlink" href="#vertical-lines" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>read from file</p></td>
+<td><p>Should boundary crossings be read from file</p></td>
+</tr>
+<tr class="row-odd"><td><p>file path</p></td>
+<td><p>The path to the file to read boundary crossings from. Should be a csv file in the format of a pandas dataframe.</p></td>
+</tr>
+<tr class="row-even"><td><p>file line colour</p></td>
+<td><p>Colour of boundary crossing vertical lines. (<strong>default: red</strong>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>labels</p></td>
+<td><p>Labels for manually placed vertical lines. In the format of [“Label1”,”label2”,…[“labelN”]]</p></td>
+</tr>
+<tr class="row-even"><td><p>positions</p></td>
+<td><p>Positions of manually placed vertical lines. In the format of [“position1”, “position2”,… “positionN”], where each position follows the format YYYY-MM-DDTHH:MM:SS. Leave as [] for no vertical lines</p></td>
+</tr>
+<tr class="row-odd"><td><p>colours</p></td>
+<td><p>Colours for each manually placed line to allow for different colours for each line. Must be in the format [“colour1”, “colour2”,… “colourN”]</p></td>
+</tr>
+<tr class="row-even"><td><p>linestyle</p></td>
+<td><p>The matplotlib linestyle of the vertical lines. (<strong>default: –</strong> i.e. dashed)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="waves">
+<h2>Waves<a class="headerlink" href="#waves" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>frequency limit</p></td>
+<td><p>The range of frequency bins in kHz to display on the plot. (<strong>default: [1, 149]</strong>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>colour map</p></td>
+<td><p>The matplotlib colour map for the Waves data. Some example colourblind friendly (and perpetually uniform) options are: viridis, plasma, inferno, and magma. (<strong>default: viridis</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>frequency bins</p></td>
+<td><p>The new number of frequency bins to interpolate the data to. Leave as 126 for no interpolation (<strong>default: 200</strong>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>y scale</p></td>
+<td><p>y axis scaling options for the Waves plot. i.e. linear, log. (<strong>default: log</strong>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="jade">
+<h2>JADE<a class="headerlink" href="#jade" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pitch angle energy range</p></td>
+<td><p>Range of energies (in eV) to average across to calculate the pitch angle data. Leave as [] to average across all energies.</p></td>
+</tr>
+<tr class="row-odd"><td><p>bin pitch angles</p></td>
+<td><p>Should the pitch angle data be binned into regular chunks of degrees. (<strong>default: True</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>bin size</p></td>
+<td><p>The size, in degrees, of these bins. (<strong>default: 10</strong>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>colour map</p></td>
+<td><p>The matplotlib colormap for JADE data. (<strong>default: magma</strong>)</p></td>
+</tr>
+<tr class="row-even"><td><p>high resolution</p></td>
+<td><p>The JADE instrument splits its data into two modes, a high resolution (sampling every second) and a low resolution (integrating over 30s, approx. one full spacecraft rotation). Note: For times containing high resolution data there is an absence of low resolution data. Note, this tool can mis-create plots which contain sections of time containing both resolutions. These mis-creations can be easily noticed by a discontinuity in tick labels. (<strong>default: False</strong>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mag">
+<h2>MAG<a class="headerlink" href="#mag" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>plot magnitude</p></td>
+<td><p>Should the magnetic field magnitude be plotted. Must be either <strong>True</strong> or <strong>False</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>plot cartesians</p></td>
+<td><p>Should the magnetic field cartesian components be plotted. Must be either <strong>True</strong> or <strong>False</strong>.</p></td>
+</tr>
+<tr class="row-even"><td><p>plot polars</p></td>
+<td><p>Should the magnetic field polar components be plotted. Must be either <strong>True</strong> or <strong>False</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>plot lobe</p></td>
+<td><p>Should the lobe field magnitude be plotted (Khurana model: K &amp; K 2002). Must be either <strong>True</strong> or <strong>False</strong>.</p></td>
+</tr>
+<tr class="row-even"><td><p>plot lobe uncertainty</p></td>
+<td><p>Should the lobe field uncertainty be plotted. Must be either <strong>True</strong> or <strong>False</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>line width</p></td>
+<td><p>Line width (matplotlib) of the MAG data. (<strong>default: 0.5</strong>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="trajectories">
+<h2>Trajectories<a class="headerlink" href="#trajectories" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BS dynamic pressure</p></td>
+<td><p>Dynamic pressure (nPa) to be passed to the Joy model bow shock. Joy et al. (2002)</p></td>
+</tr>
+<tr class="row-odd"><td><p>MP dynamic pressure</p></td>
+<td><p>Dynamic pressure (nPa) to be passed to the Joy model magetopause. Joy et al. (2002)</p></td>
+</tr>
+<tr class="row-even"><td><p>plot bow shock</p></td>
+<td><p>Should the Joy model bow shock be plotted on the trajectories plots</p></td>
+</tr>
+<tr class="row-odd"><td><p>plot magnetopause</p></td>
+<td><p>Should the Joy model magnetopause be plotted on the trajectories plots</p></td>
+</tr>
+<tr class="row-even"><td><p>bow shock colour</p></td>
+<td><p>What colour should the bow shock model be on the plot.</p></td>
+</tr>
+<tr class="row-odd"><td><p>magnetopause colour</p></td>
+<td><p>What colour should the magnetopause model be on the plot.</p></td>
+</tr>
+<tr class="row-even"><td><p>frame</p></td>
+<td><p>What SPICE frame should the trajectories be plotted in. Common options include JUNO_JSS and JUNO_JSO. Note that magnetospheric boundaries can only currently be plotted using JSS.</p></td>
+</tr>
+<tr class="row-odd"><td><p>plotted colour</p></td>
+<td><p>Matplotlib colour to denote the section of orbit being plotted in the panels.</p></td>
+</tr>
+<tr class="row-even"><td><p>extension colour</p></td>
+<td><p>Matplotlib colour to denote the orbit before and after the section of orbit being plotted in the panels.</p></td>
+</tr>
+<tr class="row-odd"><td><p>time extensions</p></td>
+<td><p>How long before and after the data plotted should the trajectory plot be extended. (In units of days)</p></td>
+</tr>
+<tr class="row-even"><td><p>major tick length</p></td>
+<td><p>Major tick length for the trajectories plots</p></td>
+</tr>
+<tr class="row-odd"><td><p>minor tick length</p></td>
+<td><p>Minor tick length for the trajectories plots</p></td>
+</tr>
+<tr class="row-even"><td><p>major tick multiple</p></td>
+<td><p>Major ticks will be placed at a multiple of this number.</p></td>
+</tr>
+<tr class="row-odd"><td><p>minor tick multiple</p></td>
+<td><p>Minor ticks will be placed at a multiple of this number.</p></td>
+</tr>
+<tr class="row-even"><td><p>x bounds</p></td>
+<td><p>The bounds of the x axis on the trajectory plots</p></td>
+</tr>
+<tr class="row-odd"><td><p>y bounds</p></td>
+<td><p>The bounds of the y axis on the trajectory plots</p></td>
+</tr>
+<tr class="row-even"><td><p>z bounds</p></td>
+<td><p>The bounds of the z axis on the trajectory plots</p></td>
+</tr>
+<tr class="row-odd"><td><p>equal aspect</p></td>
+<td><p>Should the axes of the trajectory plots be equal scaling. (<strong>default: True</strong>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="basicConfig.html" class="btn btn-neutral float-left" title="Basic Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rulesOfUse.html" class="btn btn-neutral float-right" title="Rules of use" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, D.M. Hollman, C.M. Jackman, C.K. Louis, H.L.F. Huybrighs, M.J. Rutala, S.C. McEntee.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

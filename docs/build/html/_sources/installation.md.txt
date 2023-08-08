@@ -1,0 +1,81 @@
+# Installation Guide
+
+## Required Software
+
+The JUPT code is developed and tested using Python 3.11
+
+## Dependancies
+All packages required are located in the `requirements.txt` file. 
+
+## Installation
+
+Navigate to your desired install directory:
+
+```shell
+cd ~/path/to/install/directory/
+
+```
+
+Download the repository to this location:
+
+```shell
+git clone https://github.com/daraghhollman/JUPT
+```
+
+Install the required packages:
+
+```shell
+pip install -r requirements.txt
+```
+(Note that we recommend using a Python virtual environment)
+
+Create a directory to store data:
+
+```shell
+mkdir JUPT/data
+```
+
+Add the path to this directory to the **data directory** in the `directory_config.ini` file.
+
+```
+data directory = /path/to/install/directory/data/
+```
+
+### Setting up SPICE (Required for trajectories plots)
+To set the tool up to work with SPICE you will need to point the **spice directory** field in the `directory_config.ini` file to directory containing a SPICE MetaKernel appropriate for the Juno mission. **The following structure is expected with this directory:**
+
+```
+SPICE/
+├─ juno/
+│  ├─ metakernel_juno.txt
+```
+
+The MetaKernel should refer to the appropriate Juno ephemeris (spk) and frame (fk) kernels for the period of interest, the current leap seconds kernel (lsk), an appropriate planetary and/or satellite ephemeris kernel (spk), and an appropriate planetary constants kernel (pck).
+
+More information about the SPICE toolkit can be found at: [https://naif.jpl.nasa.gov/naif/toolkit.html](https://naif.jpl.nasa.gov/naif/toolkit.html)
+
+In particular, useful information for constructing a MetaKernel can be found at: [https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/kernel.html](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/kernel.html)
+
+
+If you don't have your own metakernel, you can create one for Juno using this tool:
+
+* [DIASPICETools](https://github.com/mjrutala/DIASPICETools)
+
+
+### Setting up Magnetospheric Boundaries
+Navigate to a separate directory where you will install the [jupiter_magnetosphere_boundaries](https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries/) code. Download the github repository as follows:
+
+```shell
+git clone https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries
+```
+
+Update the **magnetosphere boundaries path** field in your `directory_config.ini` file under **trajectories** to point to this repository.
+
+## Testing
+To test if the tool was installed correctly, you can run the script with the default config file by running the following command from the `JUPT/` repository:
+
+```shell
+python jupt.py default_config.ini
+```
+
+Note that this initial test may take some time, as the requested data needs to first be downloaded.
