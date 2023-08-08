@@ -9,3 +9,4 @@ numpy
 spiceypy
 scipy
 requests
+myst-parser
