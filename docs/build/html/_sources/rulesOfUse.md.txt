@@ -2,7 +2,7 @@
 
 We kindly request that authors of any communications and publications using this tool to let us know about them, include references to the data sets used, and include citation to the reference below and appropriate acknowledgements whenever needed.
 
-Reference: INSERT DOI HERE
+Reference: DOI 10.5281/zenodo.8223819
 
 
 ## Data Availability Statement
