@@ -9,6 +9,7 @@ import os
 from glob import glob
 import pandas
 from mpl_toolkits import axes_grid1
+import urllib.request
 
 import junoEphemeris
 
@@ -63,7 +64,10 @@ def DownloadWavesData(dataPath, downloadPath, timeFrame):
     pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")]
     print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
     for path in tqdm(pathList):
-        os.system(f"wget -r --show-progress -nd -np -nH -N -P {dataPath} {path}")
+        # os.system(f"wget -r --show-progress -nd -np -nH -N -P {dataPath} {path}")
+        print(f"Downloading: {path}")
+        urllib.request.urlretrieve(path, dataPath + path.split("/")[-1])
+        
 
 
 def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
@@ -99,7 +103,10 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
         print("Downloading missing data...")
         for path in tqdm(filesToBeDownloaded):
             linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
-            os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataDirectory} {downloadPath}{fileLinks[linkIndex]}")
+            # os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataDirectory} {downloadPath}{fileLinks[linkIndex]}")
+            print(f"Downloading: {downloadPath + fileLinks[linkIndex]}")
+            urllib.request.urlretrieve(downloadPath + fileLinks[linkIndex], dataDirectory + fileLinks[linkIndex].split("/")[-1])
+
 
     filePaths = filePathsNeeded
 

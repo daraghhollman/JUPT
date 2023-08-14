@@ -11,6 +11,7 @@ import matplotlib.ticker as ticker
 from mpl_toolkits import axes_grid1
 from math import floor
 from datetime import timedelta
+import urllib.request
 
 def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
     """ Downloads the JADE data using system command wget
@@ -33,12 +34,17 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
     print(f"Downloading {len(labelPathList)} JADE label file(s) from {downloadPath} to {dataPath}\n")
     for path in labelPathList:
         fileName = dataPath + path.split("/")[-1]
-        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
+        # os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
+        print(f"Downloading: {path}")
+        urllib.request.urlretrieve(path, dataPath+fileName)
+
 
     print(f"Downloading {len(binaryPathList)} JADE binary file(s) from {downloadPath} to {dataPath}\n")
     for path in binaryPathList:
         fileName = dataPath + path.split("/")[-1]
-        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
+        # os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
+        print(f"Downloading: {path}")
+        urllib.request.urlretrieve(path, dataPath+fileName)
 
 
 def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
@@ -83,7 +89,9 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
             for path in filesToBeDownloaded:
                 linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
                 fileName = dataDirectory + path.split("/")[-1]
-                os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {downloadPath}{fileLinks[linkIndex]}")
+                # os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {downloadPath}{fileLinks[linkIndex]}")
+                print(f"Downloading: {downloadPath + fileLinks[linkIndex]}")
+                urllib.request.urlretrieve(downloadPath + fileLinks[linkIndex], fileName)
         
         filePaths = filePathsNeeded
         
