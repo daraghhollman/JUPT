@@ -280,7 +280,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
                         # raise RuntimeError(f"Pitch Angle missing data (value: {np.max(fileInfo['pitch angle scale'])})for this timestep")
 
 
-    # Accounting for data gaps
+    # Accounting for data gaps for electron energies:
     newGridHeight = int(len(filesWithInfo[0]["energy scale"][:,0]))
     dt = (dtEnd[0] - dtStart[0]).total_seconds()
     newGridWidth = int((dtEnd[-1] - dtStart[0]).total_seconds() / dt + 1)
@@ -320,11 +320,23 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
         pitchAngleValues = np.transpose([np.sum(i, axis=0) / len(filesWithInfo[0]["energy scale"][:,0]) for i in pitchAngles])
 
-        timeArray = np.tile(index_array, (len(pitchAngleValues), 1))
+        timeArray = np.tile(index_array, (len(pitchAngleValues[:, :-1]), 1))
         
+
+        # Accounting for data gaps for electron PAD:
+        newGridHeight = int(len(np.arange(0, 180+pitchBinStep, pitchBinStep)))
+        dt = (dtEnd[0] - dtStart[0]).total_seconds()
+        newGridWidth = int((dtEnd[-1] - dtStart[0]).total_seconds() / dt +1)
+
+        newDataArray = np.empty((newGridHeight -1, newGridWidth -1)); newDataArray.fill(np.nan)   
+        print(np.shape(newDataArray))
+        print(np.shape(pitchAngleValues))
+
+        dataIndex = ([floor((t - dtStart[0]).total_seconds() / dt) for t in dtStart])
+
         if reBin:
-            reBinnedData = np.zeros((int(180 / pitchBinStep), len(index_array)))
-            for t in index_array:
+            reBinnedData = np.zeros((int(180 / pitchBinStep), len(pitchAngleValues[0])))
+            for t in range(len(pitchAngleValues[0])):
                 pitchBins = np.arange(0, 180+pitchBinStep, pitchBinStep) # the bottom and left edges of the mesh ranging from 0 to 180+step
                 
                 for i in range(len(pitchBins)-1):
@@ -332,10 +344,16 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
                     binIndices = np.where((pitchAngleValues[:,t] > pitchBins[i]) & (pitchAngleValues[:,t] < pitchBins[i+1]))
                     reBinnedData[i][t] = np.mean(lookAnglesData[:,t][binIndices])
 
-            reBinnedData = reBinnedData[:,:-1]
+            # reBinnedData = reBinnedData[:,:-1]
+            print(np.shape(reBinnedData))
+            print(np.shape(newDataArray))
+            newDataArray[:, dataIndex] =reBinnedData[:, :]
 
-            image = ax.pcolormesh(index_array, pitchBins, reBinnedData, cmap=colourmap, norm=colors.LogNorm(), shading="flat")
+            image = ax.pcolormesh(index_array, pitchBins, newDataArray, cmap=colourmap, norm=colors.LogNorm(), shading="flat")
         else:
+            print(np.shape(timeArray))
+            print(np.shape(pitchAngleValues))
+            print(np.shape(lookAnglesData))
             image = ax.pcolormesh(timeArray, pitchAngleValues, lookAnglesData, cmap=colourmap, norm=colors.LogNorm())
 
         if pitchAngleEnergyRange != []:
