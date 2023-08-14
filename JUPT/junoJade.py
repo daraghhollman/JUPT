@@ -281,13 +281,17 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
 
     # Accounting for data gaps
-    newGridHeight = floor(len(filesWithInfo[0]["energy scale"][:,0]))
+    newGridHeight = int(len(filesWithInfo[0]["energy scale"][:,0]))
     dt = (dtEnd[0] - dtStart[0]).total_seconds()
-    newGridWidth = floor((dtEnd[-1] - dtStart[0]).total_seconds() / dt)
+    newGridWidth = int((dtEnd[-1] - dtStart[0]).total_seconds() / dt + 1)
 
     newDataArray = np.empty((newGridHeight -1, newGridWidth -1)); newDataArray.fill(np.nan)   
+    print(np.shape(newDataArray))
+    print(np.shape(sumOverLookAngles))
 
     dataIndex = ([floor((t - dtStart[0]).total_seconds() / dt) for t in dtStart])
+
+    print(np.shape(dataIndex))
 
     newDataArray[:, dataIndex] = sumOverLookAngles[:-1, :]
     
