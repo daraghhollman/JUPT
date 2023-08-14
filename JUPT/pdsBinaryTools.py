@@ -33,7 +33,9 @@ def ReadLabel(labelFilePath):
 
 def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemented"):
     
-    time = []
+    startTime = []
+    midTime =[]
+    endTime = []
     spectra = []
     dataUnits = []
     energyScale = []
@@ -59,10 +61,18 @@ def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemen
                 dataPosition += length
 
 
-            utc = dataDictionary["DIM0_UTC"]["data"]
-            convertedUtc = datetime.strptime(''.join([time.decode('utf-8') for time in utc]), '%Y-%jT%H:%M:%S.%f').strftime("%Y-%m-%dT%H:%M:%S.%f")
+            utcStart = dataDictionary["DIM0_UTC_LOWER"]["data"]
+            utcMid = dataDictionary["DIM0_UTC"]["data"]
+            utcEnd = dataDictionary["DIM0_UTC_UPPER"]["data"]
 
-            time.append(convertedUtc)
+            convertedUtcStart = datetime.strptime(''.join([time.decode('utf-8') for time in utcStart]), '%Y-%jT%H:%M:%S.%f').strftime("%Y-%m-%dT%H:%M:%S.%f")
+            convertedUtcMid = datetime.strptime(''.join([time.decode('utf-8') for time in utcMid]), '%Y-%jT%H:%M:%S.%f').strftime("%Y-%m-%dT%H:%M:%S.%f")
+            convertedUtcEnd = datetime.strptime(''.join([time.decode('utf-8') for time in utcEnd]), '%Y-%jT%H:%M:%S.%f').strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+            startTime.append(convertedUtcStart)
+            midTime.append(convertedUtcMid)
+            endTime.append(convertedUtcEnd)
+
             spectra.append(np.array(dataDictionary["DATA"]["data"]).reshape(dataDictionary["DATA"]["shape"]))
             dataUnits.append(dataDictionary["DATA_UNITS"]["data"])
             energyScale.append(np.array(dataDictionary["DIM1_E"]["data"]).reshape(dataDictionary["DIM1_E"]["shape"]))
@@ -70,7 +80,9 @@ def ReadBinary(binaryFilePath, structClass, labelInfo, labelsWanted="notImplemen
 
         
     return {
-        "time": time,
+        "startTime": startTime,
+        "midTime": midTime,
+        "endTime": endTime,
         "data": spectra,
         "data units": dataUnits[0],
         "energy scale": energyScale[0],

@@ -9,7 +9,8 @@ from astropy.time import Time, TimeDelta
 import matplotlib.colors as colors
 import matplotlib.ticker as ticker
 from mpl_toolkits import axes_grid1
-
+from math import floor
+from datetime import timedelta
 
 def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
     """ Downloads the JADE data using system command wget
@@ -130,7 +131,8 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=hiRes)
 
-    time = []
+    startTime = []
+    endTime = []
     energy = []
     data = []
     pitchAngles = []
@@ -143,7 +145,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
             sliceStart = 0
 
             print("Finding start point")
-            for j, t in tqdm(enumerate(fileInfo["time"])):
+            for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
                 t.format="datetime"
 
@@ -160,7 +162,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
             print("Finding end point")
 
-            for j, t in tqdm(enumerate(fileInfo["time"])):
+            for j, t in tqdm(enumerate(fileInfo["startTime"])):
 
                 t = Time(t, format="isot")
                 t.format="datetime"
@@ -177,7 +179,8 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
             if sliceStart == sliceEnd:
                 raise ValueError(f"Timeframe start point and end point are closer than timestep in JADE data")
 
-            time = fileInfo["time"][sliceStart:sliceEnd]
+            startTime = fileInfo["startTime"][sliceStart:sliceEnd]
+            endTime = fileInfo["endTime"][sliceStart:sliceEnd]
             data = fileInfo["data"][sliceStart:sliceEnd]
             pitchAngles = fileInfo["pitch angle scale"][sliceStart:sliceEnd]
 
@@ -185,7 +188,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
             sliceStart = 0
             print("Finding start point")
 
-            for j, t in tqdm(enumerate(fileInfo["time"])):
+            for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
                 t.format="datetime"
 
@@ -197,7 +200,8 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
                 sliceStart = j
 
             print("Found start point")
-            time.extend(fileInfo["time"][sliceStart:])
+            startTime.extend(fileInfo["startTime"][sliceStart:])
+            endTime.extend(fileInfo["endTime"][sliceStart:])
             data.extend(fileInfo["data"][sliceStart:])
             pitchAngles.extend(fileInfo["pitch angle scale"][sliceStart:])
 
@@ -206,7 +210,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
             print("Finding end point")
 
-            for j, t in tqdm(enumerate(fileInfo["time"])):
+            for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 
                 t = Time(t, format="isot")
                 t.format="datetime"
@@ -219,22 +223,30 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
                 sliceEnd = j
 
             print("Found end point")
-            time.extend(fileInfo["time"][:sliceEnd])
+            startTime.extend(fileInfo["startTime"][:sliceEnd])
+            endTime.extend(fileInfo["endTime"][:sliceEnd])
             data.extend(fileInfo["data"][:sliceEnd])
             pitchAngles.extend(fileInfo["pitch angle scale"][:sliceEnd])
 
         else:
-            time.extend(fileInfo["time"])
+            startTime.extend(fileInfo["startTime"])
+            endTime.extend(fileInfo["endTime"])
             data.extend(fileInfo["data"])
             pitchAngles.extend(fileInfo["pitch angle scale"])
 
-        # print(f"Slicing at {sliceStart} to {sliceEnd}")
+    timeFmt = "%Y-%m-%dT%H:%M:%S.%f"
 
+    dtStart = []
+    dtEnd = []
+    for t1, t2 in zip(startTime, endTime):
+        dtStart.append(datetime.strptime(t1, timeFmt))
+        dtEnd.append(datetime.strptime(t2, timeFmt))
 
+    # Sum over the look directions to create energies plot
     sumOverLookAngles = np.transpose(np.sum(data, axis=2)) # Transpose to get to shape (numEnergyBins, Time)
-    # lookAngles = np.transpose(np.array(data)[:, 0, :])
 
 
+    # Average over energies for pitch angle plot
     if pitchAngleEnergyRange != []:
         # Indicies of energy scale where energy is within band specified
         energyBandIndices = np.where((filesWithInfo[0]["energy scale"][:,0] > pitchAngleEnergyRange[0]) & (filesWithInfo[0]["energy scale"][:,0] < pitchAngleEnergyRange[1]))
@@ -256,7 +268,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     pitchAngles = np.array(pitchAngles)
 
-    index_array = range(len(time))
+    # index_array = range(len(startTime))
 
 
     print("Drawing JADE image...")
@@ -267,8 +279,30 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         # if np.max(fileInfo["pitch angle scale"]) > 180:
                         # raise RuntimeError(f"Pitch Angle missing data (value: {np.max(fileInfo['pitch angle scale'])})for this timestep")
 
+
+    # Accounting for data gaps for electron energies:
+    newGridHeight = int(len(filesWithInfo[0]["energy scale"][:,0]))
+    dt = (dtEnd[0] - dtStart[0]).total_seconds()
+    newGridWidth = int((dtEnd[-1] - dtStart[0]).total_seconds() / dt + 1)
+
+    newDataArray = np.empty((newGridHeight -1, newGridWidth -1)); newDataArray.fill(np.nan)   
+    print(np.shape(newDataArray))
+    print(np.shape(sumOverLookAngles))
+
+    dataIndex = ([floor((t - dtStart[0]).total_seconds() / dt) for t in dtStart])
+
+    print(np.shape(dataIndex))
+
+    newDataArray[:, dataIndex] = sumOverLookAngles[:-1, :]
+    
+
+    index_array = range(newGridWidth)
+    tickTime = []
+    for i, timeIndex in enumerate(index_array):
+        tickTime.append((dtStart[0] + timedelta(seconds=dt*i)).strftime("%Y-%m-%dT%H:%M:%S.%f"))
+
     if plotElectronEnergy:
-        image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], sumOverLookAngles, cmap=colourmap, norm=colors.LogNorm())
+        image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], newDataArray, cmap=colourmap, norm=colors.LogNorm())
         ax.set_ylabel("Electron Energy (eV)")
         ax.set_yscale("log")
 
@@ -286,11 +320,23 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
         pitchAngleValues = np.transpose([np.sum(i, axis=0) / len(filesWithInfo[0]["energy scale"][:,0]) for i in pitchAngles])
 
-        timeArray = np.tile(index_array, (len(pitchAngleValues), 1))
+        timeArray = np.tile(index_array, (len(pitchAngleValues[:, :-1]), 1))
         
+
+        # Accounting for data gaps for electron PAD:
+        newGridHeight = int(len(np.arange(0, 180+pitchBinStep, pitchBinStep)))
+        dt = (dtEnd[0] - dtStart[0]).total_seconds()
+        newGridWidth = int((dtEnd[-1] - dtStart[0]).total_seconds() / dt +1)
+
+        newDataArray = np.empty((newGridHeight -1, newGridWidth -1)); newDataArray.fill(np.nan)   
+        print(np.shape(newDataArray))
+        print(np.shape(pitchAngleValues))
+
+        dataIndex = ([floor((t - dtStart[0]).total_seconds() / dt) for t in dtStart])
+
         if reBin:
-            reBinnedData = np.zeros((int(180 / pitchBinStep), len(index_array)))
-            for t in index_array:
+            reBinnedData = np.zeros((int(180 / pitchBinStep), len(pitchAngleValues[0])))
+            for t in range(len(pitchAngleValues[0])):
                 pitchBins = np.arange(0, 180+pitchBinStep, pitchBinStep) # the bottom and left edges of the mesh ranging from 0 to 180+step
                 
                 for i in range(len(pitchBins)-1):
@@ -298,10 +344,16 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
                     binIndices = np.where((pitchAngleValues[:,t] > pitchBins[i]) & (pitchAngleValues[:,t] < pitchBins[i+1]))
                     reBinnedData[i][t] = np.mean(lookAnglesData[:,t][binIndices])
 
-            reBinnedData = reBinnedData[:,:-1]
+            # reBinnedData = reBinnedData[:,:-1]
+            print(np.shape(reBinnedData))
+            print(np.shape(newDataArray))
+            newDataArray[:, dataIndex] =reBinnedData[:, :]
 
-            image = ax.pcolormesh(index_array, pitchBins, reBinnedData, cmap=colourmap, norm=colors.LogNorm(), shading="flat")
+            image = ax.pcolormesh(index_array, pitchBins, newDataArray, cmap=colourmap, norm=colors.LogNorm(), shading="flat")
         else:
+            print(np.shape(timeArray))
+            print(np.shape(pitchAngleValues))
+            print(np.shape(lookAnglesData))
             image = ax.pcolormesh(timeArray, pitchAngleValues, lookAnglesData, cmap=colourmap, norm=colors.LogNorm())
 
         if pitchAngleEnergyRange != []:
@@ -312,15 +364,15 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
 
     if not plotEphemeris:
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, time)))
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_xlabel(index_array, tickTime)))
         ax.set_xlabel(f"Time from {timeFrame[0]} (s)")
 
     else:
         timeDatetime64 = []
-        for t in time:
+        for t in tickTime:
             timeDatetime64.append(np.datetime64(str(t)))
 
-        print(f"plotting ephemeris for {len(time)} points")
+        print(f"plotting ephemeris for {len(startTime)} points")
         if hiRes:
             ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True)
         else:
