@@ -154,7 +154,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
                 if t >= tFrame:
                     break
-                sliceStart = j
+                sliceStart = j+1
 
             print("Found start point")
             
@@ -197,7 +197,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
                 if t >= tFrame:
                     break
-                sliceStart = j
+                sliceStart = j+1
 
             print("Found start point")
             startTime.extend(fileInfo["startTime"][sliceStart:])
@@ -280,16 +280,18 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
                         # raise RuntimeError(f"Pitch Angle missing data (value: {np.max(fileInfo['pitch angle scale'])})for this timestep")
 
 
+    timeFrame_dt = [datetime.strptime(el, "%Y-%m-%dT%H:%M:%S") for el in timeFrame]
+
     # Accounting for data gaps for electron energies:
     newGridHeight = int(len(filesWithInfo[0]["energy scale"][:,0]))
     dt = (dtEnd[0] - dtStart[0]).total_seconds()
-    newGridWidth = int((dtEnd[-1] - dtStart[0]).total_seconds() / dt + 1)
+    newGridWidth = int((timeFrame_dt[1] - timeFrame_dt[0]).total_seconds() / dt + 1)
 
     newDataArray = np.empty((newGridHeight -1, newGridWidth -1)); newDataArray.fill(np.nan)   
     print(np.shape(newDataArray))
     print(np.shape(sumOverLookAngles))
 
-    dataIndex = ([floor((t - dtStart[0]).total_seconds() / dt) for t in dtStart])
+    dataIndex = ([floor((t - timeFrame_dt[0]).total_seconds() / dt) for t in dtStart])
 
     print(np.shape(dataIndex))
 
@@ -299,7 +301,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
     index_array = range(newGridWidth)
     tickTime = []
     for i, timeIndex in enumerate(index_array):
-        tickTime.append((dtStart[0] + timedelta(seconds=dt*i)).strftime("%Y-%m-%dT%H:%M:%S.%f"))
+        tickTime.append((timeFrame_dt[0] + timedelta(seconds=dt*i)).strftime("%Y-%m-%dT%H:%M:%S.%f"))
 
     if plotElectronEnergy:
         image = ax.pcolormesh(index_array, [el for el in filesWithInfo[0]["energy scale"][:,0]], newDataArray, cmap=colourmap, norm=colors.LogNorm())
@@ -326,13 +328,13 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         # Accounting for data gaps for electron PAD:
         newGridHeight = int(len(np.arange(0, 180+pitchBinStep, pitchBinStep)))
         dt = (dtEnd[0] - dtStart[0]).total_seconds()
-        newGridWidth = int((dtEnd[-1] - dtStart[0]).total_seconds() / dt +1)
+        newGridWidth = int((timeFrame_dt[1] - timeFrame_dt[0]).total_seconds() / dt +1)
 
         newDataArray = np.empty((newGridHeight -1, newGridWidth -1)); newDataArray.fill(np.nan)   
         print(np.shape(newDataArray))
         print(np.shape(pitchAngleValues))
 
-        dataIndex = ([floor((t - dtStart[0]).total_seconds() / dt) for t in dtStart])
+        dataIndex = ([floor((t - timeFrame_dt[0]).total_seconds() / dt) for t in dtStart])
 
         if reBin:
             reBinnedData = np.zeros((int(180 / pitchBinStep), len(pitchAngleValues[0])))
@@ -372,7 +374,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         for t in tickTime:
             timeDatetime64.append(np.datetime64(str(t)))
 
-        print(f"plotting ephemeris for {len(startTime)} points")
+        print(f"plotting ephemeris for {newGridWidth} points")
         if hiRes:
             ax = junoEphemeris.PlotEphemeris(ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True)
         else:
