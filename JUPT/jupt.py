@@ -15,6 +15,7 @@ import junoMAG
 import junoEphemeris
 import junoWAVES
 import junoJade
+import junoJADE_ions
 import vLines
 import junoDerivedMoments
 import junoTrajectories
@@ -65,7 +66,13 @@ if pitchAnglePlotIndex != False:
 else:
     plotPitchAngle = False
 
-if plotElectronEnergy or plotPitchAngle:
+ionEnergyPlotIndex = ast.literal_eval(plottingConfig["plotting"]["plot JADE ion energies"])
+if ionEnergyPlotIndex != False:
+    plotIonEnergy = True
+else:
+    plotIonEnergy = False
+
+if plotElectronEnergy or plotPitchAngle or plotIonEnergy:
     plotJADE = True
 else:
     plotJADE = False
@@ -101,7 +108,7 @@ componentColours = ast.literal_eval(plottingConfig["colours"]["component colours
 magnitudeColour = plottingConfig["colours"]["magnitude colour"]
 lobeColour = plottingConfig["colours"]["lobe colour"]
 
-panelsList = [plotWaves, plotMag, plotElectronEnergy, plotPitchAngle, plotDensity, plotTrajectories]
+panelsList = [plotWaves, plotMag, plotElectronEnergy, plotPitchAngle, plotIonEnergy, plotDensity, plotTrajectories]
 numSubPlots = 0
 for plotType in panelsList:
     if plotType != False:
@@ -162,6 +169,30 @@ if plotJADE:
         else:
             axJade.tick_params("x", which="major", top=True, bottom=True, direction="inout", length=majorTickLength, width=majorTickWidth)
             axJade.tick_params("x", which="minor", top=True, bottom=True, direction="inout", length=minorTickLength, width=minorTickWidth)
+
+    if plotIonEnergy:
+        axJadeIons = fig.add_subplot(numSubPlots, 1, ionEnergyPlotIndex)
+        axesDict["JADE I energy"] = axJadeIons
+
+        if ionEnergyPlotIndex < numSubPlots:
+            
+            junoJADE_ions.PlotData(fig, axJadeIons, timeFrame, dataDirectory=dataDirectory, hiRes=plottingConfig["JADE Ions"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=False, colourmap=plottingConfig["JADE Ions"]["colour map"], downloadNewData=directoryConfig["data"].getboolean("download new data"), plotIonEnergy=True, ionTimeOfFlightRange=ast.literal_eval(plottingConfig["JADE Ions"]["TOF range"]))
+            axJadeIons.set_xticklabels('')
+        else:
+            junoJADE_ions.PlotData(fig, axJadeIons, timeFrame, dataDirectory=dataDirectory, hiRes=plottingConfig["JADE Ions"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=plottingConfig["JADE Ions"]["colour map"], downloadNewData=directoryConfig["data"].getboolean("download new data"), plotIonEnergy=True, ionTimeOfFlightRange=ast.literal_eval(plottingConfig["JADE Ions"]["TOF range"]))
+
+        axJadeIons.tick_params("y", which="major", length=plottingConfig["plotting"].getfloat("y tick length"), width=plottingConfig["plotting"].getfloat("y tick width"))
+        axJadeIons.tick_params("y", which="minor", length=plottingConfig["plotting"].getfloat("y tick length")/2, width=plottingConfig["plotting"].getfloat("y tick width"))
+        axJadeIons.margins(x=0)
+    
+        if ionEnergyPlotIndex == 1:
+            axJadeIons.tick_params("x", which="major", top=False, bottom=True, direction="inout", length=majorTickLength, width=majorTickWidth)
+            axJadeIons.tick_params("x", which="minor", top=False, bottom=True, direction="inout", length=minorTickLength, width=minorTickWidth)
+
+        else:
+            axJadeIons.tick_params("x", which="major", top=True, bottom=True, direction="inout", length=majorTickLength, width=majorTickWidth)
+            axJadeIons.tick_params("x", which="minor", top=True, bottom=True, direction="inout", length=minorTickLength, width=minorTickWidth)
+
 
     if plotPitchAngle:
         axJadePitch = fig.add_subplot(numSubPlots, 1, pitchAnglePlotIndex)
