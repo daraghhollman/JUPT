@@ -1,6 +1,6 @@
-__pycache__/
+JUPT/__pycache__/
 data/
-JUPT_output/*
-input_config/*
+JUPT/JUPT_output/*
+JUPT/input_config/*
 *.csv
 *.png
