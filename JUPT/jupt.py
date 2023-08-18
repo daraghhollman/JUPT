@@ -176,10 +176,10 @@ if plotJADE:
 
         if ionEnergyPlotIndex < numSubPlots:
             
-            junoJADE_ions.PlotData(fig, axJadeIons, timeFrame, dataDirectory=dataDirectory, hiRes=plottingConfig["JADE Ions"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=False, colourmap=plottingConfig["JADE Ions"]["colour map"], downloadNewData=directoryConfig["data"].getboolean("download new data"), plotIonEnergy=True, ionTimeOfFlightRange=ast.literal_eval(plottingConfig["JADE Ions"]["TOF range"]))
+            junoJADE_ions.PlotData(fig, axJadeIons, timeFrame, dataDirectory=dataDirectory, plotEphemeris=True, ephemerisLabels=False, colourmap=plottingConfig["JADE Ions"]["colour map"], downloadNewData=directoryConfig["data"].getboolean("download new data"), plotIonEnergy=True, ionTimeOfFlightRange=ast.literal_eval(plottingConfig["JADE Ions"]["TOF range"]))
             axJadeIons.set_xticklabels('')
         else:
-            junoJADE_ions.PlotData(fig, axJadeIons, timeFrame, dataDirectory=dataDirectory, hiRes=plottingConfig["JADE Ions"].getboolean("high resolution"), plotEphemeris=True, ephemerisLabels=True, colourmap=plottingConfig["JADE Ions"]["colour map"], downloadNewData=directoryConfig["data"].getboolean("download new data"), plotIonEnergy=True, ionTimeOfFlightRange=ast.literal_eval(plottingConfig["JADE Ions"]["TOF range"]))
+            junoJADE_ions.PlotData(fig, axJadeIons, timeFrame, dataDirectory=dataDirectory, plotEphemeris=True, ephemerisLabels=True, colourmap=plottingConfig["JADE Ions"]["colour map"], downloadNewData=directoryConfig["data"].getboolean("download new data"), plotIonEnergy=True, ionTimeOfFlightRange=ast.literal_eval(plottingConfig["JADE Ions"]["TOF range"]))
 
         axJadeIons.tick_params("y", which="major", length=plottingConfig["plotting"].getfloat("y tick length"), width=plottingConfig["plotting"].getfloat("y tick width"))
         axJadeIons.tick_params("y", which="minor", length=plottingConfig["plotting"].getfloat("y tick length")/2, width=plottingConfig["plotting"].getfloat("y tick width"))
