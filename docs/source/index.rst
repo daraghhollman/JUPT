@@ -21,11 +21,3 @@ The **J**\uno **U**\niversal **P**\lotting **T**\ool is an all in one tool for c
    rulesOfUse
    contributingGuidelines
    futureWork
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

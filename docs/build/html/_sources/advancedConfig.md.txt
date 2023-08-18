@@ -60,6 +60,12 @@ These plotting options correspond to the *dynamic* config file, as described in 
 |colour map|The matplotlib colormap for JADE data. (**default: magma**)|
 |high resolution|The JADE instrument splits its data into two modes, a high resolution (sampling every second) and a low resolution (integrating over 30s, approx. one full spacecraft rotation). Note: For times containing high resolution data there is an absence of low resolution data. Note, this tool can mis-create plots which contain sections of time containing both resolutions. These mis-creations can be easily noticed by a discontinuity in tick labels. (**default: False**)|
 
+## JADE Ions
+|key|description|
+|---|---|
+|colour map|The matplotlib colormap for JADE Ion data. (**default: plasma**)|
+|TOF range|What time of flight values (seconds) to sum. Leave as [] to sum over all time of flight values.|
+
 ## MAG
 |key|description|
 |---|---|

@@ -1,5 +1,5 @@
 # Juno Universal Plotting Tool
- [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8223819.svg)](https://doi.org/10.5281/zenodo.8246361) [![Documentation Status](https://readthedocs.org/projects/jupt/badge/?version=latest)](https://jupt.readthedocs.io/en/latest/?badge=latest)
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8223819.svg)](https://doi.org/10.5281/zenodo.8223818) [![Documentation Status](https://readthedocs.org/projects/jupt/badge/?version=latest)](https://jupt.readthedocs.io/en/latest/?badge=latest)
 
 *An all in one tool for creating plots using data from the Juno spacecraft*
 
