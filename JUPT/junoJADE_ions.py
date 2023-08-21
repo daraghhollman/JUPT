@@ -12,7 +12,7 @@ from mpl_toolkits import axes_grid1
 from math import floor
 from datetime import timedelta
 
-def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
+def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False, filePathFormat_hiRes="%Y/%Y%j/ION_TOF/JAD_L50_HLS_ION_TOF_DEF_%Y%j_V01", filePathFormat_loRes="%Y/%Y%j/ION_TOF/JAD_L50_LRS_ION_TOF_DEF_%Y%j_V01"):
     """ Downloads the JADE data using system command wget
 
     Arguments:
@@ -23,11 +23,11 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
     """
 
     if hiRes:
-        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ION_TOF/JAD_L50_HLS_ION_TOF_DEF_%Y%j_V01.DAT")]
-        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ION_TOF/JAD_L50_HLS_ION_TOF_DEF_%Y%j_V01.LBL")]
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], filePathFormat_hiRes+".DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], filePathFormat_hiRes+".LBL")]
     else:
-        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ION_TOF/JAD_L50_LRS_ION_TOF_DEF_%Y%j_V01.DAT")]
-        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ION_TOF/JAD_L50_LRS_ION_TOF_DEF_%Y%j_V01.LBL")]
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], filePathFormat_loRes+".DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], filePathFormat_loRes+".LBL")]
 
 
     print(f"Downloading {len(labelPathList)} JADE label file(s) from {downloadPath} to {dataPath}\n")
@@ -41,7 +41,9 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
         os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
 
 
-def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
+def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False, filePathFormat_hiRes="%Y/%Y%j/ION_TOF/JAD_L50_HLS_ION_TOF_DEF_%Y%j_V01", filePathFormat_loRes="%Y/%Y%j/ION_TOF/JAD_L50_LRS_ION_TOF_DEF_%Y%j_V01"):
+    fileNameFormat_hiRes = filePathFormat_hiRes.split("/")[-1]
+    fileNameFormat_loRes = filePathFormat_loRes.split("/")[-1]
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -60,9 +62,9 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
     for fileExtension in ["DAT", "LBL"]:
         # Check if all filepaths between data are in the folder
         if hiRes:
-            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_HLS_ION_TOF_DEF_%Y%j_V01.{fileExtension}")
+            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}{fileNameFormat_hiRes}.{fileExtension}")
         else:
-            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_LRS_ION_TOF_DEF_%Y%j_V01.{fileExtension}")
+            filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}{fileNameFormat_loRes}.{fileExtension}")
 
         filePathsNeeded.sort()
         # print(f"NEEDED: {filePathsNeeded}")
@@ -74,9 +76,9 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
         filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
 
         if hiRes:
-            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ION_TOF/JAD_L50_HLS_ION_TOF_DEF_%Y%j_V01.{fileExtension}")
+            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{filePathFormat_hiRes}.{fileExtension}")
         else:
-            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ION_TOF/JAD_L50_LRS_ION_TOF_DEF_%Y%j_V01.{fileExtension}")
+            fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{filePathFormat_loRes}.{fileExtension}")
 
         if len(filesToBeDownloaded) > 0:
             print("Downloading missing data...")
@@ -123,13 +125,22 @@ def DeleteData(dataDirectory):
     os.system(f"rm {dataDirectory}*.LBL")
 
 
-def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotIonEnergy=False, ionTimeOfFlightRange=[]):
+def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=False, colorbarSize="3%", colorbarPad="2%", plotIonEnergy=False, ionTimeOfFlightRange=[], specificSpecies=False):
 
-    if downloadNewData:
-        DeleteData(dataDirectory)
-        DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
+    specificSpecies = True
+    if specificSpecies is False:
+        if downloadNewData:
+            DeleteData(dataDirectory)
+            DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=True)
 
-    filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=hiRes)
+        filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=True)
+
+    else:
+        if downloadNewData:
+            DeleteData(dataDirectory)
+            DownloadJadeData(dataDirectory, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes, filePathFormat_hiRes="%Y/%Y%j/ION_SPECIES/JAD_L50_HRS_ION_ANY_DEF_%Y%j_V01", filePathFormat_loRes="%Y/%Y%j/ION_SPECIES/JAD_L50_LRS_ION_ANY_DEF_%Y%j_V01")
+
+        filesWithInfo =  LoadBinaryFiles(dataDirectory, timeFrame, "https://pds-ppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=hiRes, filePathFormat_hiRes="%Y/%Y%j/ION_SPECIES/JAD_L50_HRS_ION_ANY_DEF_%Y%j_V01", filePathFormat_loRes="%Y/%Y%j/ION_SPECIES/JAD_L50_LRS_ION_ANY_DEF_%Y%j_V01")
 
     # print(filesWithInfo[0]["time of flight"][0])
 
@@ -239,11 +250,12 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         dtEnd.append(datetime.strptime(t2, timeFmt))
 
     # Sum over the look directions to create energies plot
+    print(np.shape(data))
     data = np.sum(data, axis=2) # Transpose to get to shape (numEnergyBins, Time)
     print(np.shape(data))
     
     # Average over TOF range
-    if ionTimeOfFlightRange != []:
+    if ionTimeOfFlightRange != [] and specificSpecies is False:
         # Indicies of TOF within band specified
         timeOfFlightBandIndices = np.where((filesWithInfo[0]["time of flight"][0] > ionTimeOfFlightRange[0]) & (filesWithInfo[0]["time of flight"][0] < ionTimeOfFlightRange[1]))
 
@@ -262,7 +274,11 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
         ionData = np.transpose(np.sum(data, axis=2)) / np.shape(data)[1]
 
     else:
-        ionData = np.transpose(np.sum(data, axis=2)) / np.shape(data)[1]
+        if specificSpecies is False:
+            ionData = np.transpose(np.sum(data, axis=2)) / np.shape(data)[1]
+        else:
+            ionData = np.transpose(data)
+            print(np.shape(data))
 
 
     print("Drawing JADE image...")
@@ -287,6 +303,7 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
 
     newDataArray[:, dataIndex] = ionData[:-1, :]
+    print(np.shape(newDataArray))
     
 
     index_array = range(newGridWidth)
