@@ -15,6 +15,7 @@ JUPT was written in Python 3.11 and all future development should be tested in t
 
 **Release Checklist**
 * Check if changes made affect the documentation in any ways. If so, update the documentation to match.
+* Update `requirements.txt` to match all package requirements.
 
 ## Architecture
 
@@ -47,7 +48,6 @@ JUPT
 │   │   └──input_files.ini
 │   ├── JUPT_output
 │   │   └── default_config.png
-│   ├── boundary_crossings_caracteristics_BS.csv
 │   ├── default_config.ini
 │   ├── directory_config.ini
 │   ├── junoDerivedMoments.py
@@ -110,6 +110,46 @@ In the code, AMDA should be interacted with through the package [speasy](https:/
 The tool uses the Juno/Waves estimated flux density Collection (Version 01) by Louis et al. DOI https://doi.org/10.25935/6jg4-mk86
 
 ## Individual Scripts
+
+`junoMAG.py`
+* Downloads from: AMDA
+* Plots: Time series
+* Options including choice of coordinate system, comparison with a lobe field model
+
+`junoWAVES.py`
+* Downloads from: LESIA
+* Plots: Colourmap
+* 
+
+`junoJade.py`
+* Downloads from: PDS
+* Plots: Colourmap
+* Handles JADE electrons energies and pitch angles
+
+`junoJADE_ions`
+* Downloads from: PDS
+* Plots: Colourmap
+* Handles JADE ions summed over a range of time of flights
+
+`junoEphemeris`
+* Downloads from: AMDA
+* Plots: Axis formatting and tick labels
+
+`junoTrajectories`
+* Loads from: SPICE metakernel
+* Plots: Trajectory diagrams in xy, xz, yz
+
+`junoDerivedMoments`
+* Unfinished and nonfunctional
+
+`pdsBinaryTools.py`
+* Handles loading data from linked binary (.DAT) and label (.LBL) files.
+
+`userAdditions`
+* A file which is passed the figure and all axes from the plot, for the user to make any changes external to the code.
+
+`vLines.py`
+* Handles the adding of vertical lines across the plots, be it manual or automatically from a loaded file.
 
 ### Common Routines
 
