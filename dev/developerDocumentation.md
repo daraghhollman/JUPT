@@ -1,10 +1,24 @@
 # JUPT Developer Documentation
 
 **Contents**
+* [Introduction](#Introduction)
+    * [Contributing Practices](#Contributing-Practices)
+* [Architecture](#Architecture)
+    * [Overview](#Overview)
+    * [Code Architecture](#Code-Architecture)
+* [Data Sources](#Data-Sources)
+    * [PDS](#PDS)
+    * [AMDA](#AMDA)
+    * [LESIA](#LESIA)
+* [Individual Scripts](#Individual-Scripts)
+    * [Common Routines](#Common-Routines)
+* [Future Work](#Future-Work)
 
 
 ## Introduction
-Some introduction here
+This is the developer documentation for JUPT. This was written to aid future developers in understanding and adding to the tool. Please note that this was written with the assumption that you have read and understand the user [documentation](https://jupt.readthedocs.io/en/latest/).
+
+If anything is unclear, don't hesitate to contact Daragh Hollman via hollmandaragh@gmail.com, or any of the [DIAS Planetary Magnetospheres](https://www.dias.ie/cosmicphysics/astrophysics/astro-research/astro-planetary-magnetospheres/) team.
 
 ### Contributing Practices
 JUPT was written in Python 3.11 and all future development should be tested in this version.
