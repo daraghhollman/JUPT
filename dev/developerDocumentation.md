@@ -172,7 +172,7 @@ The tool uses the Juno/Waves estimated flux density Collection (Version 01) by L
 
 `PathFromTimeDifference` is a function in `junoWAVES.py` which creates output path names for each day between two times in a specified format. This is called from any file which downloads data automatically from PDS or LESIA.
 
-`pdsBinaryTools.py` contains functions for downloadind and reading binary data from the PDS. It uses the label files downloaded to understand how to read the binary files.
+`pdsBinaryTools.py` contains functions for downloading and reading binary data from the PDS. It uses the label files downloaded to understand how to read the binary files.
 
 ## Future Work
 
