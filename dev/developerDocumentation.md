@@ -24,7 +24,7 @@ If anything is unclear, don't hesitate to contact Daragh Hollman via hollmandara
 JUPT was written in Python 3.11 and all future development should be tested in this version.
 
 **camelCase**
-* All variables should be written in **lowerCamelCase** where the first word begins with a lowercase letter and all subsequent words begin with an uppercase letter. There are some *exceptions* to this rule to help readability for instance with variants of the same variable - with the hope of making them distinct from eachother.
+* All variables should be written in **lowerCamelCase** where the first word begins with a lowercase letter and all subsequent words begin with an uppercase letter. There are some *exceptions* to this rule to help readability for instance with variants of the same variable - with the hope of making them distinct from each other.
 * All methods should be written in **UpperCamelCase**. This is similar to lowerCamelCase with the first letter capitalised.
 
 **Release Checklist**
