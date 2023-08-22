@@ -25,11 +25,14 @@ JUPT was written in Python 3.11 and all future development should be tested in t
 
 **camelCase**
 * All variables should be written in **lowerCamelCase** where the first word begins with a lowercase letter and all subsequent words begin with an uppercase letter. There are some *exceptions* to this rule to help readability for instance with variants of the same variable - with the hope of making them distint from eachother.
-* All methods should be written in **UppperCamelCase**. This is similar to lowerCamelCase with the first letter capitalised.
+* All methods should be written in **UpperCamelCase**. This is similar to lowerCamelCase with the first letter capitalised.
 
 **Release Checklist**
 * Check if changes made affect the documentation in any ways. If so, update the documentation to match.
 * Update `requirements.txt` to match all package requirements.
+* Rebuild documentation on Read The Docs.
+* Create new Zenodo version.
+* Create Github release.
 
 ## Architecture
 
@@ -133,7 +136,7 @@ The tool uses the Juno/Waves estimated flux density Collection (Version 01) by L
 `junoWAVES.py`
 * Downloads from: LESIA
 * Plots: Colourmap
-* 
+* Handles Waves for a selected frequency range
 
 `junoJade.py`
 * Downloads from: PDS
