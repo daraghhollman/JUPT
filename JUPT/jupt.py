@@ -1,18 +1,12 @@
-print("Importing packages")
-
+# Importing Packages
 import matplotlib.pyplot as plt
-from datetime import datetime
 import configparser
 import ast
 import sys
 import os
 
-directoryConfig = configparser.ConfigParser()
-plottingConfig = configparser.ConfigParser()
-
 # Importing plotting scripts
 import junoMAG
-import junoEphemeris
 import junoWAVES
 import junoJade
 import junoJADE_ions
@@ -21,27 +15,29 @@ import junoDerivedMoments
 import junoTrajectories
 import userAdditions
 
-directoryConfig.read("./directory_config.ini")
-plottingConfig.read(f"./{sys.argv[1]}")
-configName = sys.argv[1].split("/")[-1]
+# Reading the config files
+directoryConfig = configparser.ConfigParser()
+plottingConfig = configparser.ConfigParser()
 
-# Add path to magnetopsheric boundary plotting
+directoryConfig.read("./directory_config.ini")
+plottingConfig.read(f"./{sys.argv[1]}") # Plotting config is passed as an argument to the script
+
+# Pull out the name of the config file to be used in saving files later
+configName = sys.argv[1].split("/")[-1][0:-4]
+
+
+# LOADING THE CONFIG
+
+# Set paths
+dataDirectory = directoryConfig["data"]["data directory"]
+spiceDirectory = directoryConfig["data"]["spice directory"]
 magBoundariesRepoPath = directoryConfig["trajectories"]["magnetophere boundaries path"]
 
 # Selected timeframe to display between
 timeFrame = [plottingConfig["plotting"]["start time"], plottingConfig["plotting"]["end time"]]
 
-# Set path to place data
-dataDirectory = directoryConfig["data"]["data directory"]
-spiceDirectory = directoryConfig["data"]["spice directory"]
-
-# Set parameters for the shape of ticks
-majorTickLength = plottingConfig["plotting"].getfloat("major tick length")
-majorTickWidth = plottingConfig["plotting"].getfloat("major tick width")
-minorTickLength = plottingConfig["plotting"].getfloat("minor tick length")
-minorTickWidth = plottingConfig["plotting"].getfloat("minor tick width")
-
-# Select which panels to plot
+# Find which panels to plot and where
+# There's got to be a better way of doing this
 wavesPlotIndex = ast.literal_eval(plottingConfig["plotting"]["plot Waves"])
 if wavesPlotIndex != False:
     plotWaves = True
@@ -93,6 +89,12 @@ else:
 # Set font parameters
 fontsize = plottingConfig["plotting"].getfloat("font size")
 
+# Set parameters for the shape of ticks
+majorTickLength = plottingConfig["plotting"].getfloat("major tick length")
+majorTickWidth = plottingConfig["plotting"].getfloat("major tick width")
+minorTickLength = plottingConfig["plotting"].getfloat("minor tick length")
+minorTickWidth = plottingConfig["plotting"].getfloat("minor tick width")
+
 # Space between the panels
 panelSpacing = plottingConfig["plotting"].getfloat("panel spacing")
 
@@ -108,15 +110,20 @@ componentColours = ast.literal_eval(plottingConfig["colours"]["component colours
 magnitudeColour = plottingConfig["colours"]["magnitude colour"]
 lobeColour = plottingConfig["colours"]["lobe colour"]
 
+# Loop through all possible panels to find the number of subplots needed
 panelsList = [plotWaves, plotMag, plotElectronEnergy, plotPitchAngle, plotIonEnergy, plotDensity, plotTrajectories]
 numSubPlots = 0
 for plotType in panelsList:
     if plotType != False:
         numSubPlots += 1
 
-
-fig = plt.figure(figsize=(16, 5*numSubPlots))
+# An arbitrary figure size set based on testing
+fig = plt.figure(figsize=(16, 5*numSubPlots)) 
 plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
+
+
+# This next section is a complete mess and could definitely use a rewrite (potentially the use of objects could be critical in the passing of information between the scripts).
+# Its role is to check the config parameters for the panels needed, and to pass through relevant options
 
 # Create axes dictionary
 axesDict = {}
@@ -313,4 +320,4 @@ else:
     if not os.path.exists("./JUPT_output/"):
         os.system("mkdir ./JUPT_output/")
 
-    plt.savefig("./JUPT_output/" + str(configName)[0:-4]+".png", format="png")
+    plt.savefig("./JUPT_output/" + str(configName)+".png", format="png")
