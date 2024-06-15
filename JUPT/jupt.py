@@ -5,6 +5,8 @@ import ast
 import sys
 import os
 
+import datetime
+
 # Importing plotting scripts
 import junoMAG
 import junoWAVES
@@ -17,6 +19,7 @@ import userAdditions
 
 # Reading the config files
 directoryConfig = configparser.ConfigParser()
+
 plottingConfig = configparser.ConfigParser()
 
 directoryConfig.read("./directory_config.ini")
@@ -24,7 +27,6 @@ plottingConfig.read(f"./{sys.argv[1]}") # Plotting config is passed as an argume
 
 # Pull out the name of the config file to be used in saving files later
 configName = sys.argv[1].split("/")[-1][0:-4]
-
 
 # LOADING THE CONFIG
 
@@ -117,6 +119,32 @@ for plotType in panelsList:
     if plotType != False:
         numSubPlots += 1
 
+
+### CHECKING FOR COMMON CONFIG MISTAKES ###
+print("Checking config validity...")
+
+# Check if end time is before start time
+startTime = datetime.datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")
+endTime = datetime.datetime.strptime(timeFrame[1], "%Y-%m-%dT%H:%M:%S")
+
+if (endTime - startTime) < datetime.timedelta(seconds=0):
+    raise ValueError("CONFIG ERROR -> End time occurs before start time")
+
+# Check if largest panel index matches the number of panels
+panelIndices = [magPlotIndex, wavesPlotIndex, trajectoriesPlotIndex, electronEnergyPlotIndex, ionEnergyPlotIndex, pitchAnglePlotIndex]
+for index in panelIndices:
+    if index > (numSubPlots):
+        raise ValueError("CONFIG ERROR -> Assigned panel index is larger than the number of panels. Check panel index assignment.")
+
+# Check if a panel index is repeated
+if len(panelIndices) > len(set(panelIndices)):
+    raise ValueError("CONFIG ERROR -> Repeated index in assigned panel indices. Check panel index assignment.")
+
+# Further config error detection should be included here as discovered
+
+###########################################
+
+print("Constructing Plot")
 # An arbitrary figure size set based on testing
 fig = plt.figure(figsize=(16, 5*numSubPlots)) 
 plt.rcParams.update({'font.size': fontsize}) # Changes the default fontsize
