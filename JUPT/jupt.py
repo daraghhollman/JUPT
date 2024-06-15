@@ -220,7 +220,9 @@ for index in panelIndices:
         raise ValueError("CONFIG ERROR -> Assigned panel index is larger than the number of panels. Check panel index assignment.")
 
 # Check if a panel index is repeated
-if len(panelIndices) > len(set(panelIndices)):
+# Ignoring 0s
+checkPanelIndices = [i for i in panelIndices if i != 0]
+if len(checkPanelIndices) > len(set(checkPanelIndices)):
     raise ValueError("CONFIG ERROR -> Repeated index in assigned panel indices. Check panel index assignment.")
 
 # Further config error detection should be included here as discovered
