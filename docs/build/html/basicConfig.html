@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Basic Configuration &mdash; JUPT 1.1.0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=fc837d61"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -94,15 +96,15 @@
            <div itemprop="articleBody">
              
   <section id="basic-configuration">
-<h1>Basic Configuration<a class="headerlink" href="#basic-configuration" title="Permalink to this heading"></a></h1>
+<h1>Basic Configuration<a class="headerlink" href="#basic-configuration" title="Link to this heading"></a></h1>
 <p>The config options for JUPT are contained in two separate files. One <em>static</em> file which is used for configuring paths (<code class="docutils literal notranslate"><span class="pre">directory_config.ini</span></code>). And one <em>dynamic</em> file which is used to define the plotting settings for each output (<code class="docutils literal notranslate"><span class="pre">default_config.ini</span></code>).</p>
 <p>We describe the first as <em>static</em>, meaning that this file will not be changing from plot to plot; And the second as <em>dynamic</em>, as for each plot created, you should create a copy of <code class="docutils literal notranslate"><span class="pre">default_config.ini</span></code>, and customise it for that plot specifically.</p>
 <p>This <em>dynamic</em> config file is what is passed as an argument to the tool, as descibed in the <a class="reference internal" href="usage.html"><span class="doc std std-doc">usage</span></a> section.</p>
 <section id="directory-config-ini">
-<h2>directory_config.ini<a class="headerlink" href="#directory-config-ini" title="Permalink to this heading"></a></h2>
+<h2>directory_config.ini<a class="headerlink" href="#directory-config-ini" title="Link to this heading"></a></h2>
 <p>This is a config file which should contain the necessary file paths required by the plotting tool.</p>
 <section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">data</span> <span class="pre">directory</span></code> : A path pointing to the directory where the data will we automatically downloaded and stored. e.g. /home/user/jupt_data/</p>
 <p><code class="docutils literal notranslate"><span class="pre">spice</span> <span class="pre">directory</span></code> : A path pointing to a directory containing a spice metakernel to load for trajectories (and in the future, ephemeris) plotting. e.g. <code class="docutils literal notranslate"><span class="pre">/home/user/spice/</span></code></p>
 <p>The following structure is expected in this directory:</p>
@@ -116,26 +118,26 @@
 <p><code class="docutils literal notranslate"><span class="pre">download</span> <span class="pre">new</span> <span class="pre">data</span></code> : If True, this option deletes all data files of that data type before attempting to download new data.</p>
 </section>
 <section id="plotting">
-<h3>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h3>
+<h3>Plotting<a class="headerlink" href="#plotting" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">save</span> <span class="pre">figure</span></code> : If True, the figure generate is not displayed in a new window and is instead saved to JUPT/JUPT/JUPT_output/ under the name of the input config file.</p>
 <p>If False, the figure is opened in a new window to be resized and viewed. An option to save here is also available.</p>
 </section>
 <section id="trajectories">
-<h3>Trajectories<a class="headerlink" href="#trajectories" title="Permalink to this heading"></a></h3>
+<h3>Trajectories<a class="headerlink" href="#trajectories" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">magnetosphere</span> <span class="pre">boundaries</span> <span class="pre">repo</span> <span class="pre">path</span></code> : A path pointing to where the <a class="reference external" href="https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries/">jupiter_magnetosphere_boundaries</a> repo is downloaded. See <a class="reference internal" href="installation.html"><span class="doc std std-doc">installation guide</span></a></p>
 </section>
 </section>
 <section id="default-config-ini">
-<h2>default_config.ini<a class="headerlink" href="#default-config-ini" title="Permalink to this heading"></a></h2>
+<h2>default_config.ini<a class="headerlink" href="#default-config-ini" title="Link to this heading"></a></h2>
 <p>This is a file containing the default configuration options to make a plot. This should be used to test if you have installed the tool correctly.</p>
 <p>For future plots, we recommend having a unique plotting config file for each plot and creating a folder to contain these.</p>
 <p>The filename of a saved plot is the same as the name of the config file which is passed to the script. It is important to have input config files with unique names to easily know which input corresponds to what figure.</p>
 <section id="id1">
-<h3>Plotting<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<h3>Plotting<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">time</span></code> : At what universal time should the plot start. Must be in the format of <strong>YYYY-MM-DDTHH:MM:SS</strong>. Note that decimal seconds are not supported and will cause a crash.</p>
 <p><code class="docutils literal notranslate"><span class="pre">end_time</span></code> : At what universal time should the plot end. Must be in the format descibed above in <strong>start_time</strong>.</p>
 <section id="panel-indices">
-<h4>Panel Indices<a class="headerlink" href="#panel-indices" title="Permalink to this heading"></a></h4>
+<h4>Panel Indices<a class="headerlink" href="#panel-indices" title="Link to this heading"></a></h4>
 <p>The ordering of the panels in the figure is able to be customised. As well as selecting which panels to be plotted. Beside each field named <strong>plot x</strong> - where x is the type of panel - set as <strong>0</strong>: if the panel should not be plotted, or as increasing integers starting with <strong>1</strong> denoting the order the panels should be plotted in.</p>
 </section>
 </section>

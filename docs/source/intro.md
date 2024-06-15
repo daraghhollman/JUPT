@@ -2,7 +2,7 @@
 
 The **J**uno **U**niversal **P**lotting **T**ool is an all in one tool for creating and customising plots of many combinations of data from the Juno spacecraft, including magnetometer (MAG), radio wave (Waves), plasma (JADE) and Trajectory data.
 
-The tool was developed in Python 3.11 and tested on unix-based operating systems.
+The tool was developed and tested in Python 3.12, on unix-based operating systems.
 
 ## Motivation
 
