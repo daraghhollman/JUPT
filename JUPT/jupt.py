@@ -4,7 +4,6 @@ import configparser
 import ast
 import sys
 import os
-
 import datetime
 
 # Importing plotting scripts
@@ -17,10 +16,94 @@ import junoDerivedMoments
 import junoTrajectories
 import userAdditions
 
+# Defining default config values
+defaultPlottingConfig = {
+    "plotting": {
+        "plot density": 0,
+
+        "panel spacing": 0.2,
+        "font size": 11,
+        "major tick length": 16,
+        "minor tick length": 8,
+        "major tick width": 1,
+        "minor tick width": 1,
+        "y tick length": 12,
+        "y tick width": 0.8
+    },
+
+    "colours": {
+        "magnitude colour": "black",
+        "component colours": ["indianred", "mediumturquoise", "cornflowerblue"],
+        "lobe colour": "gold",
+    },
+
+    "vertical lines": {
+        "read from file": False,
+        "file path": "",
+        "file line colour": "red",
+        "labels": ["Example One", "Example Two"],
+        "positions": [],
+        "colours": ["red", "yellow"],
+        "linestyle": "--",
+    },
+
+    "Waves": {
+        "frequency limit": [1, 149],
+        "colour map": "viridis",
+        "frequency bins": 200,
+        "y scale": "log",
+    },
+
+    "JADE": {
+        "pitch angle energy range": [],
+        "bin pitch angles": True,
+        "bin size": 10,
+        "colour map": "magma",
+        "high resolution": False,
+    },
+
+    "JADE Ions": {
+        "colour map": "plasma",
+        "TOF range": [],
+    },
+
+    "MAG": {
+        "plot magnitude": True,
+        "plot cartesians": False,
+        "plot polars": True,
+        "plot lobe": False,
+        "plot lobe uncertainty": False,
+        "line width": 1,
+    },
+
+    "trajectories": {
+        "BS dynamic pressure": 0.5,
+        "MP dynamic pressure": 0.7,
+        "plot bow shock": True,
+        "plot magnetopause": True,
+        "bow shock colour": "black",
+        "magnetopause colour": "turquoise",
+        "frame": "JUNO_JSS",
+        "plotted colour": "magenta",
+        "extension colour": "black",
+        "time extension": 30,
+        "major tick length": 10,
+        "minor tick length": 5,
+        "major tick multiple": 25,
+        "minor tick multiple": 5,
+        "x bounds": [-100, 100],
+        "y bounds": [-100, 100],
+        "z bounds": [-100, 100],
+        "equal aspect": True,
+    }
+}
+
+
 # Reading the config files
 directoryConfig = configparser.ConfigParser()
-
 plottingConfig = configparser.ConfigParser()
+
+plottingConfig.read_dict(defaultPlottingConfig)
 
 directoryConfig.read("./directory_config.ini")
 plottingConfig.read(f"./{sys.argv[1]}") # Plotting config is passed as an argument to the script
