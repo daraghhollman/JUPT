@@ -96,11 +96,8 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
     # Check if all filepaths between data are in the folder
     filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
     filePathsNeeded.sort()
-    
-    filePaths = glob(f"{dataDirectory}*.cdf") # returns a list of downloaded file paths (unsorted)
-    filePaths.sort() # Because the date in in the file is in format yyyymmdd it can be sorted numerically.
 
-    filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
+    filesToBeDownloaded = [file for file in filePathsNeeded if not os.path.exists(file)]
 
     fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")
 
@@ -108,12 +105,11 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
         print("Downloading missing data...")
         for path in tqdm(filesToBeDownloaded):
             linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
-            #os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataDirectory} {downloadPath}{fileLinks[linkIndex]}")
 
             url = downloadPath + fileLinks[linkIndex]
             response = requests.get(url, stream=True)
 
-            with open(dataPath + url.split("/")[-1], "wb") as f:
+            with open(dataDirectory + url.split("/")[-1], "wb") as f:
                 for chunk in tqdm(response.iter_content(chunk_size=1024)):
                     if chunk:
                         f.write(chunk)
@@ -139,9 +135,6 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
 
     return filesInfoList
 
-def DeleteData(dataDirectory):
-    """ Deletes all .cdf files in a directory"""
-    os.system(f"rm {dataDirectory}*.cdf")
     
 def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, frequencyBins=1000, yLim=[], colourmap="viridis", colorbarSize="3%", colorbarPad="2%", saveData=False, downloadNewData=True, numFreqBins=126, yscale="log"):
     """ Plots the Waves data 
@@ -167,7 +160,6 @@ def PlotData(fig, ax, timeFrame, dataDirectory, vmin=False, vmax=False, plotEphe
     print("Retrieving Waves data...")
 
     if downloadNewData == True:
-        DeleteData(dataDirectory)
         DownloadWavesData(dataDirectory, "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/", timeFrame) # Path should be in format .../data/
 
     filesWithInfo = LoadCdfFiles(dataDirectory, ["Epoch", "Frequency", "Data"], timeFrame, "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/")

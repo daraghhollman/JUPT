@@ -226,7 +226,7 @@ if len(checkPanelIndices) > len(set(checkPanelIndices)):
     raise ValueError("CONFIG ERROR -> Repeated index in assigned panel indices. Check panel index assignment.")
 
 # Further config error detection should be included here as discovered
-
+print("Config parameters passed checks")
 ###########################################
 
 print("Constructing Plot")

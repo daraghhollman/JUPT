@@ -89,13 +89,8 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False, use_wge
             filePathsNeeded = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"{dataDirectory}JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.{fileExtension}")
 
         filePathsNeeded.sort()
-        # print(f"NEEDED: {filePathsNeeded}")
-        
-        filePaths = glob(f"{dataDirectory}*.{fileExtension}") # returns a list of downloaded file paths (unsorted)
-        filePaths.sort() # Because the date in in the file is in format yyyymmdd it can be sorted numerically.
-        # print(f"HAVE: {filePaths}")
 
-        filesToBeDownloaded = [file for file in filePathsNeeded if file not in filePaths]
+        filesToBeDownloaded = [file for file in filePathsNeeded if not os.path.exists(file)]
 
         if hiRes:
             fileLinks = PathsFromTimeDifference(timeFrame[0], timeFrame[1], f"%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.{fileExtension}")
@@ -106,8 +101,6 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False, use_wge
             print("Downloading missing data...")
             for path in filesToBeDownloaded:
                 linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
-                #fileName = dataDirectory + path.split("/")[-1]
-                #os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {downloadPath}{fileLinks[linkIndex]}")
 
                 url = downloadPath + fileLinks[linkIndex]
                 response = requests.get(url, stream=True)
@@ -149,18 +142,9 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False, use_wge
 
     return filesInfoList
 
-
-def DeleteData(dataDirectory):
-    """ Deletes all .cdf files in a directory"""
-    os.system(f"rm {dataDirectory}*.DAT")
-    os.system(f"rm {dataDirectory}*.LBL")
-
-
 def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False, vmax=False, plotEphemeris=False, ephemerisLabels=False, downloadNewData=False, hiRes=True, colorbarSize="3%", colorbarPad="2%", plotElectronEnergy=True, plotPitchAngle=False, reBin=True, pitchBinStep=10, pitchAngleEnergyRange=[]):
 
     if downloadNewData:
-        DeleteData(dataDirectory)
-
         DownloadJadeData_requests(dataDirectory, "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
 
 
