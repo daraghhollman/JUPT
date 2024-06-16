@@ -10,6 +10,8 @@ from glob import glob
 import pandas
 from mpl_toolkits import axes_grid1
 
+import requests
+
 import junoEphemeris
 
 def PathsFromTimeDifference(t1, t2, pathFormat):
@@ -62,8 +64,15 @@ def DownloadWavesData(dataPath, downloadPath, timeFrame):
 
     pathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf")]
     print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
-    for path in tqdm(pathList):
-        os.system(f"wget -r --show-progress -nd -np -nH -N -P {dataPath} {path}")
+    for url in tqdm(pathList):
+        #os.system(f"wget -r --show-progress -nd -np -nH -N -P {dataPath} {url}")
+
+        response = requests.get(url, stream=True)
+
+        with open(dataPath + url.split("/")[-1], "wb") as f:
+            for chunk in tqdm(response.iter_content(chunk_size=1024)):
+                if chunk:
+                    f.write(chunk)
 
 
 def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
@@ -99,7 +108,16 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
         print("Downloading missing data...")
         for path in tqdm(filesToBeDownloaded):
             linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
-            os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataDirectory} {downloadPath}{fileLinks[linkIndex]}")
+            #os.system(f"wget -r -q -nd -nv -np -nH -N -P {dataDirectory} {downloadPath}{fileLinks[linkIndex]}")
+
+            url = downloadPath + fileLinks[linkIndex]
+            response = requests.get(url, stream=True)
+
+            with open(dataPath + url.split("/")[-1], "wb") as f:
+                for chunk in tqdm(response.iter_content(chunk_size=1024)):
+                    if chunk:
+                        f.write(chunk)
+
 
     filePaths = filePathsNeeded
 

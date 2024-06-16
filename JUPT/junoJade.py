@@ -5,14 +5,16 @@ import junoEphemeris
 from tqdm import tqdm
 import os
 from glob import glob
-from astropy.time import Time, TimeDelta
+from astropy.time import Time
 import matplotlib.colors as colors
 import matplotlib.ticker as ticker
 from mpl_toolkits import axes_grid1
 from math import floor
 from datetime import timedelta
+import requests
 
-def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
+# DOWNLOADS USING WGET
+def DownloadJadeData_wget(dataDirectory, downloadPath, timeFrame, hiRes=False):
     """ Downloads the JADE data using system command wget
 
     Arguments:
@@ -30,18 +32,40 @@ def DownloadJadeData(dataPath, downloadPath, timeFrame, hiRes=False):
         labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.LBL")]
 
 
-    print(f"Downloading {len(labelPathList)} JADE label file(s) from {downloadPath} to {dataPath}\n")
+    print(binaryPathList)
+    print(f"Downloading {len(labelPathList)} JADE label file(s) from {downloadPath} to {dataDirectory}\n")
     for path in labelPathList:
-        fileName = dataPath + path.split("/")[-1]
-        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
+        fileName = dataDirectory + path.split("/")[-1]
+        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {path}")
 
-    print(f"Downloading {len(binaryPathList)} JADE binary file(s) from {downloadPath} to {dataPath}\n")
+    print(f"Downloading {len(binaryPathList)} JADE binary file(s) from {downloadPath} to {dataDirectory}\n")
     for path in binaryPathList:
-        fileName = dataPath + path.split("/")[-1]
-        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataPath} -O {fileName} {path}")
+        fileName = dataDirectory + path.split("/")[-1]
+        os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {path}")
 
 
-def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
+# DOWNLOADS USING REQUESTS
+def DownloadJadeData_requests(dataDirectory, downloadPath, timeFrame, hiRes=False):
+
+    if hiRes:
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_HRS_ELC_TWO_DEF_%Y%j_V01.LBL")]
+    else:
+        binaryPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.DAT")]
+        labelPathList = [f"{downloadPath}{extension}" for extension in PathsFromTimeDifference(timeFrame[0], timeFrame[1], "%Y/%Y%j/ELECTRONS/JAD_L50_LRS_ELC_ANY_DEF_%Y%j_V01.LBL")]
+
+    urlList = binaryPathList + labelPathList
+
+    for url in urlList:
+        response = requests.get(url, stream=True)
+
+        with open(dataDirectory + url.split("/")[-1], "wb") as f:
+            for chunk in tqdm(response.iter_content(chunk_size=1024)):
+                if chunk:
+                    f.write(chunk)
+
+
+def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False, use_wget=False):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -82,8 +106,17 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
             print("Downloading missing data...")
             for path in filesToBeDownloaded:
                 linkIndex = [i for i, link in enumerate(fileLinks) if path.replace(dataDirectory, '') in link][0]
-                fileName = dataDirectory + path.split("/")[-1]
-                os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {downloadPath}{fileLinks[linkIndex]}")
+                #fileName = dataDirectory + path.split("/")[-1]
+                #os.system(f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {downloadPath}{fileLinks[linkIndex]}")
+
+                url = downloadPath + fileLinks[linkIndex]
+                response = requests.get(url, stream=True)
+
+                with open(path, "wb") as f:
+                    for chunk in tqdm(response.iter_content(chunk_size=1024)):
+                        if chunk:
+                            f.write(chunk)
+
         
         filePaths = filePathsNeeded
         
@@ -127,7 +160,9 @@ def PlotData(fig, ax, timeFrame, dataDirectory, colourmap="viridis", vmin=False,
 
     if downloadNewData:
         DeleteData(dataDirectory)
-        DownloadJadeData(dataDirectory, "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
+
+        DownloadJadeData_requests(dataDirectory, "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", timeFrame, hiRes=hiRes)
+
 
     filesWithInfo = LoadBinaryFiles(dataDirectory, timeFrame, "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/", hiRes=hiRes)
 
