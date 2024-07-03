@@ -23,7 +23,7 @@ import vLines
 # Defining default config values
 defaultPlottingConfig = {
     "plotting": {
-        "plot density": 0,
+        "plot density": False,
         "panel spacing": 0.2,
         "font size": 11,
         "major tick length": 16,
@@ -92,6 +92,10 @@ defaultPlottingConfig = {
         "z bounds": [-100, 100],
         "equal aspect": True,
     },
+}
+
+defaulDirectoryConfig = {
+    "download new data": False,
 }
 
 

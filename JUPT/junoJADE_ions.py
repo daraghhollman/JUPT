@@ -1,8 +1,7 @@
 import numpy as np
-import datetime
 import pandas
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from math import floor
 
 import matplotlib.colors as colors

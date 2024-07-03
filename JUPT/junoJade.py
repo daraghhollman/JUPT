@@ -1,6 +1,5 @@
-import datetime
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from math import floor
 
 import matplotlib.colors as colors
@@ -133,9 +132,7 @@ def DownloadJadeData_requests(dataDirectory, downloadPath, timeFrame, hiRes=Fals
                     f.write(chunk)
 
 
-def LoadBinaryFiles(
-    dataDirectory, timeFrame, downloadPath, hiRes=False, use_wget=False
-):
+def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -244,7 +241,7 @@ def PlotData(
     plotEphemeris=False,
     ephemerisLabels=False,
     downloadNewData=False,
-    hiRes=True,
+    hiRes=False,
     colorbarSize="3%",
     colorbarPad="2%",
     plotElectronEnergy=True,
@@ -253,7 +250,7 @@ def PlotData(
     pitchBinStep=10,
     pitchAngleEnergyRange=[],
 ):
-    if downloadNewData:
+    if downloadNewData: 
         DownloadJadeData_requests(
             dataDirectory,
             "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/",
