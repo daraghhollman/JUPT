@@ -28,8 +28,6 @@ See [installation guide](installation)
 
 If you do not have a metakernel, you can create one using this tool: [DIASPICETools](https://github.com/mjrutala/DIASPICETools)
 
-`download new data` : If True, this option deletes all data files of that data type before attempting to download new data.
-
 ### Plotting
 
 `save figure` : If True, the figure generate is not displayed in a new window and is instead saved to JUPT/JUPT/JUPT_output/ under the name of the input config file.
