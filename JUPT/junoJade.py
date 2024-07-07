@@ -17,7 +17,9 @@ from pdsBinaryTools import ReadBinary, ReadLabel
 
 
 # DOWNLOADS USING WGET
-def DownloadJadeData_wget(dataDirectory, downloadPath, timeFrame, hiRes=False):
+def DownloadJadeData_wget(
+    dataDirectory, downloadPath, timeFrame, hiRes=False, verbosity=0
+):
     """Downloads the JADE data using system command wget
 
     Arguments:
@@ -62,21 +64,22 @@ def DownloadJadeData_wget(dataDirectory, downloadPath, timeFrame, hiRes=False):
             )
         ]
 
-    print(binaryPathList)
-    print(
-        f"Downloading {len(labelPathList)} JADE label file(s) from {
-            downloadPath} to {dataDirectory}\n"
-    )
+    if verbosity > 1:
+        print(
+            f"Downloading {len(labelPathList)} JADE label file(s) from {
+                downloadPath} to {dataDirectory}\n"
+        )
     for path in labelPathList:
         fileName = dataDirectory + path.split("/")[-1]
         os.system(
             f"wget -r -q --show-progress -nd -np -nH -P {dataDirectory} -O {fileName} {path}"
         )
 
-    print(
-        f"Downloading {len(binaryPathList)} JADE binary file(s) from {
-            downloadPath} to {dataDirectory}\n"
-    )
+    if verbosity > 1:
+        print(
+            f"Downloading {len(binaryPathList)} JADE binary file(s) from {
+                downloadPath} to {dataDirectory}\n"
+        )
     for path in binaryPathList:
         fileName = dataDirectory + path.split("/")[-1]
         os.system(
@@ -132,7 +135,7 @@ def DownloadJadeData_requests(dataDirectory, downloadPath, timeFrame, hiRes=Fals
                     f.write(chunk)
 
 
-def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
+def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False, verbosity=0):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -146,7 +149,8 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
 
     """
 
-    print(f"Loading JADE files from {dataDirectory}")
+    if verbosity > 0:
+        print(f"Loading JADE files from {dataDirectory}")
 
     for fileExtension in ["DAT", "LBL"]:
         # Check if all filepaths between data are in the folder
@@ -183,7 +187,8 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
             )
 
         if len(filesToBeDownloaded) > 0:
-            print("Downloading missing data...")
+            if verbosity > 0:
+                print("Downloading missing data...")
             for path in filesToBeDownloaded:
                 linkIndex = [
                     i
@@ -209,21 +214,15 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
 
     filesInfoList = []
 
-    print("Loading data...")
+    if verbosity > 0:
+        print("Loading data...")
 
     for labelFilePath, binaryFilePath in zip(labelFilePaths, binaryFilePaths):
-        print(labelFilePath)
-
         labelInfo, structClass = ReadLabel(labelFilePath)
 
         binaryDictionary = ReadBinary(binaryFilePath, structClass, labelInfo)
 
         fileInfo = binaryDictionary
-        # for measurment in measurements:
-        # measurmentData = file.varget(measurment)
-        # measurementUnit = file.varinq(measurment)["Data_Type_Description"]
-
-        # fileInfo[measurment] = measurmentData
 
         filesInfoList.append(fileInfo)
 
@@ -249,8 +248,9 @@ def PlotData(
     reBin=True,
     pitchBinStep=10,
     pitchAngleEnergyRange=[],
+    verbosity=0,
 ):
-    if downloadNewData: 
+    if downloadNewData:
         DownloadJadeData_requests(
             dataDirectory,
             "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/",
@@ -263,6 +263,7 @@ def PlotData(
         timeFrame,
         "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/",
         hiRes=hiRes,
+        verbosity=verbosity,
     )
 
     startTime = []
@@ -271,13 +272,16 @@ def PlotData(
     data = []
     pitchAngles = []
 
-    print("Shortening data to match time frame. This may take some time")
+    if verbosity > 0:
+        print("Shortening data to match time frame. This may take some time")
     for i, fileInfo in enumerate(filesWithInfo):
         if i == 0 and i == len(filesWithInfo) - 1:
-            print("Note: using only one file")
+            if verbosity > 2:
+                print("Note: using only one file")
             sliceStart = 0
 
-            print("Finding start point")
+            if verbosity > 1:
+                print("Finding start point")
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
                 t.format = "datetime"
@@ -289,11 +293,13 @@ def PlotData(
                     break
                 sliceStart = j + 1
 
-            print("Found start point")
+            if verbosity > 1:
+                print("Found start point")
 
             sliceEnd = 0
 
-            print("Finding end point")
+            if verbosity > 1:
+                print("Finding end point")
 
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
@@ -306,7 +312,8 @@ def PlotData(
                     break
                 sliceEnd = j
 
-            print("Found end point")
+            if verbosity > 1:
+                print("Found end point")
 
             if sliceStart == sliceEnd:
                 raise ValueError(
@@ -320,7 +327,8 @@ def PlotData(
 
         elif i == 0:
             sliceStart = 0
-            print("Finding start point")
+            if verbosity > 1:
+                print("Finding start point")
 
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
@@ -333,7 +341,8 @@ def PlotData(
                     break
                 sliceStart = j + 1
 
-            print("Found start point")
+            if verbosity > 1:
+                print("Found start point")
             startTime.extend(fileInfo["startTime"][sliceStart:])
             endTime.extend(fileInfo["endTime"][sliceStart:])
             data.extend(fileInfo["data"][sliceStart:])
@@ -342,7 +351,8 @@ def PlotData(
         elif i == len(filesWithInfo) - 1:
             sliceEnd = 0
 
-            print("Finding end point")
+            if verbosity > 1:
+                print("Finding end point")
 
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
@@ -355,7 +365,8 @@ def PlotData(
                     break
                 sliceEnd = j
 
-            print("Found end point")
+            if verbosity > 1:
+                print("Found end point")
             startTime.extend(fileInfo["startTime"][:sliceEnd])
             endTime.extend(fileInfo["endTime"][:sliceEnd])
             data.extend(fileInfo["data"][:sliceEnd])
@@ -406,7 +417,8 @@ def PlotData(
 
     # index_array = range(len(startTime))
 
-    print("Drawing JADE image...")
+    if verbosity > 0:
+        print("Drawing JADE image...")
 
     for fileInfo in filesWithInfo:
         if not (
@@ -427,12 +439,8 @@ def PlotData(
 
     newDataArray = np.empty((newGridHeight - 1, newGridWidth - 1))
     newDataArray.fill(np.nan)
-    print(np.shape(newDataArray))
-    print(np.shape(sumOverLookAngles))
 
     dataIndex = [floor((t - timeFrame_dt[0]).total_seconds() / dt) for t in dtStart]
-
-    print(np.shape(dataIndex))
 
     newDataArray[:, dataIndex] = sumOverLookAngles[:-1, :]
 
@@ -481,9 +489,6 @@ def PlotData(
 
         newDataArray = np.empty((newGridHeight - 1, newGridWidth - 1))
         newDataArray.fill(np.nan)
-        print(np.shape(newDataArray))
-        print(np.shape(pitchAngleValues))
-
         dataIndex = [floor((t - timeFrame_dt[0]).total_seconds() / dt) for t in dtStart]
 
         if reBin:
@@ -494,16 +499,12 @@ def PlotData(
                 )  # the bottom and left edges of the mesh ranging from 0 to 180+step
 
                 for i in range(len(pitchBins) - 1):
-                    # print(f"Greater than {pitchBins[i]}, less than {pitchBins[i+1]}")
                     binIndices = np.where(
                         (pitchAngleValues[:, t] > pitchBins[i])
                         & (pitchAngleValues[:, t] < pitchBins[i + 1])
                     )
                     reBinnedData[i][t] = np.mean(lookAnglesData[:, t][binIndices])
 
-            # reBinnedData = reBinnedData[:,:-1]
-            print(np.shape(reBinnedData))
-            print(np.shape(newDataArray))
             newDataArray[:, dataIndex] = reBinnedData[:, :]
 
             image = ax.pcolormesh(
@@ -515,9 +516,6 @@ def PlotData(
                 shading="flat",
             )
         else:
-            print(np.shape(timeArray))
-            print(np.shape(pitchAngleValues))
-            print(np.shape(lookAnglesData))
             image = ax.pcolormesh(
                 timeArray,
                 pitchAngleValues,
@@ -546,14 +544,25 @@ def PlotData(
         for t in tickTime:
             timeDatetime64.append(np.datetime64(str(t)))
 
-        print(f"plotting ephemeris for {newGridWidth} points")
+        if verbosity > 2:
+            print(f"plotting ephemeris for {newGridWidth} points")
         if hiRes:
             ax = junoEphemeris.PlotEphemeris(
-                ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True
+                ax,
+                timeDatetime64,
+                timeFrame,
+                labels=ephemerisLabels,
+                isJade=True,
+                verbosity=verbosity,
             )
         else:
             ax = junoEphemeris.PlotEphemeris(
-                ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True
+                ax,
+                timeDatetime64,
+                timeFrame,
+                labels=ephemerisLabels,
+                isJade=True,
+                verbosity=verbosity,
             )
 
     box = ax.get_position()

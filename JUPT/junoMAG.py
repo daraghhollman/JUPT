@@ -20,6 +20,7 @@ def PlotData(
     polarCoordinates=True,
     linewidth=1,
     plotLobeField=False,
+    verbosity=0,
 ):
     # Takes one of the subplot axes as input
     """Plots Juno MAG data from the AMDA database
@@ -41,7 +42,8 @@ def PlotData(
     ax -- Matplotlib subplot axis
     """
 
-    print("Retrieving mag data...")
+    if verbosity > 0:
+        print("Retrieving mag data...")
     junoFGM = spz.amda.get_parameter("juno_fgm_orb1_jso", timeFrame[0], timeFrame[1])
 
     mag = np.transpose(junoFGM.values)
@@ -187,7 +189,9 @@ def PlotData(
         ax.xaxis.set_major_formatter(dateFormat)
 
     else:
-        ax = junoEphemeris.PlotEphemeris(ax, time, timeFrame, labels=ephemerisLabels)
+        ax = junoEphemeris.PlotEphemeris(
+            ax, time, timeFrame, labels=ephemerisLabels, verbosity=verbosity
+        )
 
     return ax
 

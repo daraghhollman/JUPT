@@ -36,15 +36,18 @@ def ThreePanelTrajectories(
     MP_p_dyn=0.3,
     bsColour="black",
     mpColour="purple",
+    verbosity=0,
 ):
     if magBoundariesRepoPath != "":
         sys.path.append(magBoundariesRepoPath)
         from pdyn_to_ms_boundaries import pdyn_to_bs, pdyn_to_mp
 
-    print("Plotting trajectories...")
+    if verbosity > 0:
+        print("Plotting trajectories...")
 
-    print("Loading SPICE kernels")
-    print(spiceDirectory + "juno/metakernel_juno.txt")
+    if verbosity > 1:
+        print("Loading SPICE kernels")
+        print(spiceDirectory + "juno/metakernel_juno.txt")
     spice.furnsh(spiceDirectory + "juno/metakernel_juno.txt")
 
     startTime = datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")
@@ -67,11 +70,13 @@ def ThreePanelTrajectories(
     ets = [spice.datetime2et(date) for date in dates]
     extendedEts = [spice.datetime2et(date) for date in extendedDates]
 
-    print("Querying SPICE")
+    if verbosity > 1:
+        print("Querying SPICE")
     positions, ltimes = spice.spkpos("Juno", ets, frame, "NONE", centre)
     extendedPositions, ltimes = spice.spkpos("Juno", extendedEts, frame, "NONE", centre)
 
-    print("Rescalling positions")
+    if verbosity > 1:
+        print("Rescalling positions")
     # Normalise by scale factor (Jupiter Radius by default)
     positions_scaled = []
     for position in positions:

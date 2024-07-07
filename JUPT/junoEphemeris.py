@@ -30,6 +30,7 @@ def PlotEphemeris(
     labelsPos=[-40, -40],
     posSpacer=1,
     isJade=False,
+    verbosity=0
 ):
     """Plot ephemeris data as axix tick labels
 
@@ -46,16 +47,17 @@ def PlotEphemeris(
     """
 
     # Takes a subplot axis as input
-    print("Retreiving ephemeris data...")
+    if verbosity > 0:
+        print("Retreiving ephemeris data...")
     # Pulls ephemeris data in x, y, z
     junoEphemeris = spz.amda.get_parameter(
         "juno_eph_orb_jso", timeFrame[0], timeFrame[1]
     )
 
-    distanceValues = PullEphemerisData("juno_jup_r", dataTime, timeFrame)
-    longitudeValues = PullEphemerisData("juno_jup_lon", dataTime, timeFrame)
-    latitudeValues = PullEphemerisData("juno_jup_lat", dataTime, timeFrame)
-    mLatitudeValues = PullEphemerisData("juno_jup_mlat", dataTime, timeFrame)
+    distanceValues = PullEphemerisData("juno_jup_r", dataTime, timeFrame, verbosity=verbosity)
+    longitudeValues = PullEphemerisData("juno_jup_lon", dataTime, timeFrame, verbosity=verbosity)
+    latitudeValues = PullEphemerisData("juno_jup_lat", dataTime, timeFrame, verbosity=verbosity)
+    mLatitudeValues = PullEphemerisData("juno_jup_mlat", dataTime, timeFrame, verbosity=verbosity)
 
     ephemerisTime = junoEphemeris.time
 
@@ -64,7 +66,8 @@ def PlotEphemeris(
     # then to datetime
     timeTransformed = datetime64_to_datetime(dataTime, isJade=isJade)
 
-    print("Setting ticks")
+    if verbosity > 1:
+        print("Setting ticks")
 
     ax.xaxis.set_major_formatter(
         ticker.FuncFormatter(
@@ -84,13 +87,15 @@ def PlotEphemeris(
     ).astype(
         "timedelta64[s]"
     )  # time[i] is of format datetime64[ns] and hence the unit of timedelta is in nanoseconds
-    print(f"TIMEDELTA; Type: {type(timedelta_seconds)}, Value: {timedelta_seconds}")
+    if verbosity > 2:
+        print(f"TIMEDELTA; Type: {type(timedelta_seconds)}, Value: {timedelta_seconds}")
 
-    major_locator, minor_locator = CalculateTickSpread(timedelta_seconds)
+    major_locator, minor_locator = CalculateTickSpread(timedelta_seconds, verbosity=verbosity)
 
     if resolutionFactor is None:
         resolutionFactor = len(dataTime) / (timedelta_seconds.astype("float") / 60)
-        print(f"Resolution factor calculated to be {resolutionFactor}")
+        if verbosity > 2:
+            print(f"Resolution factor calculated to be {resolutionFactor}")
 
     major_locator = np.multiply(
         major_locator, resolutionFactor
@@ -100,7 +105,8 @@ def PlotEphemeris(
     ax.xaxis.set_major_locator(ticker.FixedLocator(major_locator))
     ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_locator))
 
-    print("Calculated tick spread")
+    if verbosity > 1:
+        print("Calculated tick spread")
 
     # Set ephemeris labels
 
@@ -151,8 +157,9 @@ def PlotEphemeris(
     return ax
 
 
-def PullEphemerisData(amdaId, inputTime, timeFrame):
-    print(f"Retrieving {amdaId}")
+def PullEphemerisData(amdaId, inputTime, timeFrame, verbosity=0):
+    if verbosity > 1:
+        print(f"Retrieving {amdaId}")
     spzData = spz.amda.get_parameter(amdaId, timeFrame[0], timeFrame[1])
 
     data = np.transpose(spzData.values)[0]
@@ -187,7 +194,7 @@ def CoordLengthsToMatchTime(time, coords):
     return newCoordsList
 
 
-def CalculateTickSpread(timeDelta):
+def CalculateTickSpread(timeDelta, verbosity=0):
     # Adjusted code taken from Corentin, function takes the timedelta plotted in hours.
     dayLength_mins = 1400  # number of minutes in one day
 
@@ -243,9 +250,10 @@ def CalculateTickSpread(timeDelta):
         major = np.arange(0, dayLength_mins * (timeDelta / 24 + 1), 60 * 24)
         minor = np.arange(0, dayLength_mins * (timeDelta / 24 + 1), 60 * 4)
 
-    print(
-        f"Major ticks every: {(major[1] - major[0])/60} hours, Minor ticks every: {(minor[1] - minor[0])/60} hours"
-    )
+    if verbosity > 2:
+        print(
+            f"Major ticks every: {(major[1] - major[0])/60} hours, Minor ticks every: {(minor[1] - minor[0])/60} hours"
+        )
 
     return (major, minor)
 
