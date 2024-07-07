@@ -55,4 +55,4 @@ The filename of a saved plot is the same as the name of the config file which is
 
 #### Panel Indices
 
-The ordering of the panels in the figure is able to be customised. As well as selecting which panels to be plotted. Beside each field named **plot x** - where x is the type of panel - set as **0**: if the panel should not be plotted, or as increasing integers starting with **1** denoting the order the panels should be plotted in.
+The ordering of the panels in the figure is customisable, as well as selecting which panels should be plotted. Beside each field named **plot x** - where x is the type of panel - set as increasing integers starting with **1**, denoting the order the panels should be plotted in. To exclude a panel, simply don't include it in the config file.
