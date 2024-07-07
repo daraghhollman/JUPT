@@ -23,6 +23,12 @@ import vLines
 # Defining default config values
 defaultPlottingConfig = {
     "plotting": {
+        "plot trajectories": False,
+        "plot Waves": False,
+        "plot JADE electron energies": False,
+        "plot JADE electron pitch angles": False,
+        "plot JADE ion energies": False,
+        "plot MAG": False,
         "plot density": False,
         "panel spacing": 0.2,
         "font size": 11,
