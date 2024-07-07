@@ -138,7 +138,7 @@ def DownloadJadeData_requests(dataDirectory, downloadPath, timeFrame, hiRes=Fals
                     f.write(chunk)
 
 
-def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
+def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False, verbosity=0):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -152,7 +152,8 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
 
     """
 
-    print(f"Loading JADE files from {dataDirectory}")
+    if verbosity > 0:
+        print(f"Loading JADE files from {dataDirectory}")
 
     for fileExtension in ["DAT", "LBL"]:
         # Check if all filepaths between data are in the folder
@@ -189,7 +190,8 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
             )
 
         if len(filesToBeDownloaded) > 0:
-            print("Downloading missing data...")
+            if verbosity > 0:
+                print("Downloading missing data...")
             for path in filesToBeDownloaded:
                 linkIndex = [
                     i
@@ -215,11 +217,10 @@ def LoadBinaryFiles(dataDirectory, timeFrame, downloadPath, hiRes=False):
 
     filesInfoList = []
 
-    print("Loading data...")
+    if verbosity > 0:
+        print("Loading data...")
 
     for labelFilePath, binaryFilePath in zip(labelFilePaths, binaryFilePaths):
-        print(labelFilePath)
-
         labelInfo, structClass = ReadLabel(labelFilePath)
 
         binaryDictionary = ReadBinary(binaryFilePath, structClass, labelInfo)
@@ -252,6 +253,7 @@ def PlotData(
     colorbarPad="2%",
     plotIonEnergy=False,
     ionTimeOfFlightRange=[],
+    verbosity=0,
 ):
     if downloadNewData:
         DownloadJadeData_requests(
@@ -266,6 +268,7 @@ def PlotData(
         timeFrame,
         "https://search-pdsppi.igpp.ucla.edu/ditdos/download?id=pds://PPI/JNO-J_SW-JAD-5-CALIBRATED-V1.0/DATA/",
         hiRes=hiRes,
+        verbosity=verbosity,
     )
 
     # print(filesWithInfo[0]["time of flight"][0])
@@ -274,13 +277,16 @@ def PlotData(
     endTime = []
     data = []
 
-    print("Shortening data to match time frame. This may take some time")
+    if verbosity > 0:
+        print("Shortening data to match time frame. This may take some time")
     for i, fileInfo in enumerate(filesWithInfo):
         if i == 0 and i == len(filesWithInfo) - 1:
-            print("Note: using only one file")
+            if verbosity > 2:
+                print("Note: using only one file")
             sliceStart = 0
 
-            print("Finding start point")
+            if verbosity > 1:
+                print("Finding start point")
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
                 t.format = "datetime"
@@ -292,11 +298,13 @@ def PlotData(
                     break
                 sliceStart = j + 1
 
-            print("Found start point")
+            if verbosity > 1:
+                print("Found start point")
 
             sliceEnd = 0
 
-            print("Finding end point")
+            if verbosity > 1:
+                print("Finding end point")
 
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
@@ -309,7 +317,8 @@ def PlotData(
                     break
                 sliceEnd = j
 
-            print("Found end point")
+            if verbosity > 1:
+                print("Found end point")
 
             if sliceStart == sliceEnd:
                 raise ValueError(
@@ -322,7 +331,8 @@ def PlotData(
 
         elif i == 0:
             sliceStart = 0
-            print("Finding start point")
+            if verbosity > 1:
+                print("Finding start point")
 
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
@@ -335,7 +345,8 @@ def PlotData(
                     break
                 sliceStart = j + 1
 
-            print("Found start point")
+            if verbosity > 1:
+                print("Found start point")
             startTime.extend(fileInfo["startTime"][sliceStart:])
             endTime.extend(fileInfo["endTime"][sliceStart:])
             data.extend(fileInfo["data"][sliceStart:])
@@ -343,7 +354,8 @@ def PlotData(
         elif i == len(filesWithInfo) - 1:
             sliceEnd = 0
 
-            print("Finding end point")
+            if verbosity > 1:
+                print("Finding end point")
 
             for j, t in tqdm(enumerate(fileInfo["startTime"])):
                 t = Time(t, format="isot")
@@ -356,7 +368,8 @@ def PlotData(
                     break
                 sliceEnd = j
 
-            print("Found end point")
+            if verbosity > 1:
+                print("Found end point")
             startTime.extend(fileInfo["startTime"][:sliceEnd])
             endTime.extend(fileInfo["endTime"][:sliceEnd])
             data.extend(fileInfo["data"][:sliceEnd])
@@ -376,7 +389,6 @@ def PlotData(
 
     # Sum over the look directions to create energies plot
     data = np.sum(data, axis=2)  # Transpose to get to shape (numEnergyBins, Time)
-    print(np.shape(data))
 
     # Average over TOF range
     if ionTimeOfFlightRange != []:
@@ -385,8 +397,6 @@ def PlotData(
             (filesWithInfo[0]["time of flight"][0] > ionTimeOfFlightRange[0])
             & (filesWithInfo[0]["time of flight"][0] < ionTimeOfFlightRange[1])
         )
-
-        print(timeOfFlightBandIndices)
 
         # Loop through energy bins
         timeOfFlightToExclude = []
@@ -402,7 +412,8 @@ def PlotData(
     else:
         ionData = np.transpose(np.sum(data, axis=2)) / np.shape(data)[1]
 
-    print("Drawing JADE image...")
+    if verbosity > 0:
+        print("Drawing JADE image...")
 
     for fileInfo in filesWithInfo:
         if not (fileInfo["energy scale"] == filesWithInfo[0]["energy scale"]).all():
@@ -457,14 +468,25 @@ def PlotData(
         for t in tickTime:
             timeDatetime64.append(np.datetime64(str(t)))
 
-        print(f"plotting ephemeris for {newGridWidth} points")
+        if verbosity > 2:
+            print(f"plotting ephemeris for {newGridWidth} points")
         if hiRes:
             ax = junoEphemeris.PlotEphemeris(
-                ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True
+                ax,
+                timeDatetime64,
+                timeFrame,
+                labels=ephemerisLabels,
+                isJade=True,
+                verbosity=verbosity,
             )
         else:
             ax = junoEphemeris.PlotEphemeris(
-                ax, timeDatetime64, timeFrame, labels=ephemerisLabels, isJade=True
+                ax,
+                timeDatetime64,
+                timeFrame,
+                labels=ephemerisLabels,
+                isJade=True,
+                verbosity=verbosity,
             )
 
     box = ax.get_position()

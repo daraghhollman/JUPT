@@ -20,6 +20,7 @@ import junoWAVES
 import userAdditions
 import vLines
 
+
 # Defining default config values
 defaultPlottingConfig = {
     "plotting": {
@@ -98,18 +99,25 @@ defaultPlottingConfig = {
     },
 }
 
-defaulDirectoryConfig = {
-    "download new data": False,
+defaultDirectoryConfig = {
+    "plotting": {
+        "download new data": False,
+    },
+    "other": {
+        "verbosity": 1,
+    },
 }
-
 
 # Reading the config files
 directoryConfig = configparser.ConfigParser()
 plottingConfig = configparser.ConfigParser()
 
 plottingConfig.read_dict(defaultPlottingConfig)
+directoryConfig.read_dict(defaultDirectoryConfig)
 
 directoryConfig.read("./directory_config.ini")
+
+verbosity = int(directoryConfig["other"]["verbosity"])
 
 # Plotting config is passed as an argument to the script
 plottingConfig.read(f"./{sys.argv[1]}")
@@ -231,7 +239,8 @@ for plotType in panelsList:
 
 #######################################
 # CHECKING FOR COMMON CONFIG MISTAKES
-print("Checking config validity...")
+if verbosity > 1:
+    print("Checking config validity...")
 
 # Check if end time is before start time
 startTime = datetime.datetime.strptime(timeFrame[0], "%Y-%m-%dT%H:%M:%S")
@@ -265,10 +274,13 @@ if len(checkPanelIndices) > len(set(checkPanelIndices)):
     )
 
 # Further config error detection should be included here as discovered
-print("Config parameters passed checks")
+if verbosity > 1:
+    print("Config parameters passed checks")
 ###########################################
 
-print("Constructing Plot")
+if verbosity > 1:
+    print("Constructing Plot")
+
 # An arbitrary figure size set based on testing
 fig = plt.figure(figsize=(16, 5 * numSubPlots))
 plt.rcParams.update({"font.size": fontsize})  # Changes the default fontsize
@@ -300,6 +312,7 @@ if plotWaves:
             colourmap=plottingConfig["Waves"]["colour map"],
             downloadNewData=directoryConfig["data"].getboolean("download new data"),
             yscale=plottingConfig["Waves"]["y scale"],
+            verbosity=verbosity,
         )
         axWaves.set_xticklabels("")
     else:
@@ -314,6 +327,7 @@ if plotWaves:
             colourmap=plottingConfig["Waves"]["colour map"],
             downloadNewData=directoryConfig["data"].getboolean("download new data"),
             yscale=plottingConfig["Waves"]["y scale"],
+            verbosity=verbosity,
         )
 
     axWaves.tick_params(
@@ -388,6 +402,7 @@ if plotJADE:
                 downloadNewData=directoryConfig["data"].getboolean("download new data"),
                 plotElectronEnergy=True,
                 plotPitchAngle=False,
+                verbosity=verbosity,
             )
             axJade.set_xticklabels("")
         else:
@@ -403,6 +418,7 @@ if plotJADE:
                 downloadNewData=directoryConfig["data"].getboolean("download new data"),
                 plotElectronEnergy=True,
                 plotPitchAngle=False,
+                verbosity=verbosity,
             )
 
         axJade.tick_params(
@@ -477,6 +493,7 @@ if plotJADE:
                 ionTimeOfFlightRange=ast.literal_eval(
                     plottingConfig["JADE Ions"]["TOF range"]
                 ),
+                verbosity=verbosity,
             )
             axJadeIons.set_xticklabels("")
         else:
@@ -493,6 +510,7 @@ if plotJADE:
                 ionTimeOfFlightRange=ast.literal_eval(
                     plottingConfig["JADE Ions"]["TOF range"]
                 ),
+                verbosity=verbosity,
             )
 
         axJadeIons.tick_params(
@@ -571,6 +589,7 @@ if plotJADE:
                 pitchAngleEnergyRange=ast.literal_eval(
                     plottingConfig["JADE"]["pitch angle energy range"]
                 ),
+                verbosity=verbosity,
             )
             axJadePitch.set_xticklabels("")
         else:
@@ -590,6 +609,7 @@ if plotJADE:
                 pitchAngleEnergyRange=ast.literal_eval(
                     plottingConfig["JADE"]["pitch angle energy range"]
                 ),
+                verbosity=verbosity,
             )
 
         axJadePitch.tick_params(
@@ -738,6 +758,7 @@ if plotMag:
             componentColours=componentColours,
             lobeColour=lobeColour,
             magnitudeColour=magnitudeColour,
+            verbosity=verbosity,
         )
     else:
         junoMAG.PlotData(
@@ -758,6 +779,7 @@ if plotMag:
             componentColours=componentColours,
             lobeColour=lobeColour,
             magnitudeColour=magnitudeColour,
+            verbosity=verbosity,
         )
 
     axMag.tick_params(
@@ -830,7 +852,13 @@ for i, axis in enumerate(fig.axes):
     # axis, legend axis, and hence we can use the modulo to only get the even positionIndex.
     if i % 2 == 0 and len(vLinePositions) != 0:
         vLines.PlotVLines(
-            axis, i, timeFrame, vLinePositions, vLineLabels, vLineColours, vLineStyle
+            axis,
+            i,
+            timeFrame,
+            vLinePositions,
+            vLineLabels,
+            vLineColours,
+            vLineStyle,
         )
 
     axis.format_coord = (
@@ -876,6 +904,7 @@ if plotTrajectories:
         MP_p_dyn=plottingConfig["trajectories"].getfloat("MP dynamic pressure"),
         bsColour=plottingConfig["trajectories"]["bow shock colour"],
         mpColour=plottingConfig["trajectories"]["magnetopause colour"],
+        verbosity=verbosity,
     )
 
 # Move the subplots together and add room below for ephemeris labels
@@ -885,7 +914,8 @@ plt.subplots_adjust(hspace=panelSpacing, bottom=0.2)
 userAdditions.UserAdditions(fig=fig, axes=axesDict)
 
 if not directoryConfig["plotting"].getboolean("save figure"):
-    print("Showing figure")
+    if verbosity > 0:
+        print("Showing figure")
     plt.show()
 else:
     # Test if output directory exists

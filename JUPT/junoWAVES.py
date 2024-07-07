@@ -53,7 +53,7 @@ def PathsFromTimeDifference(t1, t2, pathFormat):
     return pathExtensions
 
 
-def DownloadWavesData(dataPath, downloadPath, timeFrame):
+def DownloadWavesData(dataPath, downloadPath, timeFrame, verbosity=0):
     """Downloads the waves data using system command wget
 
     Arguments:
@@ -69,7 +69,9 @@ def DownloadWavesData(dataPath, downloadPath, timeFrame):
             timeFrame[0], timeFrame[1], "%Y/%m/jno_wav_cdr_lesia_%Y%m%d_v02.cdf"
         )
     ]
-    print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
+    if verbosity > 0:
+        print(f"Downloading Waves files from {downloadPath} to {dataPath}\n")
+
     for url in tqdm(pathList):
         # os.system(f"wget -r --show-progress -nd -np -nH -N -P {dataPath} {url}")
 
@@ -81,7 +83,7 @@ def DownloadWavesData(dataPath, downloadPath, timeFrame):
                     f.write(chunk)
 
 
-def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
+def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath, verbosity=0):
     # Inputs are a directory containing the files to be loaded and a list of the measurements to be pulled from the files.
 
     # NEED TO CHECK TO ONLY LOAD FILES WITHIN THE TIME FRAME, REUSE PATHSFROMTIMEDIFFERENCE?
@@ -96,7 +98,8 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
 
     """
 
-    print(f"Loading CDF files from {dataDirectory}")
+    if verbosity > 0:
+        print(f"Loading CDF files from {dataDirectory}")
 
     # Check if all filepaths between data are in the folder
     filePathsNeeded = PathsFromTimeDifference(
@@ -111,7 +114,8 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
     )
 
     if len(filesToBeDownloaded) > 0:
-        print("Downloading missing data...")
+        if verbosity > 0:
+            print("Downloading missing data...")
         for path in tqdm(filesToBeDownloaded):
             linkIndex = [
                 i
@@ -131,7 +135,8 @@ def LoadCdfFiles(dataDirectory, measurements, timeFrame, downloadPath):
 
     filesInfoList = []
 
-    print("Loading data...")
+    if verbosity > 0:
+        print("Loading data...")
     for filePath in tqdm(filePaths):
         file = cdflib.CDF(filePath)
 
@@ -165,6 +170,7 @@ def PlotData(
     downloadNewData=True,
     numFreqBins=126,
     yscale="log",
+    verbosity=0,
 ):
     """Plots the Waves data
 
@@ -186,13 +192,15 @@ def PlotData(
 
     """
 
-    print("Retrieving Waves data...")
+    if verbosity > 0:
+        print("Retrieving Waves data...")
 
     if downloadNewData:
         DownloadWavesData(
             dataDirectory,
             "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/",
             timeFrame,
+            verbosity=verbosity,
         )  # Path should be in format .../data/
 
     filesWithInfo = LoadCdfFiles(
@@ -200,6 +208,7 @@ def PlotData(
         ["Epoch", "Frequency", "Data"],
         timeFrame,
         "https://maser.obspm.fr/repository/juno/waves/data/l3a_v02/data/cdf/",
+        verbosity=verbosity,
     )
 
     # Initialise lists to put the data into
@@ -207,16 +216,22 @@ def PlotData(
     frequency = []
     data = []
 
-    print("Shortening data to match time frame. This may take some time")
+    if verbosity > 0:
+        print("Shortening data to match time frame. This may take some time")
+
     for i, fileInfo in enumerate(
         filesWithInfo
     ):  # enumerate could be computationally expensive here. Perhaps change to a boolean test as it is only a one time use?
         # Next we must contract the lists to the timeframe we have selected.
         if i == 0 and i == len(filesWithInfo) - 1:
-            print("Note: using only one file")
+            if verbosity > 2:
+                print("Note: using only one file")
+
             sliceStart = 0
 
-            print("Finding start point")
+            if verbosity > 1:
+                print("Finding start point")
+
             for j, t in tqdm(enumerate(fileInfo["Epoch"])):
                 t = Time(t, format="cdf_tt2000")
                 t.format = "datetime"
@@ -228,11 +243,13 @@ def PlotData(
                     break
                 sliceStart = j
 
-            print("Found start point")
+            if verbosity > 1:
+                print("Found start point")
 
             sliceEnd = 0
 
-            print("Finding end point")
+            if verbosity > 1:
+                print("Finding end point")
 
             for j, t in tqdm(enumerate(fileInfo["Epoch"])):
                 t = Time(t, format="cdf_tt2000")
@@ -245,7 +262,8 @@ def PlotData(
                     break
                 sliceEnd = j
 
-            print("Found end point")
+            if verbosity > 1:
+                print("Found end point")
 
             if sliceStart == sliceEnd:
                 raise ValueError(
@@ -258,7 +276,8 @@ def PlotData(
         elif i == 0:
             sliceStart = 0
 
-            print("Finding start point...")
+            if verbosity > 1:
+                print("Finding start point...")
             for j, t in tqdm(
                 enumerate(fileInfo["Epoch"]), total=len(fileInfo["Epoch"])
             ):  # this is quite slow, takes around 30 seconds
@@ -271,14 +290,16 @@ def PlotData(
                     break
                 sliceStart = j
 
-            print("Found start point")
+            if verbosity > 1:
+                print("Found start point")
             time.extend(fileInfo["Epoch"][sliceStart:])
             data.extend(fileInfo["Data"][sliceStart:])
 
         elif i == len(filesWithInfo) - 1:
             sliceEnd = 0
 
-            print("Finding end point...")
+            if verbosity > 1:
+                print("Finding end point...")
             for j, t in tqdm(
                 enumerate(fileInfo["Epoch"]), total=len(fileInfo["Epoch"])
             ):  # Similarly very slow around 30 seconds
@@ -291,7 +312,8 @@ def PlotData(
                     break
                 sliceEnd = j
 
-            print("Found end point")
+            if verbosity > 1:
+                print("Found end point")
             time.extend(fileInfo["Epoch"][:sliceEnd])
             data.extend(fileInfo["Data"][:sliceEnd])
 
@@ -315,12 +337,14 @@ def PlotData(
     index_array = range(len(wavesTime))
 
     # rebin frequencies
-    print("Re-binning frequencies")
+    if verbosity > 1:
+        print("Re-binning frequencies")
     rescaledFrequencies = FrequencyRemap(wavesFrequencies, numFreqBins)
     newFlux = np.zeros((len(index_array), len(rescaledFrequencies)), dtype=float)
 
     # interpolate frequencies
-    print("Interpolating Data")
+    if verbosity > 1:
+        print("Interpolating Data")
     for i in tqdm(range(len(index_array)), total=len(index_array)):
         newFlux[i, :] = np.interp(
             x=rescaledFrequencies, xp=wavesFrequencies, fp=wavesData.T[i, :]
@@ -332,7 +356,8 @@ def PlotData(
         vmin = np.quantile(wavesData, 0.05)
         vmax = np.quantile(wavesData, 0.95)
 
-    print("Drawing Waves image... this may take some time")
+    if verbosity > 0:
+        print("Drawing Waves image... this may take some time")
     image = ax.pcolormesh(
         index_array,
         rescaledFrequencies,
@@ -348,13 +373,16 @@ def PlotData(
         )
         ax.set_xlabel(f"Time from {timeFrame[0]} (s)")
     else:
-        # junoEphemeris.PlotEphemeris requires
         wavesTimeDatetime64 = []
         for time in wavesTime:
             wavesTimeDatetime64.append(np.datetime64(str(time)))
 
         ax = junoEphemeris.PlotEphemeris(
-            ax, wavesTimeDatetime64, timeFrame, labels=ephemerisLabels
+            ax,
+            wavesTimeDatetime64,
+            timeFrame,
+            labels=ephemerisLabels,
+            verbosity=verbosity,
         )
 
     ax.set_ylabel("Frequency (kHz)")

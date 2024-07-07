@@ -38,6 +38,9 @@ If False, the figure is opened in a new window to be resized and viewed. An opti
 
 `magnetosphere boundaries repo path` : A path pointing to where the [jupiter_magnetosphere_boundaries](https://github.com/DIASPlanetary/jupiter_magnetosphere_boundaries/) repo is downloaded. See [installation guide](installation)
 
+### Other
+
+`verbosity` : An interger between 0 and 3 (defaut: 1)
 
 ## default_config.ini
 
