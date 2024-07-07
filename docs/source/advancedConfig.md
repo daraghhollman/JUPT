@@ -4,17 +4,21 @@ More detailed configuration options for those who wish to customise their plots 
 
 These plotting options correspond to the *dynamic* config file, as described in the [Basic Configuration](basicConfig) section.
 
+For each section, reference in the config file should look as in the following example:
+```
+[section]
+key = 
+```
+
 ## plotting
 |key|description|
 |---|---|
-|save figure|Should the figure be automatically saved. If False, the figure will be opened in a window to view and save manually.|
 |start time|The time with which to start your plot from. Must be in the format YYYY-MM-DDTHH:MM:SS|
 |end time|The time with which to end your plot. Must be in the format YYYY-MM-DDTHH:MM:SS|
 |plot trajectories|At what subplot index should trajectories data be plotted. Leave as 0 to not plot trajectories.|
 |plot Waves|At what subplot index should Waves data be plotted. Leave as 0 to not plot Waves|
 |plot JADE electron energies|At what subplot index should JADE electron energies data be plotted. Leave as 0 to not plot|
 |plot JADE electron pitch angles|At what subplot index should JADE electron pitch angles data be plotted. Leave as 0 to not plot|
-|~~plot density~~|JADE moments are currently not supported.|
 |plot MAG|At what subplot index should MAG data be plotted. Leave as 0 to not plot MAG|
 |panel spacing|The white space vertically between panels in units of panel height. Note, this can be 0. (**default: 0.2**)|
 |~~font size~~|Base fontsize for the plot. Currently not functional due to **issue #9** (**default: 11**)|
@@ -24,24 +28,6 @@ These plotting options correspond to the *dynamic* config file, as described in 
 |minor tick width|Width of minor ticks. (**default: 0.8**)|
 |y tick length|Length of major ticks on the y axes. (**default: 12**)|
 |y tick width|Width of major ticks on the y axes. (**default: 0.8**)|
-
-## colours
-|key|description|
-|---|---|
-|magnitude colour|The colour (matplotlib) of the magnitude of the MAG data. (**default: black**)|
-|component colours|The colours (matplotlib) of the coordinate components of the MAG data. Must be formated as ["colour1", "colour2", "colour3"]. (**default: ["indianred","mediumturquoise","cornflowerblue"]**)|
-|lobe colour|The colour (matplotlib) of the lobe field and its uncertainty. (**default: gold**)|
-
-## vertical lines
-|key|description|
-|---|---|
-|read from file|Should boundary crossings be read from file|
-|file path|The path to the file to read boundary crossings from. Should be a csv file in the format of a pandas dataframe.|
-|file line colour|Colour of boundary crossing vertical lines. (**default: red**)|
-|labels|Labels for manually placed vertical lines. In the format of ["Label1","label2",...["labelN"]]|
-|positions|Positions of manually placed vertical lines. In the format of ["position1", "position2",... "positionN"], where each position follows the format YYYY-MM-DDTHH:MM:SS. Leave as [] for no vertical lines|
-|colours|Colours for each manually placed line to allow for different colours for each line. Must be in the format ["colour1", "colour2",... "colourN"]|
-|linestyle|The matplotlib linestyle of the vertical lines. (**default: --** i.e. dashed)|
 
 ## Waves
 |key|description|
@@ -75,6 +61,9 @@ These plotting options correspond to the *dynamic* config file, as described in 
 |plot lobe|Should the lobe field magnitude be plotted (Khurana model: K & K 2002). Must be either **True** or **False**.|
 |plot lobe uncertainty|Should the lobe field uncertainty be plotted. Must be either **True** or **False**.|
 |line width|Line width (matplotlib) of the MAG data. (**default: 0.5**)|
+|magnitude colour|The colour (matplotlib) of the magnitude of the MAG data. (**default: black**)|
+|component colours|The colours (matplotlib) of the coordinate components of the MAG data. Must be formated as ["colour1", "colour2", "colour3"]. (**default: ["indianred","mediumturquoise","cornflowerblue"]**)|
+|lobe colour|The colour (matplotlib) of the lobe field and its uncertainty. (**default: gold**)|
 
 ## Trajectories
 |key|description|
@@ -97,3 +86,15 @@ These plotting options correspond to the *dynamic* config file, as described in 
 |y bounds|The bounds of the y axis on the trajectory plots|
 |z bounds|The bounds of the z axis on the trajectory plots|
 |equal aspect|Should the axes of the trajectory plots be equal scaling. (**default: True**)|
+
+## vertical lines
+|key|description|
+|---|---|
+|read from file|Should boundary crossings be read from file|
+|file path|The path to the file to read boundary crossings from. Should be a csv file in the format of a pandas dataframe.|
+|file line colour|Colour of boundary crossing vertical lines. (**default: red**)|
+|labels|Labels for manually placed vertical lines. In the format of ["Label1","label2",...["labelN"]]|
+|positions|Positions of manually placed vertical lines. In the format of ["position1", "position2",... "positionN"], where each position follows the format YYYY-MM-DDTHH:MM:SS. Leave as [] for no vertical lines|
+|colours|Colours for each manually placed line to allow for different colours for each line. Must be in the format ["colour1", "colour2",... "colourN"]|
+|linestyle|The matplotlib linestyle of the vertical lines. (**default: --** i.e. dashed)|
+

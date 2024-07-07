@@ -23,6 +23,12 @@ import vLines
 # Defining default config values
 defaultPlottingConfig = {
     "plotting": {
+        "plot trajectories": False,
+        "plot Waves": False,
+        "plot JADE electron energies": False,
+        "plot JADE electron pitch angles": False,
+        "plot JADE ion energies": False,
+        "plot MAG": False,
         "plot density": False,
         "panel spacing": 0.2,
         "font size": 11,
@@ -32,11 +38,6 @@ defaultPlottingConfig = {
         "minor tick width": 1,
         "y tick length": 12,
         "y tick width": 0.8,
-    },
-    "colours": {
-        "magnitude colour": "black",
-        "component colours": ["indianred", "mediumturquoise", "cornflowerblue"],
-        "lobe colour": "gold",
     },
     "vertical lines": {
         "read from file": False,
@@ -71,6 +72,9 @@ defaultPlottingConfig = {
         "plot lobe": False,
         "plot lobe uncertainty": False,
         "line width": 1,
+        "magnitude colour": "black",
+        "component colours": ["indianred", "mediumturquoise", "cornflowerblue"],
+        "lobe colour": "gold",
     },
     "trajectories": {
         "BS dynamic pressure": 0.5,
@@ -205,9 +209,9 @@ vLineLabelSpacing = 1 / 32  # In units of axis length
 
 # Colour Parameters
 vLineColours = ast.literal_eval(plottingConfig["vertical lines"]["colours"])
-componentColours = ast.literal_eval(plottingConfig["colours"]["component colours"])
-magnitudeColour = plottingConfig["colours"]["magnitude colour"]
-lobeColour = plottingConfig["colours"]["lobe colour"]
+componentColours = ast.literal_eval(plottingConfig["MAG"]["component colours"])
+magnitudeColour = plottingConfig["MAG"]["magnitude colour"]
+lobeColour = plottingConfig["MAG"]["lobe colour"]
 
 # Loop through all possible panels to find the number of subplots needed
 panelsList = [
