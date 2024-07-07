@@ -28,8 +28,6 @@ See [installation guide](installation)
 
 If you do not have a metakernel, you can create one using this tool: [DIASPICETools](https://github.com/mjrutala/DIASPICETools)
 
-`download new data` : If True, this option deletes all data files of that data type before attempting to download new data.
-
 ### Plotting
 
 `save figure` : If True, the figure generate is not displayed in a new window and is instead saved to JUPT/JUPT/JUPT_output/ under the name of the input config file.
@@ -57,4 +55,4 @@ The filename of a saved plot is the same as the name of the config file which is
 
 #### Panel Indices
 
-The ordering of the panels in the figure is able to be customised. As well as selecting which panels to be plotted. Beside each field named **plot x** - where x is the type of panel - set as **0**: if the panel should not be plotted, or as increasing integers starting with **1** denoting the order the panels should be plotted in.
+The ordering of the panels in the figure is customisable, as well as selecting which panels should be plotted. Beside each field named **plot x** - where x is the type of panel - set as increasing integers starting with **1**, denoting the order the panels should be plotted in. To exclude a panel, simply don't include it in the config file.
